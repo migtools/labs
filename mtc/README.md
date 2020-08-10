@@ -8,7 +8,7 @@ Migrates application workloads from Cluster A to Cluster B (includes ui, control
 
 ## Goals
 
-* Migrate several application workloads (both stateful and stateless) from an OpenShift 3.11 cluster to an OpenShift 4.1 cluster using the Cluster Application Migration Tool (CAM)
+* Migrate several application workloads (both stateful and stateless) from an OpenShift 3.11 cluster to an OpenShift 4.x cluster using the Cluster Application Migration Tool (CAM)
 * Utilize the Control Plane Migration Assistance Tool (CPMA) to generate a detailed report identifying areas of custom configuration that need to be considered as part of application migration planning.
 
 ## Setup Steps
