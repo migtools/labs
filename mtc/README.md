@@ -19,7 +19,7 @@ Step 1: Step 1: Browse to RHPDS: https://rhpds.redhat.com
 
 Step 2: Login with your RHPDS username/password.
 
-Step 3: Browse to Services >> Catalogs and open the “OpenShift Demos” catalog.
+Step 3: Browse to Services >> Catalogs and open the “Workshops” catalog.
 
 Step 4: Order two services as follows:
 
