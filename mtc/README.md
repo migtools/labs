@@ -1,4 +1,4 @@
-# OpenShift Cluster Application Migration Tool Lab
+# OpenShift Migration Tookit for Containers (MTC) Lab
 
 This guide will provide you with hands-on exposure to the new OpenShift Migration Tooling through a series of labs migrating application workloads (both stateful and stateless) between OpenShift Clusters.
 
@@ -8,8 +8,14 @@ Migrates application workloads from Cluster A to Cluster B (includes ui, control
 
 ## Goals
 
-* Migrate several application workloads (both stateful and stateless) from an OpenShift 3.11 cluster to an OpenShift 4.x cluster using the Cluster Application Migration Tool (CAM)
-* Utilize the Control Plane Migration Assistance Tool (CPMA) to generate a detailed report identifying areas of custom configuration that need to be considered as part of application migration planning.
+* Migrating applications from Red Hat OpenShift 3 clusters to Red Hat OpenShift
+4 clusters using the Migration Toolkit for Containers (MTC) provided by OpenShift
+Container Platform 4 leveraging both the UI and API.
+
+* Use cases that migrate applications preserving state, including how to migrate
+OpenShift Container Storage 3 (Gluster) to OpenShift Container Storage 4 (Ceph).
+
+* Tips, techniques, and best-practices for debugging failed migrations.
 
 ## Setup Steps
 
@@ -23,8 +29,8 @@ Step 3: Browse to Services >> Catalogs and open the “Workshops” catalog.
 
 Step 4: Order two services as follows:
 
-* Cluster Application Migration tool (CAM) - OCP3 Cluster
-* Cluster Application Migration tool (CAM) - OCP4 Cluster
+* Migration Toolkit for Containers - OCP3
+* Migration Toolkit for Containers - OCP4
 
 Step 5: Wait for both services to become available.  ```This will take ~45 min.```
 
