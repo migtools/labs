@@ -1,0 +1,193 @@
+:sectlinks:
+:markup-in-source: verbatim,attributes,quotes
+:OCP3_GUID: %ocp3_guid%
+:OCP3_DOMAIN: %ocp3_domain%
+:OCP3_SSH_USER: %ocp3_ssh_user%
+:OCP3_PASSWORD: %ocp3_password%
+:OCP4_GUID: %ocp4_guid%
+:OCP4_DOMAIN: %ocp4_domain%
+:OCP4_SSH_USER: %ocp4_ssh_user%
+:OCP4_PASSWORD: %ocp4_password%
+
+== Migrate File-Uploader Application
+
+The first application that we are going to migrate is a `file-uploader` application. The application consists of several front-end pods backed by a single RWX-mounted OCS3/Gluster volume. A single service/route load-balances requests across the front-end pods.
+
+_RWX is a ReadWriteMany Access Mode for persistent volumes in which the volume can be mounted as read-write by many nodes._
+
+This application has been pre-deployed on the your OCP 3 cluster. We will be migrating this application to our OCP 4 cluster, including the state to OCS4/Ceph.
+
+image:../screenshots/lab4/file-uploader-app.png[File Uploader App]
+
+In the source %OCP3_VERSION% cluster terminal, let’s examine the application. Execute the following commands:
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get pods -n file-uploader**
+NAME                    READY   STATUS      RESTARTS   AGE
+file-uploader-1-build   0/1     Completed   0          44m
+file-uploader-1-gbn49   1/1     Running     0          42m
+file-uploader-1-ggjhj   1/1     Running     0          42m
+file-uploader-1-rwlbt   1/1     Running     0          42m
+--------------------------------------------------------------------------------
+
+We can see the 3 replicas running. Next, let’s take a look at the storage:
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get pvc -n file-uploader**
+NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS        AGE
+file-uploader-vol-claim   Bound    pvc-b660a697-6afe-11ea-a7fb-065ab8be0337   20Gi       RWX            glusterfs-storage   18h
+--------------------------------------------------------------------------------
+
+We can see that we do indeed have a 20GB Gluster volume mounted RWX to our application pods.
+
+Next, let’s get the route to the application, and bring up the webUI.
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get route -n file-uploader**
+NAME            HOST/PORT                                               PATH   SERVICES        PORT       TERMINATION   WILDCARD
+file-uploader   file-uploader-file-uploader.apps.{OCP3_GUID}.{OCP3_DOMAIN}          file-uploader   8080-tcp                 None
+--------------------------------------------------------------------------------
+
+image:../screenshots/lab4/file-uploader-ui.png[File Uploader UI]
+
+Lastly, let’s verify that the file-uploader application is *not* running on our destination OCP 4 cluster:
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get pods -n file-Uploader**
+No resources found.
+--------------------------------------------------------------------------------
+
+=== Migrate with MTC
+
+Next, let’s open up the migration UI. Again, to get the route, run the following command on the destination OCP 4 cluster terminal:
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get routes migration -n openshift-migration -o jsonpath='{.spec.host}'**
+migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
+--------------------------------------------------------------------------------
+
+The screen should look something like:
+
+image:../screenshots/lab4/mtc-main-screen.png[MTC Main Screen]
+
+IMPORTANT: Remember our goal is to migrate our application from OCP/OCS 3 to OCP/OCS 4. This means moving our data from Gluster to Ceph. We will show you how to do this in MTC when setting up our migration plan.
+
+==== Add a Cluster
+
+First thing we want to do is add the source OCP cluster we wish to migrate the application from. From the `Clusters` tab, click the `Add cluster` button:
+
+image:../screenshots/lab4/mtc-add-cluster.png[MTC Add Cluster]
+
+Fill out the necessary information. We will need an Service Account Token in order for MTC to communicate with the destination cluster:
+
+`Run the following in the OCP 3 cluster terminal.`
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc sa get-token migration-controller -n openshift-migration**
+eyJhbGciOifsfsds8ahmtpZCI6IiJ9fdsfdseyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJtaWciLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoibWlnLXRva2VuLTdxMnhjIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6Im1pZyIsImt1YmVybmss7gc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjQ5NjYyZjgxLWEzNDItMTFlOS05NGRjLTA2MDlkNjY4OTQyMCIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDptaWc6bWlnIn0.Qhcv0cwP539nSxbhIHFNHen0PNXSfLgBiDMFqt6BvHZBLET_UK0FgwyDxnRYRnDAHdxAGHN3dHxVtwhu-idHKI-mKc7KnyNXDfWe5O0c1xWv63BbEvyXnTNvpJuW1ChUGCY04DBb6iuSVcUMi04Jy_sVez00FCQ56xMSFzy5nLW5QpLFiFOTj2k_4Krcjhs8dgf02dgfkkshshjfgfsdfdsfdsa8fdsgdsfd8fasfdaTScsu4lEDSbMY25rbpr-XqhGcGKwnU58qlmtJcBNT3uffKuxAdgbqa-4zt9cLFeyayTKmelc1MLswlOvu3vvJ2soFx9VzWdPbGRMsjZWWLvJ246oyzwykYlBunYJbX3D_uPfyqoKfzA
+
+# We need to save the output of the 'get-token', that is the long string we will enter into the ui when we create a new cluster entry.
+--------------------------------------------------------------------------------
+
+When done, click `Add cluster`. You should see a `Connection successful` message. Click `Close`.
+
+Now you should see the source and destination clusters populated.
+
+image:../screenshots/lab4/mtc-clusters-added.png[MTC Clusters Added]
+
+==== Create a Migration Plan
+
+Now that we have a replication repository specified and both the source and destination clusters defined, we can create a migration plan. From the `Migration plans` tab, click the `Add migration plan` button:
+
+image:../screenshots/lab4/mtc-add-migration-plan.png[MTC Add Mig Plan]
+
+This will launch the Migration plan creation wizard.
+
+image:../screenshots/lab4/mtc-mig-plan-general.png[MTC Mig Plan General]
+
+Give your plan a name, select the source and destination clusters, and your replication repository.  Then click Next.
+
+image:../screenshots/lab4/mtc-mig-plan-namespaces.png[MTC Mig Plan Namespaces]
+
+Select the `file-uploader` namespace/project, and click Next.
+
+image:../screenshots/lab4/mtc-mig-plan-pvolumes.png[MTC Mig Plan PVs]
+
+Now we are displayed the OCS3/Gluster persistent volume associated with our application. For this example, since we are migrating our storage from Gluster to Ceph, let’s choose `Copy` as our transfer type.  Click Next.
+
+image:../screenshots/lab4/mtc-mig-plan-copyoptions.png[MTC Mig Plan CopyOptions]
+
+Next, we will need to select the `copy method` and `target storage class`. MTC will attempt to pre-select these for you as defaults. In our case, we want *Filesystem copy* and *ocs-storagecluster-cephfs*. Click Next.
+
+image:../screenshots/lab4/mtc-mig-plan-hooks.png[MTC Mig Plan Hooks]
+
+We will examine Migration Hooks in a subsequent exercise, so we will skip this step and proceed.  Click Finish.
+
+image:../screenshots/lab4/mtc-mig-plan-validation.png[MTC Mig Plan Validation]
+
+After the migration plan has been successfully validated, you can click `Close`.
+
+==== Migrate the Application Workload
+
+Now we can select `Migrate` or `Stage` on the application. Since we don’t care about downtime for this example, let’s select `Migrate`:
+
+image:../screenshots/lab4/mtc-mig-plan-added.png[MTC Mig Plan Added]
+
+Optionally choose to _not_ terminate the application on the source cluster. Leave it unchecked and select `Migrate`.
+
+image:../screenshots/lab4/mtc-quiesce.png[MTC Quiesce]
+
+The migration will progress with a progress bar showing each step in the process.
+
+image:../screenshots/lab4/mtc-progress-bar.png[MTC Progress Bar]
+
+Once done, you should see `Migration Succeeded` on the migration plan.
+
+image:../screenshots/lab4/mtc-migration-complete.png[MTC Migration Complete]
+
+=== Verify Migrated Application
+
+In the destination OCP 4 cluster terminal, let’s execute the following commands:
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get pods -n file-uploader**
+NAME                     READY   STATUS      RESTARTS   AGE
+file-uploader-1-build    1/1     Running     0          96s
+file-uploader-1-deploy   0/1     Completed   0          95s
+file-uploader-1-rc49v    1/1     Running     0          93s
+file-uploader-1-vf2pt    1/1     Running     0          93s
+file-uploader-1-zbt6d    1/1     Running     0          93s
+--------------------------------------------------------------------------------
+
+We see that the file-uploader application is running.
+
+Let’s check the storage:
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get pvc -n file-uploader**
+NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS                AGE
+file-uploader-vol-claim   Bound    pvc-ff900007-c557-404c-852e-fca8bb4a5123   20Gi       RWX            ocs-storagecluster-cephfs   2m23s
+--------------------------------------------------------------------------------
+
+We see that our 20GB volume has been moved and is now running on Ceph.
+
+Lastly, let’s grab the route and open up the WebUI in our browser.
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get route -n file-uploader**
+NAME            HOST/PORT                                                                                PATH   SERVICES        PORT       TERMINATION   WILDCARD
+file-uploader   file-uploader-file-uploader.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}         file-uploader   8080-tcp                 None
+--------------------------------------------------------------------------------
+
+image:../screenshots/lab4/file-uploader-destination.png[File-Uploader-Destination]
+
+*Success!* You have now successfully migrated your first application using MTC.

@@ -1,0 +1,188 @@
+:sectlinks:
+:markup-in-source: verbatim,attributes,quotes
+:OCP3_GUID: %ocp3_guid%
+:OCP3_DOMAIN: %ocp3_domain%
+:OCP3_SSH_USER: %ocp3_ssh_user%
+:OCP3_PASSWORD: %ocp3_password%
+:OCP4_GUID: %ocp4_guid%
+:OCP4_DOMAIN: %ocp4_domain%
+:OCP4_SSH_USER: %ocp4_ssh_user%
+:OCP4_PASSWORD: %ocp4_password%
+
+
+Required versions of products used:
+
+[cols=",",options="header",]
+|===
+|Product |Versions
+|OpenShift 3.x |v3.7+
+|OpenShift 4.x |v4.1+
+|===
+
+Additionally, temporary object storage will be required perform a migration. For example, this can be provided through: https://aws.amazon.com/s3/[AWS S3], https://www.noobaa.io/[Noobaa], https://min.io/[Minio], or others.
+
+=== Base requirements
+
+* A computer with access to the Internet :-)
+* SSH client
+* Firefox 17 or higher, or Chromium / Chrome
+* oc client
+
+=== Accessing OCP 3 and OCP 4 clusters
+
+As we will be interacting with both the source and destination cluster throughout the course of this lab, let’s go ahead and open two terminal windows.
+
+The first terminal window will be used for the source OCP 3 cluster. In that window, let's go ahead and ssh into the bastion host, and then login into the OCP 3 cluster:
+
+[source,bash,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **ssh {OCP3_SSH_USER}@bastion.{OCP3_GUID}.{OCP3_DOMAIN}**
+{OCP3_SSH_USER}@bastion.{OCP3_GUID}.{OCP3_DOMAIN}'s password:
+Last login: Sun Mar 22 21:22:55 2020 from 66.26.68.90
+[{OCP3_SSH_USER}@bastion 0 ~]$
+
+$ **oc login https://master.{OCP3_GUID}.{OCP3_DOMAIN} -u admin -p {OCP3_PASSWORD}**
+The server uses a certificate signed by an unknown authority.
+You can bypass the certificate check, but any data you send to the server could be intercepted by others.
+Use insecure connections? (y/n): y
+...
+Login successful.
+--------------------------------------------------------------------------------
+
+The second terminal window will be used for the destination OCP 4 cluster. In that window, let's go ahead and ssh into the bastion host, and then login into the OCP 4 cluster:
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **ssh {OCP4_SSH_USER}@bastion.{OCP4_GUID}.{OCP4_DOMAIN}**
+{OCP4_SSH_USER}@bastion.{OCP4_GUID}.{OCP4_DOMAIN}'s password:
+Last login: Sun Mar 22 21:22:55 2020 from 66.26.68.90
+[{OCP4_SSH_USER}@bastion 0 ~]$
+
+$ **oc login https://api.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}:6443 -u admin -p {OCP4_PASSWORD}**
+The server uses a certificate signed by an unknown authority.
+You can bypass the certificate check, but any data you send to the server could be intercepted by others.
+Use insecure connections? (y/n): y
+...
+Login successful.
+--------------------------------------------------------------------------------
+
+=== Verifications
+
+==== Verify OCP 3 environment
+
+In the source OCP 3 cluster terminal, perform the following:
+
+[arabic]
+. Verify that the `migration-operator` deployment is running in `openshift-migration` namespace and healthy.
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get deployment migration-operator -n openshift-migration**
+NAME                 DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+migration-operator   1         1         1            1           5m
+--------------------------------------------------------------------------------
+
+[arabic, start=2]
+. Verify that `velero` is now running on the source in the `mig` namespace.
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get pods -n openshift-migration | grep velero**
+velero-7559946c5c-mh5sp               1/1     Running   0          2m
+--------------------------------------------------------------------------------
+
+==== Verify OCP 4 environment
+
+In the destination OCP 4 cluster terminal, perform the following:
+
+[arabic]
+. Verify that you see the below pods now running in `openshift-migration` namespace, we are looking for pods of `controller-manager`, `velero`, `migration-ui`, and `restic`.
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get pods -n openshift-migration**
+NAME                                    READY   STATUS    RESTARTS   AGE
+migration-controller-6d59b8c4c6-bq8rz   2/2     Running   0          5m11s
+migration-operator-8b7854d54-fbg9l      2/2     Running   0          6m9s
+migration-ui-5d7998b74f-lns9n           1/1     Running   0          5m7s
+restic-5884v                            1/1     Running   0          5m11s
+restic-c5xlc                            1/1     Running   0          5m11s
+restic-dlv7n                            1/1     Running   0          5m11s
+velero-5bffbd77c4-xcbns                 1/1     Running   0          5m11s
+--------------------------------------------------------------------------------
+
+=== Prepare to use MTC UI from OCP 4 Cluster in your Browser
+
+[arabic]
+. To visit the ui, obtain the route from the OCP 4 Cluster
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get routes migration -n openshift-migration -o jsonpath='{.spec.host}'**
+migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
+--------------------------------------------------------------------------------
+
+[arabic]
+. For this example we’d visit the below from our browser:
+
+* https://migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
+
+==== Accept API Certificates on Source and Destination Clusters
+
+[arabic]
+. Since we are using self-signed certificates, before you can access the MTC UI, you will need to accept the certificates with your browser on both the source and destination clusters. To do this:
+
+* Visit the link displayed by the webui for `.well-known/oauth-authorization-server`.
+** For example:
+*** OCP 4.x: https://api.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}:6443/.well-known/oauth-authorization-server
+*** OCP 4.x: https://discovery-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}/namespaces/openshift-migration/clusters/host/namespaces
+*** OCP 3.x: https://master.{OCP3_GUID}.{OCP3_DOMAIN}/.well-known/oauth-authorization-server
+*** OCP 3.x: https://master.{OCP3_GUID}.{OCP3_DOMAIN}/api/v1/namespaces
+* After accepting the API certs, reload the MTC UI Url.
+* Get redirected to login page.
+
+[arabic]
+. Login with your credentials for the cluster.
+
+* Username: admin
+* Password: `{OCP4_PASSWORD}`
+
+image:screenshots/lab2/camUI.png[CAM UI]
+
+=== Object Storage Setup
+
+MTC leverages object storage as temporary scratch space when performing migrations. This storage can be any object storage that presents an `S3 like` interface.
+
+For purposes of this lab, we have already deployed OCS MCG (Noobaa) on the OCP 4 cluster, created a bucket, and configured it for use with MTC.
+
+[arabic]
+. You can see this by clicking the `Replication repositories` tab in the left-hand navigation from the MTC UI dashboard.
+
+image:screenshots/lab2/cam-replication-repository.png[CAM Replication Repository]
+
+[arabic, start=2]
+. Additionally, you can query the bucket and service route as seen below:
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get ObjectBucketClaim -n openshift-storage**
+NAME         STORAGE-CLASS                 PHASE   AGE
+migstorage   openshift-storage.noobaa.io   Bound   116
+...
+$ **oc get service s3 -n openshift-storage**
+NAME   TYPE           CLUSTER-IP       EXTERNAL-IP                                                               PORT(S)                      AGE
+s3     LoadBalancer   172.30.209.151   ab6e67b04f2fc4ad1bb126ad89db0962-1796725410.us-east-1.elb.amazonaws.com   80:32124/TCP,443:32154/TCP   116m
+--------------------------------------------------------------------------------
+
+[arabic, start=3]
+. You can also access the Noobaa Mgmt console.
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get routes noobaa-mgmt -n openshift-storage -o jsonpath='{.spec.host}'**
+noobaa-mgmt-openshift-storage.apps.cluster-{OCP4_GUID}.{OCP4_DOMAIN}
+--------------------------------------------------------------------------------
+
+image:screenshots/lab2/noobaa-mgmt.png[Noobaa Mgmt]
+
+Let’s now take a closer look at the Migration Toolkit for Containers (MTC).
