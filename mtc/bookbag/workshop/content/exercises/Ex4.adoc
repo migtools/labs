@@ -1,0 +1,299 @@
+:sectlinks:
+:markup-in-source: verbatim,attributes,quotes
+:OCP3_GUID: %ocp3_guid%
+:OCP3_DOMAIN: %ocp3_domain%
+:OCP3_SSH_USER: %ocp3_ssh_user%
+:OCP3_PASSWORD: %ocp3_password%
+:OCP4_GUID: %ocp4_guid%
+:OCP4_DOMAIN: %ocp4_domain%
+:OCP4_SSH_USER: %ocp4_ssh_user%
+:OCP4_PASSWORD: %ocp4_password%
+
+== Migration at Scale via API (optional)
+
+In this section, we will be looking at migrating multiple namespaces in a single Migration Plan. In these types of large scale migrations, sometimes using the WebUI can be less than ideal. With that, we are also going to use the API directly for creating and executing our migration.
+
+=== Setup
+
+Let’s start by seeding our OCP 3 cluster with a set of sample stateless applications. We’ve added a set of scripts to make this simple. These scripts are already available on the OCP 3 bastion host for convenience.
+
+==== Logging into Bastion host
+
+You should have received the hostname, and login credentials for the OCP 3 bastion host. Let’s use those to ssh into the host to access the lab scripts:
+
+Access the `scripts` directory
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+**cd scripts/lab8**
+--------------------------------------------------------------------------------
+
+==== Deploy HelloOpenShift Apps
+
+The `deploy.sh` script will deploy the HelloOpenShift application to a user specified number of namespaces. For our purposes, let’s choose 5.
+
+*Note:* You will need to be logged into the OCP 3 cluster from the bastion host prior to running the scripts.
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **./deploy.sh**
+Number of namespaces?
+5
+namespace/hello-openshift-1 created
+pod/hello-openshift created
+service/hello-openshift exposed
+route.route.openshift.io/hello-openshift exposed
+namespace/hello-openshift-2 created
+pod/hello-openshift created
+service/hello-openshift exposed
+route.route.openshift.io/hello-openshift exposed
+namespace/hello-openshift-3 created
+pod/hello-openshift created
+service/hello-openshift exposed
+route.route.openshift.io/hello-openshift exposed
+namespace/hello-openshift-4 created
+pod/hello-openshift created
+service/hello-openshift exposed
+route.route.openshift.io/hello-openshift exposed
+namespace/hello-openshift-5 created
+pod/hello-openshift created
+service/hello-openshift exposed
+route.route.openshift.io/hello-openshift exposed
+Finding routes...
+hello-openshift-hello-openshift-1.apps.db45.events.opentlc.com
+hello-openshift-hello-openshift-2.apps.db45.events.opentlc.com
+hello-openshift-hello-openshift-3.apps.db45.events.opentlc.com
+hello-openshift-hello-openshift-4.apps.db45.events.opentlc.com
+hello-openshift-hello-openshift-5.apps.db45.events.opentlc.com
+--------------------------------------------------------------------------------
+
+==== Validate applications
+
+We’ve also included a `probe.sh` script that will verify that all deployed applications are responding.
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **./probe.sh**
+Probing app in namespace hello-openshift-1
+Hello OpenShift!
+Probing app in namespace hello-openshift-2
+Hello OpenShift!
+Probing app in namespace hello-openshift-3
+Hello OpenShift!
+Probing app in namespace hello-openshift-4
+Hello OpenShift!
+Probing app in namespace hello-openshift-5
+Hello OpenShift!
+--------------------------------------------------------------------------------
+
+Great! We are now ready to assemble our Migration Plan.
+
+=== Create Migration Plan
+
+On your OCP 4 cluster, since we’ve already performed successful migrations throughout the preceding labs, we already have our MigCluster & MigStorage resources created. This means we are ready to assemble our MigPlan.
+
+In the below yaml, we’ve seeded with the created resources. Copy the below as a starting point into your favorite editor:
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+apiVersion: migration.openshift.io/v1alpha1
+kind: MigPlan
+metadata:
+  labels:
+    controller-tools.k8s.io: "1.0"
+  name: multi-namespace-migplan
+  namespace:  openshift-migration
+spec:
+
+  srcMigClusterRef:
+    name: ocp3
+    namespace: openshift-migration
+
+  destMigClusterRef:
+    name: host
+    namespace: openshift-migration
+
+  migStorageRef:
+    name: pvpool-storage
+    namespace: openshift-migration
+
+  # [!] Change namespaces to adjust which OpenShift namespaces should be migrated from source to destination cluster
+  namespaces:
+    - hello-openshift-1
+    - hello-openshift-2
+    - hello-openshift-3
+    - hello-openshift-4
+    - hello-openshift-5
+--------------------------------------------------------------------------------
+
+Save the file as `mig-plan.yaml`
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+# Creates MigPlan 'multi-namespace-migplan' in namespace 'mig'
+$ **oc apply -f mig-plan.yaml**
+migplan.migration.openshift.io/multi-namespace-migplan created
+--------------------------------------------------------------------------------
+
+Let’s Describe our MigPlan. Assuming the controller is running, validations should have run against the plan, and you should be able to see a status of *``The migration plan is ready.''* or a list of issues to resolve.
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc describe migplan multi-namespace-migplan  -n openshift-migration**
+
+Name:         multi-namespace-migplan
+Namespace:    openshift-migration
+Labels:       controller-tools.k8s.io=1.0
+Annotations:  kubectl.kubernetes.io/last-applied-configuration:
+                {"apiVersion":"migration.openshift.io/v1alpha1","kind":"MigPlan","metadata":{"annotations":{},"labels":{"controller-tools.k8s.io":"1.0"},"...
+              touch: d154f6fe-a7e5-4b15-997b-274b2b1e7f00
+API Version:  migration.openshift.io/v1alpha1
+Kind:         MigPlan
+Metadata:
+  Creation Timestamp:  2020-03-22T21:17:14Z
+  Generation:          2
+  Resource Version:    173209
+  Self Link:           /apis/migration.openshift.io/v1alpha1/namespaces/openshift-migration/migplans/multi-namespace-migplan
+  UID:                 0622543e-a7b0-4333-8461-95f5048420b6
+Spec:
+  Dest Mig Cluster Ref:
+    Name:       host
+    Namespace:  openshift-migration
+  Mig Storage Ref:
+    Name:       pvpool-storage
+    Namespace:  openshift-migration
+  Namespaces:
+    hello-openshift-1
+    hello-openshift-2
+    hello-openshift-3
+    hello-openshift-4
+    hello-openshift-5
+  Src Mig Cluster Ref:
+    Name:       ocp3
+    Namespace:  openshift-migration
+Status:
+  Conditions:
+    Category:              Required
+    Last Transition Time:  2020-03-22T21:17:15Z
+    Message:               The `persistentVolumes` list has been updated with discovered PVs.
+    Reason:                Done
+    Status:                True
+    Type:                  PvsDiscovered
+    Category:              Required
+    Last Transition Time:  2020-03-22T21:17:15Z
+    Message:               The storage resources have been created.
+    Status:                True
+    Type:                  StorageEnsured
+    Category:              Required
+    Last Transition Time:  2020-03-22T21:17:17Z
+    Message:               The migration registry resources have been created.
+    Status:                True
+    Type:                  RegistriesEnsured
+    Category:              Required
+    Last Transition Time:  2020-03-22T21:17:17Z
+    Message:               The migration plan is ready.
+    Status:                True
+    Type:                  Ready
+Events:                    <none>
+--------------------------------------------------------------------------------
+
+=== Execute migration
+
+Let’s now proceed with creating a `MigMigration` that will execute our Migration Plan. Again, in the below yaml, we’ve seeded with the created resources. Copy the below as a starting point into your favorite editor:
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+apiVersion: migration.openshift.io/v1alpha1
+kind: MigMigration
+metadata:
+  labels:
+    controller-tools.k8s.io: "1.0"
+  name: migmigration-multi-namespace
+  namespace: openshift-migration
+spec:
+  # [!] Set 'stage: true' to run a 'Stage Migration' and skip quiescing of Pods on the source cluster.
+  stage: false
+  # [!] Set 'quiescePods: true' to scale down Pods on the source cluster after the 'Backup' stage of a migration has finished
+  quiescePods: false
+
+  migPlanRef:
+    name: multi-namespace-migplan
+    namespace: openshift-migration
+--------------------------------------------------------------------------------
+
+Set the appropriate values for `stage` and `quiescePods`. In this case, false and true respectively. Save the file as `mig-migration.yaml`.
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+# Creates MigMigration 'migmigration-multi-namespace' in namespace 'openshift-migration'
+$ **oc apply -f mig-migration.yaml**
+migmigration.migration.openshift.io/migmigration-multi-namespace created
+--------------------------------------------------------------------------------
+
+Monitor progress of the migration with `oc describe`. You should see a status of *``The migration is ready.''*, otherwise you’ll see an error condition within `oc describe` output indicating what action you need to take before the migration can begin.
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc describe migmigration -n openshift-migration migmigration-multi-namespace**
+Name:         migmigration-multi-namespace
+Namespace:    openshift-migration
+Labels:       controller-tools.k8s.io=1.0
+              migration.openshift.io/migplan-name=multi-namespace-migplan
+Annotations:  kubectl.kubernetes.io/last-applied-configuration:
+                {"apiVersion":"migration.openshift.io/v1alpha1","kind":"MigMigration","metadata":{"annotations":{},"labels":{"controller-tools.k8s.io":"1....
+              openshift.io/touch: 4264d31b-1945-11eb-a37c-0a580a80020d
+API Version:  migration.openshift.io/v1alpha1
+Kind:         MigMigration
+Metadata:
+  Creation Timestamp:  2020-10-28T17:43:32Z
+  Generation:          17
+  Owner References:
+    API Version:     migration.openshift.io/v1alpha1
+    Kind:            MigPlan
+    Name:            multi-namespace-migplan
+    UID:             54c1def2-8175-4c90-b0b7-798fc6437da7
+  Resource Version:  189777
+  Self Link:         /apis/migration.openshift.io/v1alpha1/namespaces/openshift-migration/migmigrations/migmigration-multi-namespace
+  UID:               3360e426-cc24-45f2-a273-127d2460c9da
+Spec:
+  Mig Plan Ref:
+    Name:        multi-namespace-migplan
+    Namespace:   openshift-migration
+  Quiesce Pods:  true
+  Stage:         false
+Status:
+  Conditions:
+    Category:              Advisory
+    Durable:               true
+    Last Transition Time:  2020-10-28T17:44:42Z
+    Message:               The migration has completed successfully.
+    Reason:                Completed
+    Status:                True
+    Type:                  Succeeded
+  Itinerary:               Final
+  Observed Digest:         adef8a3570c0a604058eee909cfb4870fa0061321b2eb654ed73911ed341a193
+  Phase:                   Completed
+  Start Timestamp:         2020-10-28T17:43:32Z
+Events:                    <none>
+--------------------------------------------------------------------------------
+
+Notice how the MigMigration shown above has `Task Phase: Completed`. This means that the migration is complete, and we should be able to verify our apps existence on the destination cluster. You can continuously describe the MigMigration to see phase info, or tail the mig-controller logs with `oc logs -f <pod-name>`.
+
+=== Verification
+
+Let’s oc login to our OCP 4 cluster from the OCP 3 bastion host and run the `probe.sh` script to verify that the applications have been migrated and are running:
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **./probe.sh**
+Probing app in namespace hello-openshift-1
+Hello OpenShift!
+Probing app in namespace hello-openshift-2
+Hello OpenShift!
+Probing app in namespace hello-openshift-3
+Hello OpenShift!
+Probing app in namespace hello-openshift-4
+Hello OpenShift!
+Probing app in namespace hello-openshift-5
+Hello OpenShift!
+--------------------------------------------------------------------------------

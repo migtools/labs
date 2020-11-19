@@ -1,0 +1,18 @@
+---
+name: OpenShift Migration Toolkit for Containers (MTC) Lab
+modules:
+  activate:
+    - Intro
+    - Environment
+    - Prereqs
+    - Overview
+    - exercises/Ex1
+    - exercises/Ex2
+    - exercises/Ex3
+    - exercises/Ex4
+    - Hooks
+    - Debug
+    - exercises/debug/misconfig
+    - exercises/debug/stage-pods
+    - exercises/debug/gvk
+    - Conclusion

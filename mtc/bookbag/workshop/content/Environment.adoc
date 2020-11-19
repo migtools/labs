@@ -1,0 +1,42 @@
+:sectlinks:
+:markup-in-source: verbatim,attributes,quotes
+:OCP3_GUID: %ocp3_guid%
+:OCP3_DOMAIN: %ocp3_domain%
+:OCP3_SSH_USER: %ocp3_ssh_user%
+:OCP3_PASSWORD: %ocp3_password%
+:OCP4_GUID: %ocp4_guid%
+:OCP4_DOMAIN: %ocp4_domain%
+:OCP4_SSH_USER: %ocp4_ssh_user%
+:OCP4_PASSWORD: %ocp4_password%
+
+== Overview
+
+The following lab environment has been provisioned for you for use with this Lab:
+
+image:screenshots/lab1/labenv-overview.png[Lab Environment Overview]
+
+=== OpenShift 3 Cluster
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+|Key |Value
+|GUID | {OCP3_GUID}
+|OCP Console |https://master.{OCP3_GUID}.{OCP3_DOMAIN}/console
+|Password |{OCP3_PASSWORD}
+|API |https://master.{OCP3_GUID}.{OCP3_DOMAIN}
+|Bastion Host |bastion.{OCP3_GUID}.{OCP3_DOMAIN}
+|Bastion SSH |{OCP3_SSH_USER}/{OCP3_PASSWORD}
+|===
+
+=== OpenShift 4 Cluster
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+|Key |Value
+|GUID | {OCP4_GUID}
+|OCP Console |http://console-openshift-console.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
+|Password |{OCP4_PASSWORD}
+|API |https://api.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}:6443
+|Bastion Host |bastion.{OCP4_GUID}.{OCP4_DOMAIN}
+|Bastion SSH |{OCP4_SSH_USER}/{OCP4_PASSWORD}
+|===
