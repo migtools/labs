@@ -21,7 +21,7 @@ The phases where hooks may be run are:
  * *PreBackup*: Before any task is performed.
  * *PostBackup*: After all backup tasks are complete.
  * *PreRestore*: Before any restore tasks are performed.
- * *PreBackup*: After all restore tasks are complete.
+ * *PostRestore*: After all restore tasks are complete.
 
 === Default hook image
 The default hook image is `quay.io/konveyor/hook-runner:latest`. It is based off of the Ansible Runner image with the addition of python-openshift to provided Ansible k8s resources as well as a recent oc binary.
