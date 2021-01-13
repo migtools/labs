@@ -122,7 +122,7 @@ NAME        STATUS   VOLUME                                     CAPACITY   ACCES
 mssql-pvc   Bound    pvc-c0e077ea-e1c7-4ba7-a48e-051de94296fa   10Gi       RWO            gp2            4m52s
 --------------------------------------------------------------------------------
 
-We see that our 10GB volume has been moved and is now running in AWS EBS.
+We see that our 10Gi volume has been moved and is now running in AWS EBS.
 
 Lastly, let’s grab the route and open up the WebUI in our browser, and verify that the product we added prior to migration still exists.
 
