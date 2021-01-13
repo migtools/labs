@@ -57,7 +57,7 @@ Lastly, let’s verify that the file-uploader application is *not* running on ou
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **oc get pods -n file-Uploader**
+$ **oc get pods -n file-uploader**
 No resources found.
 --------------------------------------------------------------------------------
 
