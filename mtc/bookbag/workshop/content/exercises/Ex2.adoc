@@ -11,7 +11,7 @@
 
 == Migrate MSSQL Application
 
-Next, we are going to migrate a simple Product Inventory web-based application front-end, backed backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 3 cluster in the mssql-persistent namespace, using a single PV backed by NFS for persistent storage.
+Next, we are going to migrate a simple Product Inventory web-based application front-end, backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 3 cluster in the `mssql-persistent` namespace, using a single PV backed by NFS for persistent storage.
 
 In our source OCP 3 cluster terminal, we can see the app running:
 
