@@ -19,7 +19,7 @@ This application has been pre-deployed on the your OCP 3 cluster. We will be mig
 
 image:../screenshots/lab4/file-uploader-app.png[File Uploader App]
 
-In the source %OCP3_VERSION% cluster terminal, let’s examine the application. Execute the following commands:
+In the source OCP 3 cluster terminal, let’s examine the application. Execute the following commands:
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
