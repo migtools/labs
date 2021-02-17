@@ -4,7 +4,7 @@ This guide will provide you with hands-on exposure to the new OpenShift Migratio
 
 ## Description
 
-Migrates application workloads from Cluster A to Cluster B (includes ui, controller, Velero/Restic, plugins, etc). This application is available for installation through the Operator Hub/OLM. This course requires both the CAM OCP3 and OCP4 services from RHPDS.
+Migrates application workloads from Cluster A to Cluster B (includes ui, controller, Velero/Restic, plugins, etc). This application is available for installation through the Operator Hub/OLM. This course requires both the MTC OCP3 and OCP4 services from RHPDS.
 
 ## Goals
 
