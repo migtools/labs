@@ -11,7 +11,7 @@
 
 == Migrate MSSQL Application
 
-Next, we are going to migrate a simple Product Inventory web-based application front-end, backed backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 3 cluster in the mssql-persistent namespace, using a single PV backed by NFS for persistent storage.
+Next, we are going to migrate a simple Product Inventory web-based application front-end, backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 3 cluster in the `mssql-persistent` namespace, using a single PV backed by NFS for persistent storage.
 
 In our source OCP 3 cluster terminal, we can see the app running:
 
@@ -122,7 +122,7 @@ NAME        STATUS   VOLUME                                     CAPACITY   ACCES
 mssql-pvc   Bound    pvc-c0e077ea-e1c7-4ba7-a48e-051de94296fa   10Gi       RWO            gp2            4m52s
 --------------------------------------------------------------------------------
 
-We see that our 10GB volume has been moved and is now running in AWS EBS.
+We see that our 10Gi volume has been moved and is now running in AWS EBS.
 
 Lastly, let’s grab the route and open up the WebUI in our browser, and verify that the product we added prior to migration still exists.
 

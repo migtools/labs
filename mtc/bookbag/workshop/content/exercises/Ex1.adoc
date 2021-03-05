@@ -19,7 +19,7 @@ This application has been pre-deployed on the your OCP 3 cluster. We will be mig
 
 image:../screenshots/lab4/file-uploader-app.png[File Uploader App]
 
-In the source %OCP3_VERSION% cluster terminal, let’s examine the application. Execute the following commands:
+In the source {OCP3_VERSION} cluster terminal, let’s examine the application. Execute the following commands:
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
@@ -40,7 +40,7 @@ NAME                      STATUS   VOLUME                                     CA
 file-uploader-vol-claim   Bound    pvc-b660a697-6afe-11ea-a7fb-065ab8be0337   20Gi       RWX            glusterfs-storage   18h
 --------------------------------------------------------------------------------
 
-We can see that we do indeed have a 20GB Gluster volume mounted RWX to our application pods.
+We can see that we do indeed have a 20Gi Gluster volume mounted RWX to our application pods.
 
 Next, let’s get the route to the application, and bring up the webUI.
 
@@ -57,7 +57,7 @@ Lastly, let’s verify that the file-uploader application is *not* running on ou
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **oc get pods -n file-Uploader**
+$ **oc get pods -n file-uploader**
 No resources found.
 --------------------------------------------------------------------------------
 
@@ -177,7 +177,7 @@ NAME                      STATUS   VOLUME                                     CA
 file-uploader-vol-claim   Bound    pvc-ff900007-c557-404c-852e-fca8bb4a5123   20Gi       RWX            ocs-storagecluster-cephfs   2m23s
 --------------------------------------------------------------------------------
 
-We see that our 20GB volume has been moved and is now running on Ceph.
+We see that our 20Gi volume has been moved and is now running on Ceph.
 
 Lastly, let’s grab the route and open up the WebUI in our browser.
 

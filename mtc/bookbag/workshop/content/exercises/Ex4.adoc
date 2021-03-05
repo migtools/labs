@@ -286,7 +286,7 @@ Notice how the MigMigration shown above has `Task Phase: Completed`. This means 
 
 === Verification
 
-Let’s oc login to our OCP 4 cluster from the OCP 3 bastion host and run the `probe.sh` script to verify that the applications have been migrated and are running:
+Let’s `oc login` to our OCP 4 cluster from the OCP 3 bastion host and run the `probe.sh` script to verify that the applications have been migrated and are running:
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
