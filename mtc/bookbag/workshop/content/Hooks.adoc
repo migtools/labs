@@ -14,7 +14,7 @@ Migration hooks provide a means for running custom code at points in the migrati
 
 There are two primary methods of creating a hook. The first is to write an Ansible playbook that is run either on an image we provide or one you create with additional ansibile modules or tools that you require. The other is to create a custom hook container and the entrypoint will be executed.
 
-There are currently 4 phases within a migration where migration hooks can br run. One hook may be run per phase for a maximum total of 4 hooks per migration, and hooks in any phase may be run either on the source of destination cluster.
+There are currently 4 phases within a migration where migration hooks can br run. One hook may be run per phase for a maximum total of 4 hooks per migration, and hooks in any phase may be run either on the source or destination cluster.
 
 The phases where hooks may be run are:
 
@@ -27,10 +27,10 @@ The phases where hooks may be run are:
 The default hook image is `quay.io/konveyor/hook-runner:latest`. It is based off of the Ansible Runner image with the addition of python-openshift to provided Ansible k8s resources as well as a recent oc binary.
 
 === Hook execution
-When an Ansible playbook is provided as part of a migration hook it will be mounted into the hook container as a ConfigMap. In either case the hook container will be run as job on the desired cluster, using the execution ServiceAccount and Namespace specified. Jobs are designed to run to completion, even if the initial pod is evicted or killed, and may attempt to run several times up until it it either reaches the backoffLimit or successful completion. We use the default backoffLimit of 6 for hook jobs.
+When an Ansible playbook is provided as part of a migration hook it will be mounted into the hook container as a ConfigMap. In either case the hook container will be run as a job on the desired cluster, using the execution ServiceAccount and Namespace specified. Jobs are designed to run to completion, even if the initial pod is evicted or killed, and may attempt to run several times up until it it either reaches the backoffLimit or successful completion. We use the default backoffLimit of 6 for hook jobs.
 
 === Exercise
-In this exercise, we will be using Migration Hooks to address a MediaWiki configuration setting change (https://www.mediawiki.org/wiki/Manual:$wgServer[$wgServer]) that is needs to be updated to the destination OCP 4 cluster post application migration.  Let's get started.
+In this exercise, we will be using Migration Hooks to address a MediaWiki configuration setting change (https://www.mediawiki.org/wiki/Manual:$wgServer[$wgServer]) that needs to be updated to the destination OCP 4 cluster post application migration.  Let's get started.
 
 MediaWiki is running on your source OCP 3 cluster in the `mediawiki` namespace.  Let's launch the MTC UI and create a Migration Plan:
 
