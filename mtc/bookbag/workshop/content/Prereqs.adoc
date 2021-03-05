@@ -180,7 +180,7 @@ s3     LoadBalancer   172.30.209.151   ab6e67b04f2fc4ad1bb126ad89db0962-17967254
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
 $ **oc get routes noobaa-mgmt -n openshift-storage -o jsonpath='{.spec.host}'**
-noobaa-mgmt-openshift-storage.apps.cluster-{OCP4_GUID}.{OCP4_DOMAIN}
+noobaa-mgmt-openshift-storage.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 --------------------------------------------------------------------------------
 
 image:screenshots/lab2/noobaa-mgmt.png[Noobaa Mgmt]
