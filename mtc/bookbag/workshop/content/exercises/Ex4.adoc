@@ -92,7 +92,8 @@ Great! We are now ready to assemble our Migration Plan.
 
 On your OCP 4 cluster, since we’ve already performed successful migrations throughout the preceding labs, we already have our MigCluster & MigStorage resources created. This means we are ready to assemble our MigPlan.
 
-In the below yaml, we’ve seeded with the created resources. Copy the below as a starting point into your favorite editor:
+In the below yaml, we’ve seeded with the created resources.
+Create a new file named mig-plan.yaml and paste the contents below as a starting point into your favorite editor:
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
@@ -104,6 +105,8 @@ metadata:
   name: multi-namespace-migplan
   namespace:  openshift-migration
 spec:
+  indirectImageMigration: true
+  indirectVolumeMigration: true
 
   srcMigClusterRef:
     name: ocp3
@@ -126,7 +129,9 @@ spec:
     - hello-openshift-5
 --------------------------------------------------------------------------------
 
-Save the file as `mig-plan.yaml`
+A thing to note is that we disabled the direct image migration explicitly by setting Indirect*Migration: to 'true'. 
+The default in MTC 1.4 is false, that is direct image migration will be used and has to be set up when the cluster is being added. 
+After you saved the file, run the following command to create a Migration Plan:
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------

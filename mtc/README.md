@@ -48,7 +48,16 @@ Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
 Warning: Permanently added 'bastion.clayton-a831.example.opentlc.com,54.196.40.213' (ECDSA) to the list of known hosts.
 tsanders-redhat.com@bastion.clayton-a831.example.opentlc.com's password:
 ```
-In the home directory, locate the cluster.info file.
+In the home directory, locate the cluster.info file. Display its contents and copy them to clipboard.
+It will look similar to the following, the data within the file will be related to your deployment:
+
+```
+$ cat cluster.info
+[OCP3]
+guid=brno-e9fd
+domain=.example.opentlc.com
+student_name=tsanders-redhat.com
+```
 
 Step 8: In the OCP4 tab, ssh into the OCP4 bastion host using the information provided in RHPDS for the provisioned service.
 
@@ -61,7 +70,10 @@ Warning: Permanently added 'bastion.cb63.sandbox29.opentlc.com,3.129.226.158' (E
 tsanders-redhat.com@bastion.cb63.sandbox29.opentlc.com's password:
 ```
 
-Step 9: In the home directory, locate the cluster.info file.  Edit the cluster.info file in the home directory adding in the OCP3 cluster.info information and save the file.
+Step 9: In the home directory, locate the cluster.info file. Edit the cluster.info file in the home directory adding in the OCP3 cluster.info information you copied in the previous step and save the file.
+
+**You have to edit the file using `sudo`**
+
 
 ```
 [OCP3]
@@ -75,7 +87,7 @@ domain=.sandbox29.opentlc.com
 student_name=tsanders-redhat.com
 ```
 
-Step 10:  In the OCP4 terminal tab, oc login to the OCP4 cluster using the information provided by RHPDS:
+Step 10:  When you finished editing the file, in the same terminal `oc login` to the OCP4 cluster using the information provided by RHPDS. Make sure you use the link for the API endpoint in order to log in:
 
 ```bash
 $ oc login https://api.cluster-cb63.cb63.sandbox29.opentlc.com:6443 -u admin -p r3dh4t1!
@@ -91,7 +103,7 @@ Using project "default".
 Welcome! See 'oc help' to get started.
 ```
 
-Step 11: In the OCP4 terminal tab , run the bookbag.yaml ansible playbook (also found in the home directory) to auto-generate the Lab documentation.
+Step 11: In the OCP4 terminal tab, run the bookbag.yaml ansible playbook (also found in the home directory) to auto-generate the Lab documentation.
 
 ```
 $ ansible-playbook bookbag.yml -e ocp3_password=r3dh4t1! -e ocp4_password=r3dh4t1!
@@ -138,7 +150,7 @@ PLAY RECAP *********************************************************************
 localhost                  : ok=9    changed=5    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
 ```
 
-Step 12: Launch the auto-generated bookbag documentation by browsing to the supplied route:
+Step 12: Make a note of the last messate `Route to bookbag`. This is where your lab instructions will be accessible at. It may take a minute or two for the pods hosting the documentation to be available. Launch the auto-generated bookbag documentation by going to the supplied route in your web browser:
 
 ![Bookbag-Docs](screenshots/bookbag-docs.png)
 
