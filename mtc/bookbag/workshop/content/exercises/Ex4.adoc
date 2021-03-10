@@ -290,7 +290,7 @@ Let’s `oc login` to our OCP 4 cluster from the OCP 3 bastion host and run the 
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **./probe.sh**
+$ **./probe.sh 5**
 Probing app in namespace hello-openshift-1
 Hello OpenShift!
 Probing app in namespace hello-openshift-2
