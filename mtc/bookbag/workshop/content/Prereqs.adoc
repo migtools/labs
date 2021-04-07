@@ -8,6 +8,8 @@
 :OCP4_DOMAIN: %ocp4_domain%
 :OCP4_SSH_USER: %ocp4_ssh_user%
 :OCP4_PASSWORD: %ocp4_password%
+:OCP3_BASTION: %ocp3_bastion%
+:OCP4_BASTION: %ocp4_bastion%
 
 
 Required versions of products used:
@@ -36,8 +38,8 @@ The first terminal window will be used for the source OCP 3 cluster. In that win
 
 [source,bash,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **ssh {OCP3_SSH_USER}@bastion.{OCP3_GUID}.{OCP3_DOMAIN}**
-{OCP3_SSH_USER}@bastion.{OCP3_GUID}.{OCP3_DOMAIN}'s password:
+$ **ssh {OCP3_SSH_USER}@{OCP3_BASTION}**
+{OCP3_SSH_USER}@{OCP3_BASTION}'s password:
 Last login: Sun Mar 22 21:22:55 2020 from 66.26.68.90
 [{OCP3_SSH_USER}@bastion 0 ~]$
 
@@ -53,8 +55,8 @@ The second terminal window will be used for the destination OCP 4 cluster. In th
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **ssh {OCP4_SSH_USER}@bastion.{OCP4_GUID}.{OCP4_DOMAIN}**
-{OCP4_SSH_USER}@bastion.{OCP4_GUID}.{OCP4_DOMAIN}'s password:
+$ **ssh {OCP4_SSH_USER}@{OCP4_BASTION}**
+{OCP4_SSH_USER}@{OCP4_BASTION}'s password:
 Last login: Sun Mar 22 21:22:55 2020 from 66.26.68.90
 [{OCP4_SSH_USER}@bastion 0 ~]$
 

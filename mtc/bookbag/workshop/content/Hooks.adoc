@@ -8,6 +8,8 @@
 :OCP4_DOMAIN: %ocp4_domain%
 :OCP4_SSH_USER: %ocp4_ssh_user%
 :OCP4_PASSWORD: %ocp4_password%
+:OCP3_BASTION: %ocp3_bastion%
+:OCP4_BASTION: %ocp4_bastion%
 
 == Introduction
 Migration hooks provide a means for running custom code at points in the migration to handle logic unique to a migration. This may include scenarios where custom quiesce logic is desired, manual data migration of unsupported types is needed, or to handle application repair after it has been migrated to a new environment.
