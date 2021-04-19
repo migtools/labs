@@ -54,14 +54,14 @@ This is expected as we deliberately set a wrong image for stage pods.
 Login to your source cluster and see if the Stage Pods are running:
 
 ```sh
-[pranav@dragonfly 02-Stage-Pods]$ oc get pods -n mssql-persistent
-NAME                                    READY   STATUS             RESTARTS   AGE
-mssql-app-deployment-85ddc6946b-r6r6b   1/1     Running            0          5d
-mssql-deployment-1-l9sp2                1/1     Running            0          5d
-stage-mssql-deployment-1-l9sp2-9tkfm    0/1     ImagePullBackOff   0          1h
+[pranav@dragonfly 02-Stage-Pods]$ oc get pods -n rocket-chat
+NAME                                READY     STATUS             RESTARTS   AGE
+rocketchat-1-8bpr5                  1/1       Running            4          1h
+rocketchat-db-1-v62wm               1/1       Running            0          1h
+stage-rocketchat-db-1-v62wm-rc8hk   0/1       ImagePullBackOff   0          6m
 ```
 
-Note that the stage pods are created in the namespace in which the application is running. In this case, we are migrating an app deployed in `mssql-persistent` namespace. It is clear from that the stage pods are in `ImagePullBackOff` state because of the wrong image we provided.
+Note that the stage pods are created in the namespace in which the application is running. In this case, we are migrating an app deployed in `rocket-chat` namespace. It is clear from that the stage pods are in `ImagePullBackOff` state because of the wrong image we provided.
 
 ## Fix 
 
