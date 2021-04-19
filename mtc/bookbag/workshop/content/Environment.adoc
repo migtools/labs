@@ -15,7 +15,7 @@
 
 The following lab environment has been provisioned for you for use with this Lab:
 
-image:screenshots/lab1/labenv-overview.png[Lab Environment Overview]
+image::screenshots/lab1/labenv-overview.png[Lab Environment Overview, width=50%, align="center"]
 
 === OpenShift 3 Cluster
 
@@ -27,7 +27,7 @@ image:screenshots/lab1/labenv-overview.png[Lab Environment Overview]
 |Password |{OCP3_PASSWORD}
 |API |https://master.{OCP3_GUID}.{OCP3_DOMAIN}
 |Bastion Host |{OCP3_BASTION}
-|Bastion SSH |{OCP3_SSH_USER}/{OCP3_PASSWORD}
+|Bastion SSH user/password |{OCP3_SSH_USER}/{OCP3_PASSWORD}
 |===
 
 === OpenShift 4 Cluster
@@ -40,5 +40,5 @@ image:screenshots/lab1/labenv-overview.png[Lab Environment Overview]
 |Password |{OCP4_PASSWORD}
 |API |https://api.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}:6443
 |Bastion Host |{OCP4_BASTION}
-|Bastion SSH |{OCP4_SSH_USER}/{OCP4_PASSWORD}
+|Bastion SSH user/password |{OCP4_SSH_USER}/{OCP4_PASSWORD}
 |===
