@@ -8,6 +8,8 @@
 :OCP4_DOMAIN: %ocp4_domain%
 :OCP4_SSH_USER: %ocp4_ssh_user%
 :OCP4_PASSWORD: %ocp4_password%
+:OCP3_BASTION: %ocp3_bastion%
+:OCP4_BASTION: %ocp4_bastion%
 
 == Introduction
 Migration hooks provide a means for running custom code at points in the migration to handle logic unique to a migration. This may include scenarios where custom quiesce logic is desired, manual data migration of unsupported types is needed, or to handle application repair after it has been migrated to a new environment.
@@ -35,29 +37,32 @@ In this exercise, we will be using Migration Hooks to address a MediaWiki config
 MediaWiki is running on your source OCP 3 cluster in the `mediawiki` namespace.  Let's launch the MTC UI and create a Migration Plan:
 
 From the `Migration plans` tab, click the `Add migration plan` button:
+Give your plan a name, select the source and destination clusters, and your replication repository.  Then click Next.
 
 image:./screenshots/lab8/mtc-migplan-general.png[MTC Mig Plan General]
 
-Give your plan a name, select the source and destination clusters, and your replication repository.  Then click Next.
+Select the `mediawiki` namespace/project, and click Next.
 
 image:./screenshots/lab8/mtc-migplan-namespaces.png[MTC Mig Plan Namespaces]
 
-Select the `mediawiki` namespace/project, and click Next.
+Now we are displayed the OCS3/Gluster persistent volume associated with our application. For this example, since we are migrating our storage from Gluster to Ceph, let’s choose `Copy` as our transfer type.  Click Next.
+
 
 image:./screenshots/lab8/mtc-migplan-pvs.png[MTC Mig Plan PVs]
 
-Now we are displayed the OCS3/Gluster persistent volume associated with our application. For this example, since we are migrating our storage from Gluster to Ceph, let’s choose `Copy` as our transfer type.  Click Next.
+Next, we will need to select the `copy method` and `target storage class`. MTC will attempt to pre-select these for you as defaults. In our case, we want *Filesystem copy* and *ocs-storagecluster-cephfs*. Click Next.
 
 image:./screenshots/lab8/mtc-migplan-copyoptions.png[MTC Mig Plan CopyOptions]
 
-Next, we will need to select the `copy method` and `target storage class`. MTC will attempt to pre-select these for you as defaults. In our case, we want *Filesystem copy* and *ocs-storagecluster-cephfs*. Click Next.
+We are now presented with Migration Options. Click Next.
+
+image:./screenshots/lab4/mtc-mig-plan-migoptions.png[MTC Mig Plan Options]
+
+Here is where we add our Migration Hook.  Let's click the `Add Hook` button.
 
 image:./screenshots/lab8/mtc-migplan-emptyhooks.png[MTC Mig Plan Hooks]
 
-Here is where we add our Migration Hook.  Let's click the `Add Hook` button. 
-
-image:./screenshots/lab8/mtc-migplan-hooks1.png[MTC Mig Plan Add Hook1]
-
+We are making a new hook, so choose "Create a new hook" from the drop-down menu. +
 Let's give our hook a `name`, and to start the `Hook definition`, let's paste in the ansible playbook below:
 
 [source,subs="{markup-in-source}"]
@@ -100,20 +105,23 @@ Let's give our hook a `name`, and to start the `Hook definition`, let's paste in
     shell: "oc delete po -n mediawiki -l app=mediawiki"
 --------------------------------------------------------------------------------
 
+image:./screenshots/lab8/mtc-migplan-hooks1.png[MTC Mig Plan Add Hook1]
+
+
 Now scroll down, and let's finish the Hook definition.
-
-image:./screenshots/lab8/mtc-migplan-hooks2.png[MTC Mig Plan Add Hook2]
-
 We want our hook to repair the MediaWiki application on the OCP4 cluster, so let's select `Target Cluster` for where the ansible should be run.  We will need to also specify a `service account` and `namespace` for running the Hook Container.  For this example, let's choose (as these already exist on the cluster and have the needed permissions):
 
 * Service account name: *migration-controller*
 * Service account namespace: *openshift-migration*
 
+
 Lastly, we have to choose which phase to run the hook.  Let's select *PostRestore*.  That's it for the Hook definition, so click `Add hook`.
 
-image:./screenshots/lab8/mtc-migplan-hookadded.png[MTC Mig Plan Added]
+image:./screenshots/lab8/mtc-migplan-hooks2.png[MTC Mig Plan Add Hook2]
 
-Click `Finish` to save the plan.  
+Click `Finish` to save the plan.
+
+image:./screenshots/lab8/mtc-migplan-hookadded.png[MTC Mig Plan Added]
 
 
 ==== A closer look at the Resources
@@ -122,6 +130,10 @@ Let's take a closer look at the mighook resource that was created during creatio
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
+# Switch to openshift-migration project
+$ oc project openshift-migration
+Now using project "openshift-migration" on server ...
+
 $ **oc get mighook mediawiki-repair-db9pb -o yaml**
 apiVersion: migration.openshift.io/v1alpha1
 kind: MigHook
