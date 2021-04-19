@@ -25,20 +25,18 @@ Step 1: Step 1: Browse to RHPDS: https://rhpds.redhat.com
 
 Step 2: Login with your RHPDS username/password.
 
-Step 3: Browse to Services >> Catalogs and open the “Workshops” catalog.
+Step 3: Browse to Services >> Catalogs and open the “Openshift Workshop” catalog.
 
 Step 4: Order two services as follows:
 
-* Migration Toolkit for Containers - OCP3
-* Migration Toolkit for Containers - OCP4
+* Migration Toolkit for Containers (OCP3)
+* Migration Toolkit for Containers (OCP4)
 
-Step 5: Wait for both services to become available.  ```This will take ~45 min.```
+Step 5: Wait for both services to become available.  ```This will take ~60 min.```
 
 ![RHPDS-MyServices](screenshots/rhpds-myservices.png)
 
-Step 6: Open a terminal window with two tabs.  One tab for the source OCP3 cluster and one tab for the destination OCP4 cluster.
-
-Step 7: In the OCP3 tab, ssh into the OCP3 bastion host using the information provided in RHPDS for the provisioned service.
+Step 6: Open a terminal window. You will use this to SSH into your OCP4 cluster. SSH into the OCP4 bastion host using the information provided in RHPDS for the provisioned service.
 
 ```bash
 $ ssh tsanders-redhat.com@bastion.clayton-a831.example.opentlc.com
@@ -48,110 +46,30 @@ Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
 Warning: Permanently added 'bastion.clayton-a831.example.opentlc.com,54.196.40.213' (ECDSA) to the list of known hosts.
 tsanders-redhat.com@bastion.clayton-a831.example.opentlc.com's password:
 ```
-In the home directory, locate the cluster.info file. Display its contents and copy them to clipboard.
-It will look similar to the following, the data within the file will be related to your deployment:
+
+As soon as you log in, you will be greeted by a "Welcome to MTC LAB" screen. This will ask you to provide the bastion hostname of the OCP3 cluster for your lab. You can find this information in the email you received after your OCP3 cluster was provisioned. Paste the whole hostname of OCP3 bastion host into the terminal.
+It will look something like:
 
 ```
-$ cat cluster.info
-[OCP3]
-guid=brno-e9fd
-domain=.example.opentlc.com
-student_name=tsanders-redhat.com
+Please enter your OCP3 bastion hostname.
+That is the one you received FOR YOUR OCP3 environment: master1.f422.sandbox489.opentlc.com
 ```
 
-Step 8: In the OCP4 tab, ssh into the OCP4 bastion host using the information provided in RHPDS for the provisioned service.
-
-```bash
-$ ssh tsanders-redhat.com@bastion.cb63.sandbox29.opentlc.com
-The authenticity of host 'bastion.cb63.sandbox29.opentlc.com (3.129.226.158)' can't be established.
-ECDSA key fingerprint is SHA256:gdbFAdYsUuHApojZSmYiP5wulCBv/ZoZlT1PKtmNBEE.
-Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-Warning: Permanently added 'bastion.cb63.sandbox29.opentlc.com,3.129.226.158' (ECDSA) to the list of known hosts.
-tsanders-redhat.com@bastion.cb63.sandbox29.opentlc.com's password:
-```
-
-Step 9: In the home directory, locate the cluster.info file. Edit the cluster.info file in the home directory adding in the OCP3 cluster.info information you copied in the previous step and save the file.
-
-**You have to edit the file using `sudo`**
-
+Step 7: After entering the bastion hostname, press enter, sit back and relax while the scripts provision Bookbag instruction pages for you. Be patient while the script configures and deploys the necessary pods. The process takes around 2 minutes.
+When the script finishes, it will present you with a web page address which will lead you through the rest of the lab, and it will look similar to this:
 
 ```
-[OCP3]
-guid=clayton-a831
-domain=.example.opentlc.com
-student_name=tsanders-redhat.com
 
-[OCP4]
-guid=cb63
-domain=.sandbox29.opentlc.com
-student_name=tsanders-redhat.com
-```
+                Your Bookbag is up and running.
+                    You can reach it via:
 
-Step 10:  When you finished editing the file, in the same terminal `oc login` to the OCP4 cluster using the information provided by RHPDS. Make sure you use the link for the API endpoint in order to log in:
-
-```bash
-$ oc login https://api.cluster-cb63.cb63.sandbox29.opentlc.com:6443 -u admin -p r3dh4t1!
-The server uses a certificate signed by an unknown authority.
-You can bypass the certificate check, but any data you send to the server could be intercepted by others.
-Use insecure connections? (y/n): y
-
-Login successful.
-
-You have access to 55 projects, the list has been suppressed. You can list all projects with 'oc projects'
-
-Using project "default".
-Welcome! See 'oc help' to get started.
-```
-
-Step 11: In the OCP4 terminal tab, run the bookbag.yaml ansible playbook (also found in the home directory) to auto-generate the Lab documentation.
+         https://bookbag-lab-instructions.apps.cluster-a6c4.a6c4.sandbox1878.opentlc.com
 
 ```
-$ ansible-playbook bookbag.yml -e ocp3_password=r3dh4t1! -e ocp4_password=r3dh4t1!
-[WARNING]: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match 'all'
 
 
-PLAY [localhost] *************************************************************************************************************************************************************************************
-
-TASK [Gathering Facts] *******************************************************************************************************************************************************************************
-ok: [localhost]
-
-TASK [fail] ******************************************************************************************************************************************************************************************
-skipping: [localhost]
-
-TASK [Reading cluster information file] **************************************************************************************************************************************************************
-ok: [localhost]
-
-TASK [Creating bookbag project] **********************************************************************************************************************************************************************
-changed: [localhost]
-
-TASK [set_fact] **************************************************************************************************************************************************************************************
-ok: [localhost]
-
-TASK [Fetching bookbag repo] *************************************************************************************************************************************************************************
-changed: [localhost]
-
-TASK [Building bookbag image] ************************************************************************************************************************************************************************
-changed: [localhost] => (item=oc project lab-instructions)
-changed: [localhost] => (item=oc process -f build-template.yaml -p GIT_REPO='https://gitlab.com/2020-summit-labs/openshift-migration-lab-bookbag.git' | oc apply -f -)
-changed: [localhost] => (item=oc start-build bookbag --follow)
-
-TASK [Deploying bookbag image] ***********************************************************************************************************************************************************************
-changed: [localhost]
-
-TASK [Read bookbag route] ****************************************************************************************************************************************************************************
-changed: [localhost]
-
-TASK [debug] *****************************************************************************************************************************************************************************************
-ok: [localhost] => {
-    "msg": "Route to bookbag : bookbag-lab-instructions.apps.cluster-cb63.cb63.sandbox29.opentlc.com"
-}
-
-PLAY RECAP *******************************************************************************************************************************************************************************************
-localhost                  : ok=9    changed=5    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
-```
-
-Step 12: Make a note of the last messate `Route to bookbag`. This is where your lab instructions will be accessible at. It may take a minute or two for the pods hosting the documentation to be available. Launch the auto-generated bookbag documentation by going to the supplied route in your web browser:
+Step 8: Make a note of the Bookbag address. This is where your lab instructions will be accessible at. Launch the auto-generated bookbag documentation by going to the supplied address in your web browser. You may need to accept self-signed certificates. When loaded Lab Instructions page will look like this:
 
 ![Bookbag-Docs](screenshots/bookbag-docs.png)
 
-Step 13. Proceed with Lab by following steps outlined in bookbag documentation.
+Step 9. Proceed with Lab by following steps outlined in bookbag documentation.

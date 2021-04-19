@@ -79,11 +79,11 @@ There are 3 steps to the migration process within MTC:
 
 === WebUI
 
-Let’s bring up the webUI in preparation for our first Application Migration in Lab 4. In the destination OCP 4 cluster terminal, let’s run the following commands to get the route:
+We should already have MTC UI opened from the previous steps. In case you don't have it open let’s bring up the webUI in preparation for our first Application Migration in Lab 4. In the destination OCP 4 cluster terminal, let’s run the following commands to get the route:
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **oc get routes migration -n openshift-migration -o jsonpath='{.spec.host}'**
+$ **oc get routes migration -n openshift-migration -o jsonpath='{.spec.host}{"\n"}'**
 migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 --------------------------------------------------------------------------------
 
