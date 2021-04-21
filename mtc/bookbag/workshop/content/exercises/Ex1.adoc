@@ -75,7 +75,7 @@ migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 
 The screen should look something like:
 
-image:../screenshots/lab4/mtc-main-screen.png[MTC Main Screen]
+image:../screenshots/lab2/mtcUI.png[MTC Main Screen]
 
 IMPORTANT: Remember our goal is to migrate our application from OCP/OCS 3 to OCP/OCS 4. This means moving our data from Gluster to Ceph. We will show you how to do this in MTC when setting up our migration plan.
 
@@ -91,9 +91,11 @@ Run the following in the OCP 3 cluster terminal.
 $ **oc sa get-token migration-operator -n openshift-migration**
 eyJhbGciOifsfsds8ahmtpZCI6IiJ9fdsfdseyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJtaWciLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoibWlnLXRva2VuLTdxMnhjIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6Im1pZyIsImt1YmVybmss7gc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjQ5NjYyZjgxLWEzNDItMTFlOS05NGRjLTA2MDlkNjY4OTQyMCIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDptaWc6bWlnIn0.Qhcv0cwP539nSxbhIHFNHen0PNXSfLgBiDMFqt6BvHZBLET_UK0FgwyDxnRYRnDAHdxAGHN3dHxVtwhu-idHKI-mKc7KnyNXDfWe5O0c1xWv63BbEvyXnTNvpJuW1ChUGCY04DBb6iuSVcUMi04Jy_sVez00FCQ56xMSFzy5nLW5QpLFiFOTj2k_4Krcjhs8dgf02dgfkkshshjfgfsdfdsfdsa8fdsgdsfd8fasfdaTScsu4lEDSbMY25rbpr-XqhGcGKwnU58qlmtJcBNT3uffKuxAdgbqa-4zt9cLFeyayTKmelc1MLswlOvu3vvJ2soFx9VzWdPbGRMsjZWWLvJ246oyzwykYlBunYJbX3D_uPfyqoKfzA
 --------------------------------------------------------------------------------
-We need to save the output of the 'get-token', that is the long string we will enter into the ui when we create a new cluster entry.
-URL field is FQDN of your OCP3 Master.
-The last field is `Route to Image Registry` and this is provided so that you could include a route to the cluster's image registry if you want to allow direct image migration.
+We need to save the output of the 'get-token', that is the long string we will enter into the ui when we create a new cluster entry. +
+*Cluster name* is an arbitrary name you set for your cluster. +
+*URL* field is FQDN of your OCP3 Master API. +
+*Service account token* is the token you got in the previous command. +
+The last field is `Route to Image Registry`. This is provided so that you could include a route to the cluster's image registry, if you wanted to allow direct image migration.
 
 When done, click `Add cluster`.
 

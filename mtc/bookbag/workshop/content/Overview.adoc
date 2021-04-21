@@ -51,7 +51,7 @@ MTC introduces two actions on a Migration Plan:
 
 NOTE: Stage can be run multiple times on a Migration Plan
 
-NOTE: Migrate can only be run once. 
+NOTE: Migrate can only be run once.
 
 === Migration Process
 
@@ -90,6 +90,6 @@ migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 Next, open a browser to the route from above.  +
 https://migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 
-image:./screenshots/lab3/cam-main-screen.png[CAM Main Screen]
+image:./screenshots/lab2/mtcUI.png[MTC Main Screen]
 
 We are now ready to perform our first Application Migration.
