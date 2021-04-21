@@ -34,7 +34,8 @@ Additionally, temporary object storage will be required perform a migration. For
 
 As we will be interacting with both the source and destination cluster throughout the course of this lab, let’s go ahead and open two terminal windows.
 
-The first terminal window will be used for the source OCP 3 cluster. In that window, let's go ahead and ssh into the bastion host, and then login into the OCP 3 cluster:
+The first terminal window will be used for the source *OCP 3* cluster. +
+In that window, let's go ahead and ssh into the bastion host, and then login into the *OCP 3* cluster:
 
 [source,bash,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
@@ -51,8 +52,8 @@ Use insecure connections? (y/n): y
 Login successful.
 --------------------------------------------------------------------------------
 
-The second terminal window will be used for the destination OCP 4 cluster. You should already be logged in here, that is where your welcome screen and Bookbag deployment happened. +
-In case you closed that window or tab, let's log back into the OCP 4 cluster bastion:
+The second terminal window will be used for the destination *OCP 4* cluster. You should already be logged in here, that is where your welcome screen and Bookbag deployment happened. +
+In case you closed that window or tab, let's log back into the *OCP 4* cluster bastion:
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
@@ -78,7 +79,7 @@ Using project "lab-instructions".
 
 ==== Verify OCP 3 environment
 
-In the source OCP 3 cluster terminal, perform the following:
+In the source *OCP 3* cluster terminal, perform the following:
 
 . Verify that the `migration-operator` deployment is running in `openshift-migration` namespace and healthy.
 
@@ -100,7 +101,7 @@ velero-7559946c5c-mh5sp               1/1     Running   0          2m
 
 ==== Verify OCP 4 environment
 
-Now switch to the OCP 4 cluster terminal tab and perform the following:
+Now switch to the *OCP 4* cluster terminal tab and perform the following:
 
 . Verify that you see the below pods now running in `openshift-migration` namespace, we are looking for pods of `migration-controller`, `velero`, `migration-ui`, and `restic`.
 
@@ -143,7 +144,7 @@ migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 ** OCP3:
 *** OCP 3.x: https://master.{OCP3_GUID}.{OCP3_DOMAIN}/.well-known/oauth-authorization-server
 *** OCP 3.x: https://master.{OCP3_GUID}.{OCP3_DOMAIN}/api/v1/namespaces
-* After accepting the API certs, reload the MTC UI Url.
+* After accepting the API certs, reload the MTC UI URL.
 * Get redirected to login page.
 
 [start=2]
@@ -152,7 +153,7 @@ migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 * Username: admin
 * Password: `{OCP4_PASSWORD}`
 
-image:screenshots/lab2/camUI.png[CAM UI]
+image:screenshots/lab2/mtcUI.png[MTC UI]
 
 === Object Storage Setup
 
@@ -163,7 +164,7 @@ For purposes of this lab, we have already deployed OCS MCG (Noobaa) on the OCP 4
 [arabic]
 . You can see this by clicking the `Replication repositories` tab in the left-hand navigation from the MTC UI dashboard.
 
-image:screenshots/lab2/cam-replication-repository.png[CAM Replication Repository]
+image:screenshots/lab2/mtc-replication-repository.png[MTC Replication Repository]
 
 [arabic, start=2]
 . Additionally, you can query the bucket and service route in OCP4 terminal as seen below:
@@ -187,6 +188,9 @@ s3     LoadBalancer   172.30.209.151   ab6e67b04f2fc4ad1bb126ad89db0962-17967254
 $ **oc get routes noobaa-mgmt -n openshift-storage -o jsonpath='{.spec.host}{"\n"}'**
 noobaa-mgmt-openshift-storage.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 --------------------------------------------------------------------------------
+
+After giving your credentials, noobaa service account will ask for permission to access your admin account.
+You need to allow this access to proceed. AFter that you will be resented with the NooBaa management overview:
 
 image:screenshots/lab2/noobaa-mgmt.png[Noobaa Mgmt]
 
