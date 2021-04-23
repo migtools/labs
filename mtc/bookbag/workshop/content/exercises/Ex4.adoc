@@ -368,7 +368,7 @@ You can continuously describe the MigMigration to see phase info, or tail the mi
 
 === Verification
 
-Let’s `oc login` to our OCP 4 cluster from the OCP 3 bastion host and run the `probe.sh` script to verify that the applications have been migrated and are running:
+From the OCP 4 cluster, run the `probe.sh` script and provide it with the number of applications that were deployed for the migration.
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------

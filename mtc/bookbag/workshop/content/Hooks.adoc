@@ -50,7 +50,7 @@ Now we are displayed the OCS3/Gluster persistent volume associated with our appl
 
 image:./screenshots/lab8/mtc-migplan-pvs.png[MTC Mig Plan PVs]
 
-Next, we will need to select the `copy method` and `target storage class`. MTC will attempt to pre-select these for you as defaults. In our case, we want *Filesystem copy* and *ocs-storagecluster-cephfs*. Click Next.
+Next, we will need to select the `copy method` and `target storage class`. MTC will attempt to pre-select these for you as defaults. In our case, we want *Filesystem copy* and *ocs-storagecluster-ceph-rbd*. Click Next.
 
 image:./screenshots/lab8/mtc-migplan-copyoptions.png[MTC Mig Plan CopyOptions]
 
