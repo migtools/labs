@@ -1,7 +1,7 @@
 :sectlinks:
 :markup-in-source: verbatim,attributes,quotes
 
-*Congratulations* and *Thank You* for participating in the OpenShift Migration Tookit for Containers (MTC) Lab. We hope you have found it to be both informative and thorough. By now you have completed the following activities:
+*Congratulations* and *Thank You* for participating in the OpenShift Migration Toolkit for Containers (MTC) Lab. We hope you have found it to be both informative and thorough. By now you have completed the following activities:
 
 * Familiarized yourself with the MTC WebUI
 * Migrated multiple applications (stateless and stateful) from OpenShift 3 to OpenShift 4

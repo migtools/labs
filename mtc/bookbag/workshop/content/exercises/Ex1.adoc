@@ -81,8 +81,8 @@ IMPORTANT: Remember our goal is to migrate our application from OCP/OCS 3 to OCP
 
 ==== Add a Cluster
 
-First thing we want to do is add the source OCP cluster we wish to migrate the application from. From the `Clusters` tab, click the `Add cluster` button. Fill out the necessary information. +
-We will need an Service Account Token in order for MTC to communicate with the destination cluster:
+The first thing we want to do is add the source OCP cluster we wish to migrate the application from. From the `Clusters` tab, click the `Add cluster` button. Fill out the necessary information. +
+We will need a Service Account Token in order for MTC to communicate with the destination cluster:
 
 Run the following in the OCP 3 cluster terminal.
 

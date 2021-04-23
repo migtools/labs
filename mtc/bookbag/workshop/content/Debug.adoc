@@ -21,7 +21,7 @@ image:./screenshots/lab7/mig-plan-failed.png[Failed Migration]
 
 image:./screenshots/lab7/mig-custom-resources.png[Failed Migration]
 
-It’s important to first understand the custom resources in play. The above architecture diagram illustrates the migration resources and their relationships. Most of our debugging failed migration executions will focus on the right-side of the diagram: * MigMigration * Velero - Backup and Restore
+It’s important to first understand the custom resources in play. The above architecture diagram illustrates the migration resources and their relationships. Most of our debugging failed migration executions will focus on the right side of the diagram: * MigMigration * Velero - Backup and Restore
 
 === View Debug Resources from WebUI
 

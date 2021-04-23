@@ -16,7 +16,7 @@ Migration hooks provide a means for running custom code at points in the migrati
 
 There are two primary methods of creating a hook. The first is to write an Ansible playbook that is run either on an image we provide or one you create with additional ansibile modules or tools that you require. The other is to create a custom hook container and the entrypoint will be executed.
 
-There are currently 4 phases within a migration where migration hooks can br run. One hook may be run per phase for a maximum total of 4 hooks per migration, and hooks in any phase may be run either on the source or destination cluster.
+There are currently 4 phases within a migration where migration hooks can be run. One hook may be run per phase for a maximum total of 4 hooks per migration, and hooks in any phase may be run either on the source or destination cluster.
 
 The phases where hooks may be run are:
 
@@ -296,7 +296,7 @@ hooks:
     serviceAccount: migration-controller
 --------------------------------------------------------------------------------
 
-Now let's kickoff a migration.
+Now let's kick off a migration.
 
 image:./screenshots/lab8/mtc-migplan-migrate.png[MTC Mig Plan Migrate]
 image:./screenshots/lab8/mtc-migplan-progress.png[MTC Mig Plan Migrate]

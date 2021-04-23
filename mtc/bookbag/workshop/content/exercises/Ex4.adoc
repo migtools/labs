@@ -126,6 +126,7 @@ spec:
 --------------------------------------------------------------------------------
 
 The MTC 1.4 default is to use Direct Migration. We should have this set up already, from when we added the cluster. We filled in the details regarding Remote Image Registry route.
+
 After you saved the file, run the following command to create a Migration Plan:
 
 [source,subs="{markup-in-source}"]
