@@ -21,9 +21,9 @@ There are currently 4 phases within a migration where migration hooks can br run
 The phases where hooks may be run are:
 
  * *PreBackup*: Before any task is performed.
- * *PostBackup*: After all backup tasks are complete.
- * *PreRestore*: Before any restore tasks are performed.
- * *PostRestore*: After all restore tasks are complete.
+ * *PostBackup*: After backup tasks are complete.
+ * *PreRestore*: Before restore tasks are performed.
+ * *PostRestore*: After restore tasks are complete.
 
 === Default hook image
 The default hook image is `quay.io/konveyor/hook-runner:latest`. It is based off of the Ansible Runner image with the addition of python-openshift to provided Ansible k8s resources as well as a recent oc binary.
@@ -109,8 +109,9 @@ image:./screenshots/lab8/mtc-migplan-hooks1.png[MTC Mig Plan Add Hook1]
 
 
 Now scroll down, and let's finish the Hook definition.
-We want our hook to repair the MediaWiki application on the OCP4 cluster, so let's select `Target Cluster` for where the ansible should be run.  We will need to also specify a `service account` and `namespace` for running the Hook Container.  For this example, let's choose (as these already exist on the cluster and have the needed permissions):
+We want our hook to repair the MediaWiki application on the OCP4 cluster, so let's select:
 
+* Run in: Check *Target Cluster*. This is where ansible playbook will run.
 * Service account name: *migration-controller*
 * Service account namespace: *openshift-migration*
 
@@ -119,7 +120,7 @@ Lastly, we have to choose which phase to run the hook.  Let's select *PostRestor
 
 image:./screenshots/lab8/mtc-migplan-hooks2.png[MTC Mig Plan Add Hook2]
 
-Click `Finish` to save the plan.
+Click `Finish` to save the plan. And then click on 'Close'.
 
 image:./screenshots/lab8/mtc-migplan-hookadded.png[MTC Mig Plan Added]
 
@@ -134,7 +135,7 @@ Let's take a closer look at the mighook resource that was created during creatio
 $ oc project openshift-migration
 Now using project "openshift-migration" on server ...
 
-$ **oc get mighook mediawiki-repair-db9pb -o yaml**
+$ **oc get mighook -o yaml**
 apiVersion: migration.openshift.io/v1alpha1
 kind: MigHook
 metadata:

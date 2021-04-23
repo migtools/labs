@@ -35,20 +35,25 @@ image:../../screenshots/debug/ex1/mtc-cluster-error.png[MTC Cluster Errored]
 As you can see the new source-cluster entry has a status of **Connection Failed**.  Let's click on the elipses and select `Edit`:
 
 image:../../screenshots/debug/ex1/mtc-cluster-edit.png[MTC Cluster Edit]
+
+A Connection Failure is likely caused by an incorrectly specified cluster URL and/or an incorrectly specified Service account token.  Let's proceed with updating both for our source OCP3 cluster and re-validate the connection.  Enter in the correct information and click `Update cluster`.
+
 image:../../screenshots/debug/ex1/mtc-cluster-failure.png[MTC Cluster Failure]
 
-A Connection Failure is likely caused by an incorrectly specified cluster URL and/or an incorrectly specified Service account token.  Let's proceed with updating both for our source OCP3 cluster and re-validate the connection.  Enter in this information and click `Update cluster`.
 
-Note: The Service account token can be found with the following command on the OCP 3 cluster:
+Reminder: The Service account token can be found with the following command on the OCP 3 cluster:
 
+[source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
 $ **oc sa get-token migration-controller -n openshift-migration**
 eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJvcGVuc2hpZnQtbWlncmF0aW9uIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6Im1pZ3JhdGlvbi1jb250cm9sbGVyLXRva2VuLThibTQ3Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6Im1pZ3JhdGlvbi1jb250cm9sbGVyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQudWlkIjoiMDdlMmU1ZmYtMTdkZC0xMWViLTlhMjEtMDI3MDQ5NzNlNzgzIiwic3ViIjoic3lzdGVtOnNlcnZpY2VhY2NvdW50Om9wZW5zaGlmdC1taWdyYXRpb246bWlncmF0aW9uLWNvbnRyb2xsZXIifQ.iXYDHX7WdGeSE7ugspm9t4_sEBzGp6SNGM_0Y31uGywECESTJ2C7K_nEIIfSp8q1WsAfrRJcZh1cA-EjB-eV1syjWZeIz00MGmIPKLXPwBP990PSkFvRRPjwhCMWn4dbgyJiwjxVW2CqR06XcpHefcAd2zbyg96as36_RR8XP_qovBEQHAoeMfnEcSrdMLE5J5R8HBgmcgSvsVpSv7-RoavfMUcHT-e91277eLZJcdNM-4tGAyOk2C6LlZXzVJdOVdUawqC7f80eCgDkaDutt6RLqRQ3F4r8_Awr0olmdv8dxeLbm7IVEt8wX3ZrtM6l8vphJZAsXYtuX6mXRkh-BQ
 --------------------------------------------------------------------------------
 
 image:../../screenshots/debug/ex1/mtc-update-cluster.png[MTC Update Cluster]
-image:../../screenshots/debug/ex1/mtc-cluster-fixed.png[MTC Cluster Fixed]
 
 Upon update, the cluster connection will be re-validated.  If successful, the status will change to *Connected*, and we are ready to use this source cluster in our Migration Plans.
+
+image:../../screenshots/debug/ex1/mtc-cluster-fixed.png[MTC Cluster Fixed]
+
 
 
