@@ -371,11 +371,12 @@ You can continuously describe the MigMigration to see phase info, or tail the mi
 
 === Verification
 
-Let’s `oc login` to our OCP 4 cluster from the OCP 3 bastion host and run the `probe.sh` script to verify that the applications have been migrated and are running:
+From the OCP 4 cluster, set the necessary environment variable used by the `probe.sh` script and execute this script to verify that the applications have been migrated and are running:
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **./probe.sh 5**
+$ **echo 5 > .ns**
+$ **./probe.sh**
 Probing app in namespace hello-openshift-1
 Hello OpenShift!
 Probing app in namespace hello-openshift-2
