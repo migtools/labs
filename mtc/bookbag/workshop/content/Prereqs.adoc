@@ -21,7 +21,7 @@ Required versions of products used:
 |OpenShift 4.x |v4.1+
 |===
 
-Additionally, temporary object storage will be required perform a migration. For example, this can be provided through: https://aws.amazon.com/s3/[AWS S3], https://www.noobaa.io/[Noobaa], https://min.io/[Minio], or others.
+Additionally, temporary object storage will be required perform a migration. For example, this can be provided through: https://aws.amazon.com/s3/[AWS S3], https://www.noobaa.io/[NooBaa], https://min.io/[Minio], or others.
 
 === Base requirements
 
@@ -33,6 +33,7 @@ Additionally, temporary object storage will be required perform a migration. For
 === Accessing OCP 3 and OCP 4 clusters
 
 As we will be interacting with both the source and destination cluster throughout the course of this lab, let’s go ahead and open two terminal windows.
+You should keep these open throughout the lab.
 
 The first terminal window will be used for the source *OCP 3* cluster. +
 In that window, let's go ahead and ssh into the bastion host, and then login into the *OCP 3* cluster:
@@ -42,8 +43,13 @@ In that window, let's go ahead and ssh into the bastion host, and then login int
 $ **ssh {OCP3_SSH_USER}@{OCP3_BASTION}**
 {OCP3_SSH_USER}@{OCP3_BASTION}'s password:
 Last login: Sun Mar 22 21:22:55 2020 from 66.26.68.90
-[{OCP3_SSH_USER}@master1 0 ~]$
+[{OCP3_SSH_USER}@bastion 0 ~]$
+--------------------------------------------------------------------------------
 
+Run `oc login` command to log into your OCP4 cluster from the terminal:
+
+[source,bash,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
 $ **oc login https://master.{OCP3_GUID}.{OCP3_DOMAIN} -u admin -p {OCP3_PASSWORD}**
 The server uses a certificate signed by an unknown authority.
 You can bypass the certificate check, but any data you send to the server could be intercepted by others.
@@ -109,13 +115,14 @@ Now switch to the *OCP 4* cluster terminal tab and perform the following:
 --------------------------------------------------------------------------------
 $ **oc get pods -n openshift-migration**
 NAME                                    READY   STATUS    RESTARTS   AGE
-migration-controller-6d59b8c4c6-bq8rz   2/2     Running   0          5m11s
-migration-operator-8b7854d54-fbg9l      2/2     Running   0          6m9s
-migration-ui-5d7998b74f-lns9n           1/1     Running   0          5m7s
-restic-5884v                            1/1     Running   0          5m11s
-restic-c5xlc                            1/1     Running   0          5m11s
-restic-dlv7n                            1/1     Running   0          5m11s
-velero-5bffbd77c4-xcbns                 1/1     Running   0          5m11s
+migration-controller-5fbcc478bb-jz76t   2/2     Running   0          50m
+migration-log-reader-7cdc99c6c4-rx2k2   2/2     Running   0          50m
+migration-operator-589b4d4d69-pwpdb     1/1     Running   0          51m
+migration-ui-5c65487687-hzv4m           1/1     Running   0          50m
+restic-984s8                            1/1     Running   0          51m
+restic-bdmpg                            1/1     Running   0          51m
+restic-klhmw                            1/1     Running   0          51m
+velero-cd5cd48b6-z47px                  1/1     Running   0          51m
 --------------------------------------------------------------------------------
 
 === Prepare to use MTC UI from OCP 4 Cluster in your Browser
@@ -189,7 +196,7 @@ $ **oc get routes noobaa-mgmt -n openshift-storage -o jsonpath='{.spec.host}{"\n
 noobaa-mgmt-openshift-storage.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 --------------------------------------------------------------------------------
 
-After giving your credentials, noobaa service account will ask for permission to access your admin account.
+After giving your credentials, NooBaa service account will ask for permission to access your admin account.
 You need to allow this access to proceed. After that you will be presented with the NooBaa management overview:
 
 image:screenshots/lab2/noobaa-mgmt.png[Noobaa Mgmt]

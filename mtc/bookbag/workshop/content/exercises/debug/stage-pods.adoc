@@ -13,9 +13,9 @@
 
 When filesystem copy mode is selected, MTC makes use of temporary pods which attach the PVs and trigger a filesystem copy through Restic. In this exercise, we will trigger a failure in the Stage Pods and try to fix the issue manually.
 
-## Prepare 
+## Prepare
 
-MTC uses `migration-cluster-config` configmap to allow users to modify image used for temporary stage pods. 
+MTC uses `migration-cluster-config` configmap to allow users to modify image used for temporary stage pods.
 
 Login to your source cluster and edit the configmap using the script in ~/files/debug/ex2 on the bastion host:
 
@@ -63,12 +63,12 @@ stage-rocketchat-db-1-v62wm-rc8hk   0/1       ImagePullBackOff   0          6m
 
 Note that the stage pods are created in the namespace in which the application is running. In this case, we are migrating an app deployed in `rocket-chat` namespace. It is clear from that the stage pods are in `ImagePullBackOff` state because of the wrong image we provided.
 
-## Fix 
+## Fix
 
 
 ### Cancel the migration
 
-We will now use the `Cancel` migration feature to cancel the ongoing migration. From the dropdown menu on the right side of the MigPlan, click `Cancel` option and wait until the migration is canceled completely. Canceling an ongoing migration will also delete the pending Stage Pods. 
+We will now use the `Cancel` migration feature to cancel the ongoing migration. From the dropdown menu on the right side of the MigPlan, click `Cancel` option and wait until the migration is canceled completely. Canceling an ongoing migration will also delete the pending Stage Pods.
 
 ### Fix the stage pod image
 

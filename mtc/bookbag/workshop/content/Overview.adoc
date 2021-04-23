@@ -47,7 +47,7 @@ image:./screenshots/lab3/copypv.png[Copy PV Diagram]
 MTC introduces two actions on a Migration Plan:
 
 * *Stage* - Seeds data while leaving application up and running.
-* *Migrate* - Quiesces the application and migrates deltas from stage runs.
+* *Migrate* - Optionally quiesces the application and migrates deltas from stage runs.
 
 NOTE: Stage can be run multiple times on a Migration Plan
 

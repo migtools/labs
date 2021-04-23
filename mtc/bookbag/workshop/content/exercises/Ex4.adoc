@@ -19,9 +19,7 @@ Let’s start by seeding our OCP 3 cluster with a set of sample stateless applic
 
 ==== Logging into Bastion host
 
-You should have received the hostname, and login credentials for the OCP 3 bastion host. Let’s use those to ssh into the host to access the lab scripts:
-
-Access the `scripts` directory
+You should be logged in to the OCP 3 bastion host. Switch to the OCP3 bastion terminal and access the `scripts` directory.
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
@@ -89,7 +87,8 @@ Great! We are now ready to assemble our Migration Plan.
 
 === Create Migration Plan
 
-On your OCP 4 cluster, since we’ve already performed successful migrations throughout the preceding labs, we already have our MigCluster & MigStorage resources created. This means we are ready to assemble our MigPlan.
+Go to your *OCP 4* terminal. +
+In the OCP4 cluster, since we’ve already performed successful migrations throughout the preceding labs, we already have our MigCluster & MigStorage resources created. This means we are ready to assemble our MigPlan.
 
 In the below yaml, we’ve seeded with the created resources.
 Create a new file named `mig-plan.yaml` and paste the contents below as a starting point into your favorite editor. If you are using `vim`, you may want to put it into PASTE mode (:set paste) before going into INSERT mode:
@@ -104,8 +103,6 @@ metadata:
   name: multi-namespace-migplan
   namespace:  openshift-migration
 spec:
-  indirectImageMigration: true
-  indirectVolumeMigration: true
 
   srcMigClusterRef:
     name: ocp3
@@ -128,8 +125,8 @@ spec:
     - hello-openshift-5
 --------------------------------------------------------------------------------
 
-A thing to note is that we disabled the direct image migration explicitly by setting Indirect*Migration: to 'true'.
-The default in MTC 1.4 is false, ie. direct image migration will be used and has to be set up when the cluster is being added.
+The MTC 1.4 default is to use Direct Migration. We should have this set up already, from when we added the cluster. We filled in the details regarding Remote Image Registry route.
+
 After you saved the file, run the following command to create a Migration Plan:
 
 [source,subs="{markup-in-source}"]
@@ -139,7 +136,7 @@ $ **oc apply -f mig-plan.yaml **
 migplan.migration.openshift.io/multi-namespace-migplan created
 --------------------------------------------------------------------------------
 
-Let’s describe our MigPlan. Assuming the controller is running, validations should have run against the plan, and you should be able to see a status of *``The migration plan is ready.''* or a list of issues to resolve.
+Let’s Describe our MigPlan. Assuming the controller is running, validations should have run against the plan, and you should be able to see a status of *The migration plan is ready.* or a list of issues to resolve.
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
@@ -234,7 +231,7 @@ $ **oc apply -f mig-migration.yaml**
 migmigration.migration.openshift.io/migmigration-multi-namespace created
 --------------------------------------------------------------------------------
 
-Monitor progress of the migration with `oc describe`. You should see a status of *``The migration has completed successfully.``*, otherwise you’ll see an error condition within `oc describe` output indicating what action you need to take before the migration can begin.
+Monitor progress of the migration with `oc describe`. You should see a status of "*The migration is ready.*", otherwise you’ll see an error condition within `oc describe` output indicating what action you need to take before the migration can begin.
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
@@ -375,6 +372,9 @@ Let’s `oc login` to our OCP 4 cluster from the OCP 3 bastion host and run the 
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
+$ **oc login https://master.{OCP4_GUID}.{OCP4_DOMAIN} -u admin -p {OCP4_PASSWORD}**
+[ output ommitted... ]
+
 $ **./probe.sh 5**
 Probing app in namespace hello-openshift-1
 Hello OpenShift!
@@ -386,4 +386,10 @@ Probing app in namespace hello-openshift-4
 Hello OpenShift!
 Probing app in namespace hello-openshift-5
 Hello OpenShift!
+--------------------------------------------------------------------------------
+
+Once finished, you can log back in to OCP3 cluster:
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc login https://master.{OCP3_GUID}.{OCP3_DOMAIN} -u admin -p {OCP3_PASSWORD}**
 --------------------------------------------------------------------------------
