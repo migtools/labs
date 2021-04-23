@@ -25,8 +25,8 @@ The high-level steps are as follows:
 
 [arabic]
 . Launch the MTC WebUI.
-. Add a new Migration Plan.
-. Use Move ('swing' th PV) for each of the four persistent volumes as the transfer option;
+. Add a new Migration Plan (name it socks-shop).
+. Use Move ('swing' the PV) for each of the four persistent volumes as the transfer option;
 . Execute a `Migration` of the Plan.
 . Verify the application is functioning on the destination cluster.
 

@@ -19,20 +19,20 @@ OpenShift Container Storage 3 (Gluster) to OpenShift Container Storage 4 (Ceph).
 
 ## Setup Steps
 
-Step 1: Step 1: Browse to RHPDS: https://rhpds.redhat.com
+Step 1: Browse to RHPDS: https://rhpds.redhat.com
 
 ![RHPDS](screenshots/rhpds.png)
 
 Step 2: Login with your RHPDS username/password.
 
-Step 3: Browse to Services >> Catalogs and open the “Openshift Workshop” catalog.
+Step 3: Hover over Services Menu >> Click the Catalogs menu and open the “Openshift Workshop” catalog.
 
 Step 4: Order two services as follows:
 
 * Migration Toolkit for Containers (OCP3)
 * Migration Toolkit for Containers (OCP4)
 
-Step 5: Wait for both services to become available.  ```This will take ~60 min.```
+Step 5: Wait for both services to become available.  ```This will take ~60 min.```. When the environment has finished provisioning you will receive an email with confirmation and access details for the labs.
 
 ![RHPDS-MyServices](screenshots/rhpds-myservices.png)
 
@@ -52,7 +52,7 @@ It will look something like:
 
 ```
 Please enter your OCP3 bastion hostname.
-That is the one you received FOR YOUR OCP3 environment: master1.f422.sandbox489.opentlc.com
+That is the one you received FOR YOUR OCP3 environment: bastion.f422.sandbox489.opentlc.com
 ```
 
 Step 7: After entering the bastion hostname, press enter, sit back and relax while the scripts provision Bookbag instruction pages for you. Be patient while the script configures and deploys the necessary pods. The process takes around 2 minutes.

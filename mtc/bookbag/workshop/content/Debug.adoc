@@ -111,8 +111,8 @@ Note that the type of migration performed such as a 'Stage' or a 'Migrate' will 
 
  *  *Stage* migrations have one Backup and one Restore object, which are focused on _only_ processing the internal Images and Persistent Volumes that will be copied via a filesystem copy.
 
- * *Final* migrations have two Backup and two Restore objects. 
- ** The first Backup object captures the original, unaltered state of the application and its Kubernetes objects. This Backup is the source of truth. 
+ * *Final* migrations have two Backup and two Restore objects.
+ ** The first Backup object captures the original, unaltered state of the application and its Kubernetes objects.
  ** Then, the application is optionally queisced and a second Backup captures the storage-related resources (PVs, PVCs, and data)
 
 ===== Examining a Final migration
@@ -298,6 +298,14 @@ Another area we can examine to assist in debugging migration issues is the contr
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
 $ **oc get pods -n openshift-migration | grep controller**
+controller-manager-78c469849c-v6wcf           1/1     Running     0          4h49m
+--------------------------------------------------------------------------------
+
+==== Combined Migration Logs
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc logs -f -l logreader=mig -n openshift-migration -c color**
 controller-manager-78c469849c-v6wcf           1/1     Running     0          4h49m
 --------------------------------------------------------------------------------
 

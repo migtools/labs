@@ -95,9 +95,19 @@ We need to save the output of the 'get-token', that is the long string we will e
 *Cluster name* is an arbitrary name you set for your cluster. +
 *URL* field is FQDN of your OCP3 Master API. +
 *Service account token* is the token you got in the previous command. +
-The last field is `Route to Image Registry`. This is provided so that you could include a route to the cluster's image registry, if you wanted to allow direct image migration.
 
-When done, click `Add cluster`.
+The last field is *Route to Image Registry*. This is provided so that you could include a route to the source cluster's image registry, if you wanted to allow direct image migration. Direct image and volume migrations have significant performance benefits, becuase they skip the intermediate steps of backing up files from the source cluster to the replication directory. Direct migrations use `rsync` to transfer the files. Since direct image migration requires some prerequisites, such as route to Image Registry on the source cluster, let's get this information from our *source OCP3* cluster.
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get route -n default docker-registry**
+NAME              HOST/PORT                                                       PATH      SERVICES          PORT      TERMINATION   WILDCARD
+docker-registry   docker-registry-default.apps.brno-7215.sandbox911.opentlc.com             docker-registry   <all>     passthrough   None
+--------------------------------------------------------------------------------
+
+You will put the HOST this into the field *Exposed route host to image registry*
+
+When done, click `Add cluster`. Here's an example:
 
 image:../screenshots/lab4/mtc-add-cluster.png[MTC Add Cluster]
 
@@ -121,7 +131,7 @@ Select the `file-uploader` namespace/project, and click Next.
 
 image:../screenshots/lab4/mtc-mig-plan-namespaces.png[MTC Mig Plan Namespaces]
 
-Now we are displayed the OCS3/Gluster persistent volume associated with our application. For this example, since we are migrating our storage from Gluster to Ceph, let’s choose `Copy` as our transfer type.  Click Next.
+Now we are presented with the OCS3/Gluster persistent volume associated with our application. For this example, since we are migrating our storage from Gluster to Ceph, let’s choose `Copy` as our transfer type.  Click Next.
 
 image:../screenshots/lab4/mtc-mig-plan-pvolumes.png[MTC Mig Plan PVs]
 
@@ -129,14 +139,13 @@ Next, we will need to select the `copy method` and `target storage class`. MTC w
 
 image:../screenshots/lab4/mtc-mig-plan-copyoptions.png[MTC Mig Plan CopyOptions]
 
-If we configured the direct image location when the cluster was added, we can choose to use the Direct image migration. In our case it will be unavailable. The rest can be left as it is. Click Next.
+If we configured the direct image location when the cluster was added, we can choose to use the Direct image migration. If the cluster was added without Image Registry, it will be unavailable. The rest can be left as it is. Click Next.
 
 image:../screenshots/lab4/mtc-mig-plan-migoptions.png[MTC Mig Plan Options]
 
 We will examine Migration Hooks in a subsequent exercise, so we will skip this step and proceed.  Click Finish.
 
 image:../screenshots/lab4/mtc-mig-plan-hooks.png[MTC Mig Plan Hooks]
-
 
 
 After the migration plan has been successfully validated, you can click `Close`.
@@ -155,7 +164,11 @@ Optionally you may choose to _not_ terminate the application on the source clust
 
 image:../screenshots/lab4/mtc-quiesce.png[MTC Quiesce]
 
-The migration will progress with a progress bar showing each step in the process.
+The migration will start and will update with each step in the process. 
+
+image:../screenshots/lab4/mtc-startmig.png[MTC Migration Started]
+
+If you wish to see the progress bar, you can see the details by clicking on the migration link in column *Migrations*.
 
 image:../screenshots/lab4/mtc-progress-bar.png[MTC Progress Bar]
 
