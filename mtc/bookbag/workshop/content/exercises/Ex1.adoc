@@ -81,8 +81,8 @@ IMPORTANT: Remember our goal is to migrate our application from OCP/OCS 3 to OCP
 
 ==== Add a Cluster
 
-First thing we want to do is add the source OCP cluster we wish to migrate the application from. From the `Clusters` tab, click the `Add cluster` button. Fill out the necessary information. +
-We will need an Service Account Token in order for MTC to communicate with the destination cluster:
+The first thing we want to do is add the source OCP cluster we wish to migrate the application from. From the `Clusters` tab, click the `Add cluster` button. Fill out the necessary information. +
+We will need a Service Account Token in order for MTC to communicate with the destination cluster:
 
 Run the following in the OCP 3 cluster terminal.
 
@@ -121,7 +121,7 @@ Select the `file-uploader` namespace/project, and click Next.
 
 image:../screenshots/lab4/mtc-mig-plan-namespaces.png[MTC Mig Plan Namespaces]
 
-Now we are displayed the OCS3/Gluster persistent volume associated with our application. For this example, since we are migrating our storage from Gluster to Ceph, let’s choose `Copy` as our transfer type.  Click Next.
+Now the OCS3/Gluster persistent volume associated with our application is displayed. For this example, since we are migrating our storage from Gluster to Ceph, let’s choose `Copy` as our transfer type.  Click Next.
 
 image:../screenshots/lab4/mtc-mig-plan-pvolumes.png[MTC Mig Plan PVs]
 
@@ -129,7 +129,7 @@ Next, we will need to select the `copy method` and `target storage class`. MTC w
 
 image:../screenshots/lab4/mtc-mig-plan-copyoptions.png[MTC Mig Plan CopyOptions]
 
-If we configured the direct image location when the cluster was added, we can choose to use the Direct image migration. In our case it will be unavailable. The rest can be left as it is. Click Next.
+If we configured the direct image location when the cluster was added, we could choose to use the Direct image migration. In our case it will be unavailable. The rest can be left as is. Click Next.
 
 image:../screenshots/lab4/mtc-mig-plan-migoptions.png[MTC Mig Plan Options]
 

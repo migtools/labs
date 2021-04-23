@@ -29,7 +29,7 @@ Let’s get the route to the application, and bring up the webUI.
 --------------------------------------------------------------------------------
 $  **oc get route -n mssql-persistent**
 NAME              HOST/PORT                                                       PATH   SERVICES     PORT   TERMINATION   WILDCARD
-mssql-app-route   mssql-app-route-mssql-persistent.apps.{OCP3_GUID}.{OCP3_DOMAIN}         db-app-svc   5000                 None
+mssql-app-route   mssql-app-route-mssql-persistent.apps.{OCP3_GUID}.{OCP3_DOMAIN}         mssql-app-service   5000                 None
 --------------------------------------------------------------------------------
 
 image:../screenshots/lab5/mssql-product-catalog.png[MSSQL Product Catalog]

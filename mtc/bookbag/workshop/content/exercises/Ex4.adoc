@@ -129,7 +129,7 @@ spec:
 --------------------------------------------------------------------------------
 
 A thing to note is that we disabled the direct image migration explicitly by setting Indirect*Migration: to 'true'.
-The default in MTC 1.4 is false, that is direct image migration will be used and has to be set up when the cluster is being added.
+The default in MTC 1.4 is false, ie. direct image migration will be used and has to be set up when the cluster is being added.
 After you saved the file, run the following command to create a Migration Plan:
 
 [source,subs="{markup-in-source}"]
@@ -139,7 +139,7 @@ $ **oc apply -f mig-plan.yaml **
 migplan.migration.openshift.io/multi-namespace-migplan created
 --------------------------------------------------------------------------------
 
-Let’s Describe our MigPlan. Assuming the controller is running, validations should have run against the plan, and you should be able to see a status of *``The migration plan is ready.''* or a list of issues to resolve.
+Let’s describe our MigPlan. Assuming the controller is running, validations should have run against the plan, and you should be able to see a status of *``The migration plan is ready.''* or a list of issues to resolve.
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
@@ -234,7 +234,7 @@ $ **oc apply -f mig-migration.yaml**
 migmigration.migration.openshift.io/migmigration-multi-namespace created
 --------------------------------------------------------------------------------
 
-Monitor progress of the migration with `oc describe`. You should see a status of *``The migration is ready.''*, otherwise you’ll see an error condition within `oc describe` output indicating what action you need to take before the migration can begin.
+Monitor progress of the migration with `oc describe`. You should see a status of *``The migration has completed successfully.``*, otherwise you’ll see an error condition within `oc describe` output indicating what action you need to take before the migration can begin.
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------

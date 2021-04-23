@@ -13,7 +13,7 @@
 
 ACME Corporation is in the process of upgrading the production environment of their online socks store from OCP 3 to OCP 4. The application consists of various micro-services, and uses a shared NFS cluster for storage. ACME has already installed the OCP 4 cluster, and you have been asked to migrate the Socks-Shop application from their OCP 3 environment.
 
-The application and all of it’s resources are contained within the `sock-shop` namespace.
+The application and all of its resources are contained within the `sock-shop` namespace.
 
 image:../screenshots/lab6/sock-shop-main.png[SS Main]
 

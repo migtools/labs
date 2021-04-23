@@ -129,7 +129,7 @@ migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 --------------------------------------------------------------------------------
 
 [start=2]
-. For this example we’d visit the below from our browser. Please accept any self-signed certificates:
+. For this example we’ll visit the below link from our browser. Please accept any self-signed certificates:
 
 * https://migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 
@@ -157,9 +157,9 @@ image:screenshots/lab2/mtcUI.png[MTC UI]
 
 === Object Storage Setup
 
-MTC leverages object storage as temporary scratch space when performing migrations. This storage can be any object storage that presents an `S3 like` interface.
+MTC leverages object storage as a temporary scratch space when performing migrations. This storage can be any object storage that presents an `S3 like` interface.
 
-For purposes of this lab, we have already deployed OCS MCG (Noobaa) on the OCP 4 cluster, created a bucket, and configured it for use with MTC.
+For the purposes of this lab, we have already deployed OCS MCG (Noobaa) on the OCP 4 cluster, created a bucket, and configured it for use with MTC.
 
 [arabic]
 . You can see this by clicking the `Replication repositories` tab in the left-hand navigation from the MTC UI dashboard.
@@ -190,7 +190,7 @@ noobaa-mgmt-openshift-storage.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 --------------------------------------------------------------------------------
 
 After giving your credentials, noobaa service account will ask for permission to access your admin account.
-You need to allow this access to proceed. AFter that you will be resented with the NooBaa management overview:
+You need to allow this access to proceed. After that you will be presented with the NooBaa management overview:
 
 image:screenshots/lab2/noobaa-mgmt.png[Noobaa Mgmt]
 
