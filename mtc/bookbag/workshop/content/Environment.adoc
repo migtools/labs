@@ -27,6 +27,7 @@ image::screenshots/lab1/labenv-overview.png[Lab Environment Overview, width=50%,
 |OCP Console |https://master.{OCP3_DOMAIN}/console
 |Password |{OCP3_PASSWORD}
 |API |https://master.{OCP3_DOMAIN}
+|OCP admin user/password| admin/{OCP3_PASSWORD}
 |Bastion Host |{OCP3_BASTION}
 |Bastion SSH user/password |{OCP3_SSH_USER}/{OCP3_PASSWORD}
 |===

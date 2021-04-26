@@ -42,8 +42,13 @@ In that window, let's go ahead and ssh into the bastion host, and then login int
 $ **ssh {OCP3_SSH_USER}@{OCP3_BASTION}**
 {OCP3_SSH_USER}@{OCP3_BASTION}'s password:
 Last login: Sun Mar 22 21:22:55 2020 from 66.26.68.90
-[{OCP3_SSH_USER}@master1 0 ~]$
+[{OCP3_SSH_USER}@bastion 0 ~]$
+--------------------------------------------------------------------------------
 
+Run `oc login` command to log into your OCP3 cluster from the terminal:
+
+[source,bash,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
 $ **oc login https://master.{OCP3_DOMAIN} -u admin -p {OCP3_PASSWORD}**
 The server uses a certificate signed by an unknown authority.
 You can bypass the certificate check, but any data you send to the server could be intercepted by others.
