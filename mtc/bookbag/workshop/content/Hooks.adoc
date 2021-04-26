@@ -306,7 +306,7 @@ Once the migration has completed, let's verify that MediaWiki has been migrated 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
 $ **oc get route mediawiki -n mediawiki -o jsonpath='{.spec.host}{"\n"}'**
-mediawiki-mediawiki.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
+mediawiki-mediawiki.apps.cluster-{OCP4_GUID}.{OCP4_DOMAIN}
 --------------------------------------------------------------------------------
 
 image:./screenshots/lab8/mediawiki.png[MediaWiki]

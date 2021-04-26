@@ -84,11 +84,11 @@ We should already have MTC UI opened from the previous steps. In case you don't 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
 $ **oc get routes migration -n openshift-migration -o jsonpath='{.spec.host}{"\n"}'**
-migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
+migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_DOMAIN}
 --------------------------------------------------------------------------------
 
 Next, open a browser to the route from above.  +
-https://migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
+https://migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_DOMAIN}
 
 image:./screenshots/lab2/mtcUI.png[MTC Main Screen]
 
