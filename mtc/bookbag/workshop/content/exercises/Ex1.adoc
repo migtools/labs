@@ -70,7 +70,7 @@ Again, if we do not have it open, in order to get the route run the following co
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
 $ **oc get routes migration -n openshift-migration -o jsonpath='{.spec.host}{"\n"}'**
-migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
+migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_DOMAIN}
 --------------------------------------------------------------------------------
 
 The screen should look something like:

@@ -58,8 +58,8 @@ Use insecure connections? (y/n): y
 Login successful.
 --------------------------------------------------------------------------------
 
-The second terminal window will be used for the destination *OCP 4* cluster. You should already be logged in here, that is where your welcome screen and Bookbag deployment happened. +
-In case you closed that window or tab, let's log back into the *OCP 4* cluster bastion:
+The second terminal window will be used for the destination *OCP 4* cluster.
+In case you are not logged in there already, let's log into the *OCP 4* cluster's bastion:
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
