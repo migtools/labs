@@ -34,7 +34,7 @@ The `deploy.sh` script will deploy the HelloOpenShift application to a user spec
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ ** ./deploy.sh
+$ ./deploy.sh
 Number of namespaces? 5
 namespace/hello-openshift-1 created
 pod/hello-openshift created
@@ -368,14 +368,29 @@ You can continuously describe the MigMigration to see phase info, or tail the mi
 
 === Verification
 
-From the OCP 4 cluster, run the `probe.sh` script and provide it with the number of applications that were deployed for the migration.
+. On the OCP 4 bastion, run the `probe.sh` script and provide it with the number of applications that were deployed for the migration.
 
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-$ **oc login https://master.{OCP4_GUID}.{OCP4_DOMAIN} -u admin -p {OCP4_PASSWORD}**
-[ output ommitted... ]
+.Validate that you're on the OCP4 host
+[source]
+----
+oc cluster-info
+----
++
+.Sample Output
+----
+Kubernetes control plane is running at https://api.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}:6443
 
-$ **./probe.sh 5**
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+----
+
+. On the OCP 4 bastion, run the probe to validate that the app is running in multiple namespaces
+[source]
+----
+./probe.sh 5
+----
++
+.Sample Output
+----
 Probing app in namespace hello-openshift-1
 Hello OpenShift!
 Probing app in namespace hello-openshift-2
@@ -386,10 +401,7 @@ Probing app in namespace hello-openshift-4
 Hello OpenShift!
 Probing app in namespace hello-openshift-5
 Hello OpenShift!
---------------------------------------------------------------------------------
+----
 
-Once finished, you can log back in to OCP3 cluster:
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-$ **oc login https://master.{OCP3_GUID}.{OCP3_DOMAIN} -u admin -p {OCP3_PASSWORD}**
---------------------------------------------------------------------------------
+. Congratulations!  You've migrated a multi-project application!
+
