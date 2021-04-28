@@ -46,7 +46,7 @@ Last login: Sun Mar 22 21:22:55 2020 from 66.26.68.90
 [{OCP3_SSH_USER}@bastion 0 ~]$
 --------------------------------------------------------------------------------
 
-Run `oc login` command to log into your OCP 3 cluster from the terminal:
+Run `oc login` command to log into your OCP3 cluster from the terminal:
 
 [source,bash,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ Run `oc login` command to log into your OCP4 cluster from the terminal:
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **oc login https://api.cluster-{OCP4_GUID}.{OCP4_DOMAIN}:6443 -u admin -p {OCP4_PASSWORD}**
+$ **oc login https://api.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}:6443 -u admin -p {OCP4_PASSWORD}**
 Login successful.
 
 You have access to 65 projects, the list has been suppressed. You can list all projects with 'oc projects'
@@ -132,13 +132,13 @@ velero-cd5cd48b6-z47px                  1/1     Running   0          51m
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
 $ **oc get routes migration -n openshift-migration -o jsonpath='{.spec.host}{"\n"}'**
-migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_DOMAIN}
+migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 --------------------------------------------------------------------------------
 
 [start=2]
 . For this example we’ll visit the below link from our browser. Please accept any self-signed certificates:
 
-* https://migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_DOMAIN}
+* https://migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 
 ==== Accept API Certificates on Source and Destination Clusters
 
@@ -146,11 +146,11 @@ migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_DOMAIN}
 
 * Visit the links displayed by the Web UI. If there is a pop-up requesting "Refresh" just cancel it, and follow the hyperlinks. Here are the links you will need to follow:
 ** OCP4:
-*** OCP 4.x: https://api.cluster-{OCP4_GUID}.{OCP4_DOMAIN}:6443/.well-known/oauth-authorization-server
-*** OCP 4.x: https://discovery-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_DOMAIN}/namespaces/openshift-migration/clusters/host/namespaces 
+*** OCP 4.x: https://api.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}:6443/.well-known/oauth-authorization-server
+*** OCP 4.x: https://discovery-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}/namespaces/openshift-migration/clusters/host/namespaces
 ** OCP3:
-*** OCP 3.x: https://master.{OCP3_DOMAIN}/.well-known/oauth-authorization-server
-*** OCP 3.x: https://master.{OCP3_DOMAIN}/api/v1/namespaces
+*** OCP 3.x: https://master.{OCP3_GUID}.{OCP3_DOMAIN}/.well-known/oauth-authorization-server
+*** OCP 3.x: https://master.{OCP3_GUID}.{OCP3_DOMAIN}/api/v1/namespaces
 * After accepting the API certs, reload the MTC UI URL.
 * Get redirected to login page.
 
@@ -193,7 +193,7 @@ s3     LoadBalancer   172.30.209.151   ab6e67b04f2fc4ad1bb126ad89db0962-17967254
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
 $ **oc get routes noobaa-mgmt -n openshift-storage -o jsonpath='{.spec.host}{"\n"}'**
-noobaa-mgmt-openshift-storage.apps.cluster-{OCP4_GUID}.{OCP4_DOMAIN}
+noobaa-mgmt-openshift-storage.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 --------------------------------------------------------------------------------
 
 After giving your credentials, NooBaa service account will ask for permission to access your admin account.
