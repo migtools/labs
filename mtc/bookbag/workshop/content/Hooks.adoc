@@ -12,11 +12,16 @@
 :OCP4_BASTION: %ocp4_bastion%
 
 == Introduction
-Migration hooks provide a means for running custom code at points in the migration to handle logic unique to a migration. This may include scenarios where custom quiesce logic is desired, manual data migration of unsupported types is needed, or to handle application repair after it has been migrated to a new environment.
 
-There are two primary methods of creating a hook. The first is to write an Ansible playbook that is run either on an image we provide or one you create with additional ansibile modules or tools that you require. The other is to create a custom hook container and the entrypoint will be executed.
+Migration hooks provide a means for running custom code at points in the migration to handle logic unique to a migration.
+This may include scenarios where custom quiesce logic is desired, manual data migration of unsupported types is needed, or to handle application repair after it has been migrated to a new environment.
 
-There are currently 4 phases within a migration where migration hooks can be run. One hook may be run per phase for a maximum total of 4 hooks per migration, and hooks in any phase may be run either on the source or destination cluster.
+There are two primary methods of creating a hook.
+The first is to write an Ansible playbook that is run either on an image we provide or one you create with additional ansibile modules or tools that you require.
+The other is to create a custom hook container and the entrypoint will be executed.
+
+There are currently 4 phases within a migration where migration hooks can be run.
+One hook may be run per phase for a maximum total of 4 hooks per migration, and hooks in any phase may be run either on the source or destination cluster.
 
 The phases where hooks may be run are:
 
@@ -26,47 +31,63 @@ The phases where hooks may be run are:
  * *PostRestore*: After restore tasks are complete.
 
 === Default hook image
-The default hook image is `quay.io/konveyor/hook-runner:latest`. It is based off of the Ansible Runner image with the addition of python-openshift to provided Ansible k8s resources as well as a recent oc binary.
+
+The default hook image is `quay.io/konveyor/hook-runner:latest`.
+It is based off of the Ansible Runner image with the addition of python-openshift to provided Ansible k8s resources as well as a recent oc binary.
 
 === Hook execution
-When an Ansible playbook is provided as part of a migration hook it will be mounted into the hook container as a ConfigMap. In either case the hook container will be run as a job on the desired cluster, using the execution ServiceAccount and Namespace specified. Jobs are designed to run to completion, even if the initial pod is evicted or killed, and may attempt to run several times up until it it either reaches the backoffLimit or successful completion. We use the default backoffLimit of 6 for hook jobs.
+
+When an Ansible playbook is provided as part of a migration hook it will be mounted into the hook container as a ConfigMap.
+In either case the hook container will be run as a job on the desired cluster, using the execution ServiceAccount and Namespace specified.
+Jobs are designed to run to completion, even if the initial pod is evicted or killed, and may attempt to run several times up until it it either reaches the backoffLimit or successful completion.
+We use the default backoffLimit of 6 for hook jobs.
 
 === Exercise
-In this exercise, we will be using Migration Hooks to address a MediaWiki configuration setting change (https://www.mediawiki.org/wiki/Manual:$wgServer[$wgServer]) that needs to be updated to the destination OCP 4 cluster post application migration.  Let's get started.
+In this exercise, we will be using Migration Hooks to address a MediaWiki configuration setting change (https://www.mediawiki.org/wiki/Manual:$wgServer[$wgServer]) that needs to be updated to the destination OCP 4 cluster post application migration.
+Let's get started.
 
-MediaWiki is running on your source OCP 3 cluster in the `mediawiki` namespace.  Let's launch the MTC UI and create a Migration Plan:
+MediaWiki is running on your source OCP 3 cluster in the `mediawiki` namespace.
 
-From the `Migration plans` tab, click the `Add migration plan` button:
-Give your plan a name, select the source and destination clusters, and your replication repository.  Then click Next.
+Let's launch the MTC UI and create a Migration Plan with a Hook:
 
+. From the `Migration plans` tab, click the `Add migration plan` button:
+Give your plan a name, select the source and destination clusters, and your replication repository.
+Then click Next.
++
 image:./screenshots/lab8/mtc-migplan-general.png[MTC Mig Plan General]
-
-Select the `mediawiki` namespace/project, and click Next.
-
++
+. Select the `mediawiki` namespace/project, and click Next.
++
 image:./screenshots/lab8/mtc-migplan-namespaces.png[MTC Mig Plan Namespaces]
-
-Now we are displayed the OCS3/Gluster persistent volume associated with our application. For this example, since we are migrating our storage from Gluster to Ceph, let’s choose `Copy` as our transfer type.  Click Next.
-
-
++
+. Now we are displayed the OCS3/Gluster persistent volumes associated with our application.
+For this example, since we are migrating our storage from Gluster to Ceph, let’s choose `Copy` as our transfer type.
+Click Next.
++
 image:./screenshots/lab8/mtc-migplan-pvs.png[MTC Mig Plan PVs]
-
-Next, we will need to select the `copy method` and `target storage class`. MTC will attempt to pre-select these for you as defaults. In our case, we want *Filesystem copy* and *ocs-storagecluster-ceph-rbd*. Click Next.
-
++
+. Next, we will need to select the `copy method` and `target storage class`.
+MTC will attempt to pre-select these for you as defaults.
+In our case, we want *Filesystem copy* and *ocs-storagecluster-ceph-rbd*.
+Click Next.
++
 image:./screenshots/lab8/mtc-migplan-copyoptions.png[MTC Mig Plan CopyOptions]
-
-We are now presented with Migration Options. Click Next.
-
++
+. We are now presented with Migration Options.
+Click Next.
++
 image:./screenshots/lab4/mtc-mig-plan-migoptions.png[MTC Mig Plan Options]
-
-Here is where we add our Migration Hook.  Let's click the `Add Hook` button.
-
++
+. Here is where we add our Migration Hook.
+Let's click the `Add Hook` button.
++
 image:./screenshots/lab8/mtc-migplan-emptyhooks.png[MTC Mig Plan Hooks]
-
-We are making a new hook, so choose "Create a new hook" from the drop-down menu. +
++
+. We are making a new hook, so choose "Create a new hook" from the drop-down menu.
 Let's give our hook a `name`, and to start the `Hook definition`, let's paste in the ansible playbook below:
-
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
++
+[source,yaml]
+----
 - hosts: localhost
   gather_facts: false
   tasks:
@@ -103,39 +124,55 @@ Let's give our hook a `name`, and to start the `Hook definition`, let's paste in
 
   - name: "Restart mediawiki"
     shell: "oc delete po -n mediawiki -l app=mediawiki"
---------------------------------------------------------------------------------
-
+----
++
 image:./screenshots/lab8/mtc-migplan-hooks1.png[MTC Mig Plan Add Hook1]
-
-
-Now scroll down, and let's finish the Hook definition.
++
+. Now scroll down, and let's finish the Hook definition.
 We want our hook to repair the MediaWiki application on the OCP4 cluster, so let's select:
-
++
 * Run in: Check *Target Cluster*. This is where ansible playbook will run.
 * Service account name: *migration-controller*
 * Service account namespace: *openshift-migration*
-
-
-Lastly, we have to choose which phase to run the hook.  Let's select *PostRestore*.  That's it for the Hook definition, so click `Add hook`.
-
++
+. Lastly, we have to choose which phase to run the hook.
+Let's select *PostRestore*.
+That's it for the Hook definition, so click `Add hook`.
++
 image:./screenshots/lab8/mtc-migplan-hooks2.png[MTC Mig Plan Add Hook2]
-
++
 Click `Finish` to save the plan. And then click on 'Close'.
-
++
 image:./screenshots/lab8/mtc-migplan-hookadded.png[MTC Mig Plan Added]
 
 
-==== A closer look at the Resources
+==== A Closer Look at the Resources
 
-Let's take a closer look at the mighook resource that was created during creation of the Migration Plan.  On our OCP 4 cluster, let's run the following:
+Let's take a closer look at the mighook resource that was created during creation of the Migration Plan.
 
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-# Switch to openshift-migration project
+. On our OCP 4 cluster, let's change to the project `openshift-migration` 
++
+[source,sh]
+----
 $ oc project openshift-migration
+----
++
+.Sample Output
+[source,textinfo]
+----
 Now using project "openshift-migration" on server ...
-
-$ **oc get mighook -o yaml**
+----
++
+. Now run the following to examine the Migration Hook
++
+[source,sh]
+----
+oc get mighook -o yaml
+----
++
+.Sample Output
+[source,yaml]
+----
 apiVersion: migration.openshift.io/v1alpha1
 kind: MigHook
 metadata:
@@ -160,13 +197,22 @@ status:
     status: "True"
     type: Ready
   observedGeneration: 3
---------------------------------------------------------------------------------
-
-As you can see, our hook name has had a token postpended to ensure uniqueness.  The playbook has been base-64 encoded, and the hook has been validated and is ready for use with our plan.  Let's also take a look at the mediawiki migration plan:
-
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-$ **oc get migplan mediawiki -o yaml**
+----
++
+As you can see, our hook name has had a token postpended to ensure uniqueness.
+The playbook has been base-64 encoded, and the hook has been validated and is ready for use with our plan.
++
+.  Let's also take a look at the mediawiki migration plan:
++
+[source,sh]
+----
+oc get migplan mediawiki -o yaml
+----
++
+.Sample Output
++
+[source,yaml]
+----
 apiVersion: migration.openshift.io/v1alpha1
 kind: MigPlan
 metadata:
@@ -281,12 +327,12 @@ status:
   - operatorgroups
   - events
   observedDigest: 6491949d7ac842b67111abd48f06ed0416052dcbec8ca208282af2a7c1ddbbf3
---------------------------------------------------------------------------------
-
-As you can see, our hook is properly associated:
-
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
+----
++
+In this section from the above output, you can see our hook is properly associated:
++
+[source,yaml]
+----
 hooks:
   - executionNamespace: openshift-migration
     phase: PostRestore
@@ -294,29 +340,35 @@ hooks:
       name: mediawiki-repair-db9pb
       namespace: openshift-migration
     serviceAccount: migration-controller
---------------------------------------------------------------------------------
-
-Now let's kick off a migration.
-
+----
++
+. Now let's kick off a migration.
+Select Migration Plan "mediawiki" for "Migration" by clicking the control menu at the right of the entry, and then confirming.
++
 image:./screenshots/lab8/mtc-migplan-migrate.png[MTC Mig Plan Migrate]
++
+. Click the Migrations indicator for the mediawiki migration plan and observe the process.
++
 image:./screenshots/lab8/mtc-migplan-progress.png[MTC Mig Plan Migrate]
++
+. Watch it work until completion.
++
 image:./screenshots/lab8/mtc-migplan-complete.png[MTC Mig Plan Migrate]
-
-Once the migration has completed, let's verify that MediaWiki has been migrated and that the hook has our route pointed properly at the OCP 4 cluster.
-
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-$ **oc get route mediawiki -n mediawiki -o jsonpath='{.spec.host}{"\n"}'**
++
+. Once the migration has completed, let's verify that MediaWiki has been migrated and that the hook has our route pointed properly at the OCP 4 cluster.
++
+[source,sh]
+----
+oc get route mediawiki -n mediawiki -o jsonpath='{.spec.host}{"\n"}'
+----
++
+.Sample Output
+[source,textinfo]
+----
 mediawiki-mediawiki.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
---------------------------------------------------------------------------------
-
+----
++
 image:./screenshots/lab8/mediawiki.png[MediaWiki]
 
-*Success!*  In the next lab, we will explore some debugging techniques for when migrations don't go quite as planned.
-
-
-
-
-
-
-
+*Success!*  
+In the next lab, we will explore some debugging techniques for when migrations don't go quite as planned.
