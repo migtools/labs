@@ -136,9 +136,8 @@ migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 --------------------------------------------------------------------------------
 
 [start=2]
-. For this example we’ll visit the below link from our browser. Please accept any self-signed certificates:
+. For this example we’ll need to accept all the self-signed certificates before we can visit the MTC UI. Please click through and accept any self-signed certificates. You can ignore page errors if some occur:
 
-* https://migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 
 ==== Accept API Certificates on Source and Destination Clusters
 
@@ -153,6 +152,11 @@ migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 *** OCP 3.x: https://master.{OCP3_GUID}.{OCP3_DOMAIN}/api/v1/namespaces
 * After accepting the API certs, reload the MTC UI URL.
 * Get redirected to login page.
+
+Finally we can go to the MTC UI:
+
+* https://migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
+
 
 [start=2]
 . Login with your credentials for the cluster.
