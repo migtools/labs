@@ -24,9 +24,9 @@ image::screenshots/lab1/labenv-overview.png[Lab Environment Overview, width=50%,
 |===
 |Key |Value
 |GUID | {OCP3_GUID}
-|OCP Console |https://master.{OCP3_GUID}.{OCP3_DOMAIN}/console
+|OCP Console |https://master.{OCP3_DOMAIN}/console
 |Password |{OCP3_PASSWORD}
-|API |https://master.{OCP3_GUID}.{OCP3_DOMAIN}
+|API |https://master.{OCP3_DOMAIN}
 |OCP admin user/password| admin/{OCP3_PASSWORD}
 |Bastion Host |{OCP3_BASTION}
 |Bastion SSH user/password |{OCP3_SSH_USER}/{OCP3_PASSWORD}
@@ -38,9 +38,9 @@ image::screenshots/lab1/labenv-overview.png[Lab Environment Overview, width=50%,
 |===
 |Key |Value
 |GUID | {OCP4_GUID}
-|OCP Console |http://console-openshift-console.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
+|OCP Console |http://console-openshift-console.apps.cluster-{OCP4_GUID}.{OCP4_DOMAIN}
 |Password |{OCP4_PASSWORD}
-|API |https://api.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}:6443
+|API |https://api.cluster-{OCP4_GUID}.{OCP4_DOMAIN}:6443
 |OCP admin user/password| admin/{OCP4_PASSWORD}
 |Bastion Host |{OCP4_BASTION}
 |Bastion SSH user/password |{OCP4_SSH_USER}/{OCP4_PASSWORD}
