@@ -1,4 +1,4 @@
-== OpenShift Migration Tookit for Containers (MTC) Lab
+== OpenShift Migration Toolkit for Containers (MTC) Lab
 
 === Migrating from OCP 3.x to OCP 4.x
 

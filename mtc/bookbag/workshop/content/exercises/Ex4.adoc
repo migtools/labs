@@ -387,9 +387,3 @@ Hello OpenShift!
 Probing app in namespace hello-openshift-5
 Hello OpenShift!
 --------------------------------------------------------------------------------
-
-Once finished, you can log back in to OCP3 cluster:
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-$ **oc login https://master.{OCP3_GUID}.{OCP3_DOMAIN} -u admin -p {OCP3_PASSWORD}**
---------------------------------------------------------------------------------

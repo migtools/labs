@@ -16,7 +16,7 @@
 The following lab environment has been provisioned for you for use with this Lab.
 You can open this page in a separate tab as well, so that you will have the following information at hand when needed later during the Lab.
 
-image::screenshots/lab1/labenv-overview.png[Lab Environment Overview, width=50%, align="center"]
+image::screenshots/lab1/labenv-overview2.png[Lab Environment Overview, width=50%, align="center"]
 
 === OpenShift 3 Cluster
 
