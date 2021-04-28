@@ -84,7 +84,7 @@ IMPORTANT: Remember our goal is to migrate our application from OCP/OCS 3 to OCP
 The first thing we want to do is add the source OCP cluster we wish to migrate the application from. From the `Clusters` tab, click the `Add cluster` button. Fill out the necessary information. +
 We will need a Service Account Token in order for MTC to communicate with the destination cluster:
 
-Run the following in the OCP 3 cluster terminal.
+Run the following in the *OCP 3* cluster terminal.
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
@@ -105,7 +105,7 @@ NAME              HOST/PORT                                                     
 docker-registry   docker-registry-default.apps.brno-7215.sandbox911.opentlc.com             docker-registry   <all>     passthrough   None
 --------------------------------------------------------------------------------
 
-You will put the HOST this into the field *Exposed route host to image registry*
+You will put the HOST into the field *Exposed route host to image registry*
 
 When done, click `Add cluster`. Here's an example:
 
