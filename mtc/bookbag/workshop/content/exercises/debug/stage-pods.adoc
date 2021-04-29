@@ -17,7 +17,7 @@ When filesystem copy mode is selected, MTC makes use of temporary pods which att
 
 MTC uses `migration-cluster-config` configmap to allow users to modify image used for temporary stage pods.
 
-Login to your source cluster and edit the configmap using the script in ~/files/debug/ex2 on the bastion host:
+Login to your *source* cluster and edit the configmap using the script in ~/files/debug/ex2 on the bastion host:
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------

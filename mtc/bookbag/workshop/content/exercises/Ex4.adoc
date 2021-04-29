@@ -403,5 +403,6 @@ Probing app in namespace hello-openshift-5
 Hello OpenShift!
 ----
 
-. Congratulations!  You've migrated a multi-project application!
+*Congratulations!*
+You've migrated a multi-project application!
 
