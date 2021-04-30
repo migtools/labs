@@ -26,7 +26,6 @@ IMPORTANT: Migration is at scope of a Namespace. +
 Future versions will allow selecting resources inside of a Namespace.
 
 IMPORTANT: `cluster-admin` role is currently required to execute migrations. +
-Future versions will allow for application owners to plan and execute migrations.
 
 image:./screenshots/lab3/mtcprocess.png[MTC Process]
 
