@@ -36,7 +36,7 @@ As you can see the new source-cluster entry has a status of **Connection Failed*
 
 image:../../screenshots/debug/ex1/mtc-cluster-edit.png[MTC Cluster Edit]
 
-A Connection Failure is likely caused by an incorrectly specified cluster URL and/or an incorrectly specified Service account token.  Let's proceed with updating both for our source OCP3 cluster and re-validate the connection.  Enter in the correct information and click `Update cluster`.
+A Connection Failure is likely caused by an *incorrectly specified cluster URL* and/or an *incorrectly specified Service account token*.  Let's proceed with updating both for our source OCP3 cluster and re-validate the connection.  Enter in the correct information for URL and SA token and click `Update cluster`.
 
 image:../../screenshots/debug/ex1/mtc-cluster-failure.png[MTC Cluster Failure]
 

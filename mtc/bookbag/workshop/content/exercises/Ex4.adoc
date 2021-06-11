@@ -91,7 +91,7 @@ Go to your *OCP 4* terminal. +
 In the OCP4 cluster, since we’ve already performed successful migrations throughout the preceding labs, we already have our MigCluster & MigStorage resources created. This means we are ready to assemble our MigPlan.
 
 In the below yaml, we’ve seeded with the created resources.
-Create a new file named `mig-plan.yaml` and paste the contents below as a starting point into your favorite editor. If you are using `vim`, you may want to put it into PASTE mode (:set paste) before going into INSERT mode:
+Create a new file named `mig-plan.yaml` and paste the contents below as a starting point into your favorite editor. If you are using `vim`, you may want to put it into PASTE mode (`:set paste`) before going into INSERT mode:
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------

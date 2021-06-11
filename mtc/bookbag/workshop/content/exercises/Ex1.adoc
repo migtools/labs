@@ -164,11 +164,11 @@ Optionally you may choose to _not_ terminate the application on the source clust
 
 image:../screenshots/lab4/mtc-quiesce.png[MTC Quiesce]
 
-The migration will start and will update with each step in the process. 
+The migration will start and will update with each step in the process.
 
 image:../screenshots/lab4/mtc-startmig.png[MTC Migration Started]
 
-If you wish to see the progress bar, you can see the details by clicking on the migration link in column *Migrations*.
+If you wish to see the progress bar, click on the drill down link under *Migrations* to see details of the individual migrations.
 
 image:../screenshots/lab4/mtc-progress-bar.png[MTC Progress Bar]
 

@@ -73,8 +73,9 @@ There are 3 steps to the migration process within MTC:
 
 . *Migrate*
 
-* Quiesce the application
+* Optionally quiesce the application
 * Migrate any delta state since last stage run
+* Migrate other related resources
 
 === WebUI
 
