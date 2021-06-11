@@ -47,12 +47,12 @@ Warning: Permanently added 'bastion.clayton-a831.example.opentlc.com,54.196.40.2
 tsanders-redhat.com@bastion.clayton-a831.example.opentlc.com's password:
 ```
 
-As soon as you log in, you will be greeted by a "Welcome to MTC LAB" screen. This will ask you to provide the bastion hostname of the OCP3 cluster for your lab. You can find this information in the email you received after your OCP3 cluster was provisioned. Paste the whole hostname of OCP3 bastion host into the terminal.
+As soon as you log in, you will be greeted by a "Welcome to MTC LAB" screen. This will ask you to provide the bastion hostname of the OCP3 cluster for your lab. This will be the first Master of your OCP3. You can find this information in the email you received after your OCP3 cluster was provisioned. Paste the whole hostname of OCP3 bastion host into the terminal.
 It will look something like:
 
 ```
 Please enter your OCP3 bastion hostname.
-That is the one you received FOR YOUR OCP3 environment: bastion.f422.sandbox489.opentlc.com
+That is the one you received FOR YOUR OCP3 environment: master1.fp62b.sandbox1012.opentlc.com
 ```
 
 Step 7: After entering the bastion hostname, press enter, sit back and relax while the scripts provision Bookbag instruction pages for you. Be patient while the script configures and deploys the necessary pods. The process takes around 2 minutes.
