@@ -147,9 +147,6 @@ migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 ** OCP4:
 *** OCP 4.x: https://api.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}:6443/.well-known/oauth-authorization-server
 *** OCP 4.x: https://discovery-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}/namespaces/openshift-migration/clusters/host/namespaces
-** OCP3:
-*** OCP 3.x: https://master.{OCP3_GUID}.{OCP3_DOMAIN}/.well-known/oauth-authorization-server
-*** OCP 3.x: https://master.{OCP3_GUID}.{OCP3_DOMAIN}/api/v1/namespaces
 * After accepting the API certs, reload the MTC UI URL.
 * Get redirected to login page.
 
@@ -193,6 +190,7 @@ s3     LoadBalancer   172.30.209.151   ab6e67b04f2fc4ad1bb126ad89db0962-17967254
 
 [arabic, start=3]
 . You can also access the Noobaa Mgmt console. When you visit the Web UI it will ask you to accept self-signed certificates.
+Some users may experience issues with browsers that are not Chromium-based.
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
@@ -200,7 +198,7 @@ $ **oc get routes noobaa-mgmt -n openshift-storage -o jsonpath='{.spec.host}{"\n
 noobaa-mgmt-openshift-storage.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
 --------------------------------------------------------------------------------
 
-After giving your credentials, NooBaa service account will ask for permission to access your admin account.
+After giving your admin credentials (they are set to be the same as for OCP), NooBaa service account will ask for permission to access your admin account.
 You need to allow this access to proceed. After that you will be presented with the NooBaa management overview:
 
 image:screenshots/lab2/noobaa-mgmt.png[Noobaa Mgmt]

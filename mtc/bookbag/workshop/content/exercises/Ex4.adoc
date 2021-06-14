@@ -127,7 +127,7 @@ spec:
 
 The MTC 1.4 default is to use Direct Migration. We should have this set up already, from when we added the cluster. We filled in the details regarding Remote Image Registry route.
 
-After you saved the file, run the following command to create a Migration Plan:
+After you saved the file, run the following command on *OCP4* cluster to create a Migration Plan:
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ $ **oc apply -f mig-plan.yaml **
 migplan.migration.openshift.io/multi-namespace-migplan created
 --------------------------------------------------------------------------------
 
-Let’s Describe our MigPlan. Assuming the controller is running, validations should have run against the plan, and you should be able to see a status of *The migration plan is ready.* or a list of issues to resolve.
+Let’s Describe our MigPlan. Assuming the controller is running, validations should have run against the plan, and you should be able to see a status of *The migration plan is ready.* or a list of issues to resolve. If you fail to see the status, MAKE SURE you executed the command on your *OCP4* cluster.
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
