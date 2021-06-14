@@ -17,7 +17,7 @@ When filesystem copy mode is selected, MTC makes use of temporary pods which att
 
 MTC uses `migration-cluster-config` configmap to allow users to modify image used for temporary stage pods.
 
-Login to your *source* cluster and edit the configmap using the script in ~/files/debug/ex2 on the bastion host:
+Open the terminal to your *source* cluster and edit the configmap using the script in ~/files/debug/ex2 on the bastion host:
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
@@ -26,6 +26,7 @@ migrationcontroller.migration.openshift.io/migration-controller patched
 configmap "migration-cluster-config" deleted
 --------------------------------------------------------------------------------
 
+This script will replace the migration stage image destination with an invalid image URL used for the Stage pod.
 Wait until the operator recreates a new configmap:
 
 [source,subs="{markup-in-source}"]
@@ -41,13 +42,14 @@ Now we will migrate an application (Rocket Chat) from source to the destination 
 
 image:../../screenshots/debug/ex2/copy-options.png[Copy Options]
 
-Once the migplan is created successfully, migrate the application. 
+Once the migplan is created successfully, migrate the application.
+This time make sure though that we are *NOT* using the DirectImage Migration.
 
-Notice that the migration will get stuck at `StagePodsCreated` phase:
+Notice that the migration will get stuck at `StageBackup` phase:
 
 image:../../screenshots/debug/ex2/stage-pods.png[Stage Pods]
 
-This is expected as we deliberately set a wrong image for stage pods. 
+This is expected as we deliberately set a wrong image for stage pods.
 
 ### Investigate
 
@@ -68,11 +70,11 @@ Note that the stage pods are created in the namespace in which the application i
 
 ### Cancel the migration
 
-We will now use the `Cancel` migration feature to cancel the ongoing migration. From the dropdown menu on the right side of the MigPlan, click `Cancel` option and wait until the migration is canceled completely. Canceling an ongoing migration will also delete the pending Stage Pods.
+We will now use the `Cancel` migration feature to cancel the ongoing migration. From the dropdown menu on the right side of the stuck Migration, click `Cancel` option and wait until the migration is canceled completely. Canceling an ongoing migration will also delete the pending Stage Pods.
 
 ### Fix the stage pod image
 
-Restore the stage pod image using: 
+In order to fix this, we will configure the right path to the Stage image. Restore the correct stage pod image URL using the following script:
 
 ```sh
 ./02-stage-pod-restore.sh

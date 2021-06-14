@@ -33,7 +33,8 @@ Additionally, temporary object storage will be required perform a migration. For
 === Accessing OCP 3 and OCP 4 clusters
 
 As we will be interacting with both the source and destination cluster throughout the course of this lab, let’s go ahead and open two terminal windows.
-You should keep these open throughout the lab.
+
+IMPORTANT: You should keep these open throughout the lab. We will need to execute commands in both terminals, as directed by the lab instructions.
 
 The first terminal window will be used for the source *OCP 3* cluster. +
 In that window, let's go ahead and ssh into the bastion host, and then login into the *OCP 3* cluster:
