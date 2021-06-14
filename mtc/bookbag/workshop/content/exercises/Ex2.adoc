@@ -11,7 +11,7 @@
 
 == Migrate MSSQL Application
 
-Next, we are going to migrate a simple Product Inventory web-based application front-end, backed backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 3 cluster in the mssql-persistent namespace, using a single PV backed by NFS for persistent storage.
+Next, we are going to migrate a simple Product Inventory web-based application front-end, backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 3 cluster in the `mssql-persistent` namespace, using a single PV backed by NFS for persistent storage.
 
 In our source OCP 3 cluster terminal, we can see the app running:
 
@@ -29,7 +29,7 @@ Let’s get the route to the application, and bring up the webUI.
 --------------------------------------------------------------------------------
 $  **oc get route -n mssql-persistent**
 NAME              HOST/PORT                                                       PATH   SERVICES     PORT   TERMINATION   WILDCARD
-mssql-app-route   mssql-app-route-mssql-persistent.apps.{OCP3_GUID}.{OCP3_DOMAIN}         db-app-svc   5000                 None
+mssql-app-route   mssql-app-route-mssql-persistent.apps.{OCP3_GUID}.{OCP3_DOMAIN}         mssql-app-service   5000                 None
 --------------------------------------------------------------------------------
 
 image:../screenshots/lab5/mssql-product-catalog.png[MSSQL Product Catalog]
@@ -47,7 +47,7 @@ Let’s also verify that the application is NOT installed on our OCP 4 destinati
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
 $ **oc get pods -n mssql-persistent**
-No resources found.
+No resources found in mssql-persistent namespace.
 --------------------------------------------------------------------------------
 
 === Using MTC
@@ -56,13 +56,15 @@ Let’s go ahead and define our Migration Plan in the MTC UI.
 
 ==== Create a Migration Plan
 
+Give your plan a name, select the source and destination clusters, and your replication repository.  Then click Next.
+
 image:../screenshots/lab5/mtc-migplan-general.png[MTC Mig Plan General]
 
-Give your plan a name, select the source and destination clusters, and your replication repository.  Then click Next.
+Select the `mssql-persistent` namespace/project, and click Next.
 
 image:../screenshots/lab5/mtc-migplan-namespaces.png[MTC Mig Plan Namespaces]
 
-Select the `mssql-persistent` namespace/project, and click Next.
+There is just one PV, so go ahead and click Next.
 
 image:../screenshots/lab5/mtc-migplan-pvs.png[MTC Mig Plan PVs]
 
@@ -70,15 +72,21 @@ Next, we will need to select the `copy method` and `target storage class`.  MTC 
 
 image:../screenshots/lab5/mtc-migplan-copyoptions.png[MTC Mig Plan Copy Options]
 
-Select the storage class for your PVs. In this case we will be copying our data from NFS to AWS-EBS (`gp2:kubernetes.io/aws-ebs`). Click Next.
+We are presented with the same Migration Options like in the previous lab.
+Those can be left as is. Click Next. 
 
-image:../screenshots/lab5/mtc-migplan-hooks.png[MTC Mig Plan Hooks]
+image:../screenshots/lab4/mtc-mig-plan-migoptions.png[MTC Mig Plan Options]
 
 We will examine Migration Hooks in Lab 9, so we will skip this step and proceed.  Click Finish.
 
-image:../screenshots/lab5/mtc-migplan-validated.png[MTC Mig Plan Validate]
+image:../screenshots/lab5/mtc-migplan-hooks.png[MTC Mig Plan Hooks]
 
 After validating the migration plan, you will see a `Ready` message and you can click `Close`.
+You may be presented with a warning like the one below. That is due to our PV usage being high, and MTC telling us that this kind of situation could lead to problems. In our case we can acknowledge it and continue.
+
+image:../screenshots/lab5/mtc-migplan-warning.png[MTC Mig Plan Warning]
+
+
 
 ==== Migrate the Application Workload
 
@@ -86,7 +94,7 @@ Now we can select `Migrate` or `Stage` on the application. Since we don’t care
 
 image:../screenshots/lab5/mtc-migplan-migrate.png[MTC Mig Plan Migrate]
 
-Optionally choose to _not_ terminate the application on the source cluster. Leave it unchecked and select `Migrate`.
+Optionally choose to _not_ terminate the application on the source cluster. Leave it checked and select `Migrate`.
 
 image:../screenshots/lab5/mtc-migplan-quiesce.png[MTC Mig Plan Quiesce]
 
@@ -94,7 +102,7 @@ The migration will progress with a progress bar showing each step in the process
 
 image:../screenshots/lab5/mtc-migplan-progress.png[MTC Mig Plan Progress]
 
-Once done, you should see `Migration Succeeded` on the migration plan.
+Once done, you should see `Migration Completed` on the migration plan.
 
 image:../screenshots/lab5/mtc-migplan-complete.png[MTC Mig Plan Complete]
 
@@ -122,7 +130,7 @@ NAME        STATUS   VOLUME                                     CAPACITY   ACCES
 mssql-pvc   Bound    pvc-c0e077ea-e1c7-4ba7-a48e-051de94296fa   10Gi       RWO            gp2            4m52s
 --------------------------------------------------------------------------------
 
-We see that our 10GB volume has been moved and is now running in AWS EBS.
+We see that our 10Gi volume has been moved and is now running in AWS EBS.
 
 Lastly, let’s grab the route and open up the WebUI in our browser, and verify that the product we added prior to migration still exists.
 

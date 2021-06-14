@@ -13,7 +13,7 @@
 
 ACME Corporation is in the process of upgrading the production environment of their online socks store from OCP 3 to OCP 4. The application consists of various micro-services, and uses a shared NFS cluster for storage. ACME has already installed the OCP 4 cluster, and you have been asked to migrate the Socks-Shop application from their OCP 3 environment.
 
-The application and all of it’s resources are contained within the `sock-shop` namespace.
+The application and all of its resources are contained within the `sock-shop` namespace.
 
 image:../screenshots/lab6/sock-shop-main.png[SS Main]
 
@@ -25,8 +25,8 @@ The high-level steps are as follows:
 
 [arabic]
 . Launch the MTC WebUI.
-. Add a new Migration Plan.
-. Be sure to specify `Move` vs Copy for each of the four persistent volumes as the transfer option; as we will be swinging the PVs to the new cluster.
+. Add a new Migration Plan (name it `socks-shop-mig-plan`).
+. Use Move ('swing' the PV) for each of the four persistent volumes as the transfer option;
 . Execute a `Migration` of the Plan.
 . Verify the application is functioning on the destination cluster.
 

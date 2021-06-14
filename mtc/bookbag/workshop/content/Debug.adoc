@@ -8,6 +8,8 @@
 :OCP4_DOMAIN: %ocp4_domain%
 :OCP4_SSH_USER: %ocp4_ssh_user%
 :OCP4_PASSWORD: %ocp4_password%
+:OCP3_BASTION: %ocp3_bastion%
+:OCP4_BASTION: %ocp4_bastion%
 
 == Debugging Failed Migrations
 
@@ -19,7 +21,7 @@ image:./screenshots/lab7/mig-plan-failed.png[Failed Migration]
 
 image:./screenshots/lab7/mig-custom-resources.png[Failed Migration]
 
-It’s important to first understand the custom resources in play. The above architecture diagram illustrates the migration resources and their relationships. Most of our debugging failed migration executions will focus on the right-side of the diagram: * MigMigration * Velero - Backup and Restore
+It’s important to first understand the custom resources in play. The above architecture diagram illustrates the migration resources and their relationships. Most of our debugging failed migration executions will focus on the right side of the diagram: * MigMigration * Velero - Backup and Restore
 
 === View Debug Resources from WebUI
 
@@ -109,8 +111,8 @@ Note that the type of migration performed such as a 'Stage' or a 'Migrate' will 
 
  *  *Stage* migrations have one Backup and one Restore object, which are focused on _only_ processing the internal Images and Persistent Volumes that will be copied via a filesystem copy.
 
- * *Final* migrations have two Backup and two Restore objects. 
- ** The first Backup object captures the original, unaltered state of the application and its Kubernetes objects. This Backup is the source of truth. 
+ * *Final* migrations have two Backup and two Restore objects.
+ ** The first Backup object captures the original, unaltered state of the application and its Kubernetes objects.
  ** Then, the application is optionally queisced and a second Backup captures the storage-related resources (PVs, PVCs, and data)
 
 ===== Examining a Final migration
@@ -296,6 +298,14 @@ Another area we can examine to assist in debugging migration issues is the contr
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
 $ **oc get pods -n openshift-migration | grep controller**
+controller-manager-78c469849c-v6wcf           1/1     Running     0          4h49m
+--------------------------------------------------------------------------------
+
+==== Combined Migration Logs
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc logs -f -l logreader=mig -n openshift-migration -c color**
 controller-manager-78c469849c-v6wcf           1/1     Running     0          4h49m
 --------------------------------------------------------------------------------
 

@@ -18,7 +18,7 @@ parameters:
     required: true
     value: quay.io/openshifthomeroom/workshop-dashboard:5.0.0
   - name: GIT_REPO
-    value: https://gitlab.com/2020-summit-labs/openshift-migration-lab-bookbag.git
+    value: https://github.com/konveyor/labs.git
 
 objects:
   - apiVersion: image.openshift.io/v1
