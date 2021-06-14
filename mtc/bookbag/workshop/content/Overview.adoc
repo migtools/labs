@@ -19,11 +19,10 @@ MTC leverages two upstream projects: https://github.com/heptio/velero[Velero] an
 
 === Architecture
 
-MTC is implemented as a native k8s API extension through a custom resource definition. MTC orchestrates usage of Velero for performing backup/restores. OpenShift specific functionality is implemented in a series of Velero plugins. MTC is also equipped with a React/Patternfly 4 web UI to provide simple interactive experience.
+MTC is implemented as a native k8s API extension through custom resource definitions. MTC orchestrates usage of Velero for performing backup/restores. OpenShift specific functionality is implemented in a series of Velero plugins. MTC is also equipped with a React/Patternfly 4 web UI to provide simple interactive experience.
 
 
 IMPORTANT: Migration is at scope of a Namespace. +
-Future versions will allow selecting resources inside of a Namespace.
 
 IMPORTANT: `cluster-admin` role is currently required to execute migrations. +
 
@@ -60,10 +59,10 @@ There are 3 steps to the migration process within MTC:
 . *Plan*
 
 * Select source cluster
+* Select destination cluster
+* Specify intermediate object storage
 * Select namespaces
 * Choose Copy or Move for each Persistent volume
-* Specify intermediate object storage
-* Select destination cluster
 
 . *Stage*
 
