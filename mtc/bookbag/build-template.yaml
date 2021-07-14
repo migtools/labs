@@ -36,6 +36,7 @@ objects:
           kind: ImageStreamTag
           name: ${NAME}:latest
       source:
+        contextDir: mtc/bookbag
         git:
           ref: master
           uri: ${GIT_REPO}
