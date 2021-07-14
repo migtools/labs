@@ -66,7 +66,7 @@ To build from local source (aka "binary build"):
 +
 [source,subs="{markup-in-source}"]
 ----
-$ *oc start-build bookbag --follow --from-dir=.*
+$ *oc start-build bookbag --follow --from-dir=../..*
 ----
 +
 Build your Bookbag Image from Git:
