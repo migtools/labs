@@ -93,7 +93,7 @@ eyJhbGciOifsfsds8ahmtpZCI6IiJ9fdsfdseyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50
 --------------------------------------------------------------------------------
 We need to save the output of the 'get-token', that is the long string we will enter into the ui when we create a new cluster entry. +
 *Cluster name* is an arbitrary name you set for your cluster. +
-*URL* field is FQDN of your OCP3 Master API. You can find this in the '2.0 Environment' section as the OCP3 API field.+
+*URL* field is FQDN of your OCP3 Master API. You can find this in the '2.0 Environment' section as the OCP3 API field. +
 *Service account token* is the token you got in the previous command. +
 
 The last field is *Route to Image Registry*. This is provided so that you could include a route to the source cluster's image registry, if you wanted to allow direct image migration. Direct image and volume migrations have significant performance benefits, becuase they skip the intermediate steps of backing up files from the source cluster to the replication directory. Direct migrations use `rsync` to transfer the files. Since direct image migration requires some prerequisites, such as route to Image Registry on the source cluster, let's get this information from our *source OCP3* cluster.
