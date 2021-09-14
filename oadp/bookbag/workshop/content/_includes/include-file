@@ -1,0 +1,14 @@
+:sectlinks:
+:markup-in-source: verbatim,attributes,quotes
+:OCP3_GUID: %ocp3_guid%
+:OCP3_DOMAIN: %ocp3_domain%
+:OCP3_SSH_USER: %ocp3_ssh_user%
+:OCP3_PASSWORD: %ocp3_password%
+:OCP3_VERSION: 3.11 
+:OCP4_GUID: %ocp4_guid%
+:OCP4_DOMAIN: %ocp4_domain%
+:OCP4_SSH_USER: %ocp4_ssh_user%
+:OCP4_PASSWORD: %ocp4_password%
+:OCP3_BASTION: %ocp3_bastion%
+:OCP4_BASTION: %ocp4_bastion%
+:OCP4_VERSION: 4.3 

@@ -1,0 +1,240 @@
+:sectlinks:
+:markup-in-source: verbatim,attributes,quotes
+:OCP3_GUID: %ocp3_guid%
+:OCP3_DOMAIN: %ocp3_domain%
+:OCP3_SSH_USER: %ocp3_ssh_user%
+:OCP3_PASSWORD: %ocp3_password%
+:OCP4_GUID: %ocp4_guid%
+:OCP4_DOMAIN: %ocp4_domain%
+:OCP4_SSH_USER: %ocp4_ssh_user%
+:OCP4_PASSWORD: %ocp4_password%
+
+== Exercise 3 : GVK Incompatability
+
+This exercise will guide you through a failed migration scenario due to incompatible GVKs between the source and the destination cluster. It will help you with techniques to identify the problem through investigation different migration resources; as well as resolve the problem through resource upgrades.
+
+=== Background
+
+We have pre-installed a new Custom Resource Definition (`GvkDemo`) on your OCP 3 source cluster and created an instance within the `gvk-demo` namespace.  A different version of the same CRD has been installed on your OCP 4 destination cluster.
+
+=== Migrate GVK incompatible namespace
+
+Let's launch MTC and create a Migration Plan to migrate the gvk-demo namespace.
+
+image:../../screenshots/debug/ex3/migplan.png[MTC Mig Plan]
+
+Run a migration by clicking _Migrate_ option from the dropdown menu on the migplan.
+
+The migration will fail at _FinalRestoreCreated_ phase:
+
+image:../../screenshots/debug/ex3/migmigration-failed.png[MTC Mig Plan Failed]
+
+=== Investigate
+
+For each migration, MTC creates a MigMigration Custom Resource. We will investigate the resource to find out the cause of the issue.
+
+Login to the OCP 4 destination cluster and find the MigMigration resource associated with the MigPlan you created:
+
+```sh
+oc get migmigration -n openshift-migration -l migration.openshift.io/migplan-name=<migplan_name>
+```
+
+Replace `<migplan_name>` with the name of _MigPlan_ you created.
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get migmigration -n openshift-migration -l migration.openshift.io/migplan-name=migplan**
+NAME                                   READY   PLAN      STAGE   ITINERARY   PHASE       AGE
+8e4f2ee0-203d-11eb-99ec-ed3270ea9cf2           migplan   false   Failed      Completed   5m30s
+--------------------------------------------------------------------------------
+
+Copy the name of the _MigMigration_ and run `oc get` to read the yaml definition:
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ oc get migmigration -n openshift-migration 8e4f2ee0-203d-11eb-99ec-ed3270ea9cf2 -o yaml
+apiVersion: migration.openshift.io/v1alpha1
+kind: MigMigration
+metadata:
+  annotations:
+    openshift.io/touch: a582a9ee-203d-11eb-a5ec-0a580a80021e
+  creationTimestamp: "2020-11-06T14:37:11Z"
+  generation: 17
+  labels:
+    migration.openshift.io/migplan-name: migplan
+  name: 8e4f2ee0-203d-11eb-99ec-ed3270ea9cf2
+  namespace: openshift-migration
+  ownerReferences:
+  - apiVersion: migration.openshift.io/v1alpha1
+    kind: MigPlan
+    name: migplan
+    uid: 2a970978-13bf-427e-b9a4-4bc7bea7ae96
+  resourceVersion: "42334"
+  selfLink: /apis/migration.openshift.io/v1alpha1/namespaces/openshift-migration/migmigrations/8e4f2ee0-203d-11eb-99ec-ed3270ea9cf2
+  uid: 75c32bee-1382-4137-9b4a-cb042678e52f
+spec:
+  migPlanRef:
+    name: migplan
+    namespace: openshift-migration
+  quiescePods: true
+  stage: false
+status:
+  conditions:
+  - category: Advisory
+    durable: true
+    lastTransitionTime: "2020-11-06T14:37:50Z"
+    message: 'The migration has failed.  See: Errors.'
+    reason: FinalRestoreCreated
+    status: "True"
+    type: Failed
+  errors:
+  - 'Restore: openshift-migration/8e4f2ee0-203d-11eb-99ec-ed3270ea9cf2-xxl2r partially
+    failed.'
+  itinerary: Failed
+  observedDigest: b15f8b108168a9050e082b7e4edc3a517653cdec1ce6485df005f321c7d7d6a6
+  phase: Completed
+  startTimestamp: "2020-11-06T14:37:11Z"
+--------------------------------------------------------------------------------
+
+Examine the `status` in the yaml output of _MigMigration_. In the above case, the error message indicates that the Velero Restore `8e4f2ee0-203d-11eb-99ec-ed3270ea9cf2-xxl2r` partially failed. 
+
+We will now locate the tarball associated with this restore in the _Replication Repository_ and download the archive.
+
+Let's login to the Noobaa console.  Again, you can obtain the route with the following command on your OCP 4 cluster:
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ oc get routes noobaa-mgmt -n openshift-storage -o jsonpath='{.spec.host}'
+noobaa-mgmt-openshift-storage.apps.cluster-b6b0.b6b0.example.opentlc.com
+--------------------------------------------------------------------------------
+
+***Note: The noobaa console is only served over https***
+
+Once logged in, we mneed to find the `migstorage` bucket. Within the bucket, find the directory associated with the restore by navigating through `velero -> restores -> <your_restore_directory>`. The restore directory is named after the name of the Velero Restore mentioned in _MigMigration_.
+
+image:../../screenshots/debug/ex3/migstorage-bucket.png[MigStorage Bucket]
+
+Download the `restore-<restore_name>-results.gz` archive. Extract the archive to find a file which contains useful information about the partially failed restore. This file contains list of warnings and errors in a JSON format. We are interested in knowing the errors:
+
+```json
+{"errors":{"namespaces":{"gvk-demo":["error restoring gvkdemoes.konveyor.openshift.io/gvk-demo/gvk-demo: the server could not find the requested resource"]}}}
+```
+
+From the error message above, it is clear that Velero failed to restore the Custom Resource `gvkdemoes.konveyor.openshift.io` we created. 
+
+Let's take a closer look at the `GvkDemo` CRD on both source and destination:
+
+==== Source OCP 3
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get crd gvkdemoes.konveyor.openshift.io -o yaml**
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  creationTimestamp: "2020-11-06T13:54:47Z"
+  generation: 1
+  name: gvkdemoes.konveyor.openshift.io
+  resourceVersion: "8403"
+  selfLink: /apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions/gvkdemoes.konveyor.openshift.io
+  uid: a196c0b0-2037-11eb-8bad-0eeedacb25b5
+spec:
+  additionalPrinterColumns:
+  - JSONPath: .metadata.creationTimestamp
+    description: |-
+      CreationTimestamp is a timestamp representing the server time when this object was created. It is not guaranteed to be set in happens-before order across separate operations. Clients may not set this value. It is represented in RFC3339 form and is in UTC.
+
+      Populated by the system. Read-only. Null for lists. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#metadata
+    name: Age
+    type: date
+  group: konveyor.openshift.io
+  names:
+    kind: GvkDemo
+    listKind: GvkDemoList
+    plural: gvkdemoes
+    singular: gvkdemo
+  scope: Namespaced
+  subresources:
+    status: {}
+  version: v1alpha1
+  versions:
+  - name: v1alpha1
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: GvkDemo
+    listKind: GvkDemoList
+    plural: gvkdemoes
+    singular: gvkdemo
+  conditions:
+  - lastTransitionTime: "2020-11-06T13:54:47Z"
+    message: no conflicts found
+    reason: NoConflicts
+    status: "True"
+    type: NamesAccepted
+  - lastTransitionTime: null
+    message: the initial names have been accepted
+    reason: InitialNamesAccepted
+    status: "True"
+    type: Established
+  storedVersions:
+  - v1alpha1
+--------------------------------------------------------------------------------
+
+==== Destination OCP 4
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+$ **oc get crd gvkdemoes.konveyor.openshift.io -o yaml**
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  creationTimestamp: "2020-11-06T14:12:33Z"
+  generation: 1
+  name: gvkdemoes.konveyor.openshift.io
+  resourceVersion: "29992"
+  selfLink: /apis/apiextensions.k8s.io/v1/customresourcedefinitions/gvkdemoes.konveyor.openshift.io
+  uid: 95ffd09d-bfed-427f-a843-d83cfffd677e
+spec:
+  conversion:
+    strategy: None
+  group: konveyor.openshift.io
+  names:
+    kind: GvkDemo
+    listKind: GvkDemoList
+    plural: gvkdemoes
+    singular: gvkdemo
+  preserveUnknownFields: true
+  scope: Namespaced
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: GvkDemo
+    listKind: GvkDemoList
+    plural: gvkdemoes
+    singular: gvkdemo
+  conditions:
+  - lastTransitionTime: "2020-11-06T14:12:33Z"
+    message: no conflicts found
+    reason: NoConflicts
+    status: "True"
+    type: NamesAccepted
+  - lastTransitionTime: "2020-11-06T14:12:33Z"
+    message: the initial names have been accepted
+    reason: InitialNamesAccepted
+    status: "True"
+    type: Established
+  storedVersions:
+  - v1
+
+--------------------------------------------------------------------------------
+
+As you can see, we have a CRD version mismatch.  `v1alpha1` on the source cluster and `v1` on the destination cluster.
+
+Next, we will look at ways in which we can resolve this situation.
