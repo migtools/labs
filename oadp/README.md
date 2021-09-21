@@ -4,18 +4,14 @@ This guide will provide you with hands-on exposure to the new OpenShift API for 
 
 ## Description
 
-Backup and restore application workloads  (includes ui, controller, Velero/Restic, plugins, etc). This application is available for installation through the Operator Hub/OLM. This course requires both the MTC OCP3 and OCP4 services from RHPDS.
+Backup and restore stateless and stateful application workloads. This application is available for installation through the Operator Hub/OLM. This course requires OCP4 services from [RHPDS](http://rhpds.redhat.com/).
 
 ## Goals
 
-* Migrating applications from Red Hat OpenShift 3 clusters to Red Hat OpenShift
-4 clusters using the Migration Toolkit for Containers (MTC) provided by OpenShift
+* Backup and restore applications on OpenShift 4 clusters using the OpenShift API for Data Protection (OADP)) provided by OpenShift
 Container Platform 4 leveraging both the UI and API.
 
-* Use cases that migrate applications preserving state, including how to migrate
-OpenShift Container Storage 3 (Gluster) to OpenShift Container Storage 4 (Ceph).
-
-* Tips, techniques, and best-practices for debugging failed migrations.
+* Tips, techniques, and best-practices for debugging failed backups/restores.
 
 ## Setup Steps
 
@@ -29,8 +25,8 @@ Step 3: Hover over Services Menu >> Click the Catalogs menu and open the “Open
 
 Step 4: Order two services as follows:
 
-* Migration Toolkit for Containers (OCP3)
-* Migration Toolkit for Containers (OCP4)
+<!-- TODO -->
+* OpenShift API for Data Protection
 
 Step 5: Wait for both services to become available.  ```This will take ~60 min.```. When the environment has finished provisioning you will receive an email with confirmation and access details for the labs.
 
@@ -39,12 +35,12 @@ Step 5: Wait for both services to become available.  ```This will take ~60 min.`
 Step 6: Open a terminal window. You will use this to SSH into your OCP4 cluster. SSH into the OCP4 bastion host using the information provided in RHPDS for the provisioned service.
 
 ```bash
-$ ssh tsanders-redhat.com@bastion.clayton-a831.example.opentlc.com
-The authenticity of host 'bastion.clayton-a831.example.opentlc.com (54.196.40.213)' can't be established.
+$ ssh your_username@bastion.clustername.example.opentlc.com
+The authenticity of host 'bastion.clustername.example.opentlc.com (80.80.80.80)' can't be established.
 ECDSA key fingerprint is SHA256:GmGLppSGEshB6jBVODuMnAQrZhOVUTnflNZV4WIfn+E.
 Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
-Warning: Permanently added 'bastion.clayton-a831.example.opentlc.com,54.196.40.213' (ECDSA) to the list of known hosts.
-tsanders-redhat.com@bastion.clayton-a831.example.opentlc.com's password:
+Warning: Permanently added 'bastion.clustername.example.opentlc.com,54.196.40.213' (ECDSA) to the list of known hosts.
+your_username@bastion.clustername.example.opentlc.com's password:
 ```
 
 As soon as you log in, you will be greeted by a "Welcome to MTC LAB" screen. This will ask you to provide the bastion hostname of the OCP3 cluster for your lab. This will be the first Master of your OCP3. You can find this information in the email you received after your OCP3 cluster was provisioned. Paste the whole hostname of OCP3 bastion host into the terminal.
