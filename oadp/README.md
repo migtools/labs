@@ -1,10 +1,10 @@
-# OpenShift Migration Tookit for Containers (MTC) Lab
+# OpenShift API for Data Protection (OADP) Lab
 
-This guide will provide you with hands-on exposure to the new OpenShift Migration Tooling through a series of labs migrating application workloads (both stateful and stateless) between OpenShift Clusters.
+This guide will provide you with hands-on exposure to the new OpenShift API for Data Protection through a series of labs backup and restore workloads (both stateful and stateless) on the same OpenShift cluster.
 
 ## Description
 
-Migrates application workloads from Cluster A to Cluster B (includes ui, controller, Velero/Restic, plugins, etc). This application is available for installation through the Operator Hub/OLM. This course requires both the MTC OCP3 and OCP4 services from RHPDS.
+Backup and restore application workloads  (includes ui, controller, Velero/Restic, plugins, etc). This application is available for installation through the Operator Hub/OLM. This course requires both the MTC OCP3 and OCP4 services from RHPDS.
 
 ## Goals
 
