@@ -23,13 +23,11 @@ Step 2: Login with your RHPDS username/password.
 
 Step 3: Hover over Services Menu >> Click the Catalogs menu and open the “Openshift Workshop” catalog.
 
-Step 4: Order two services as follows:
-
-<!-- TODO -->
-* OpenShift API for Data Protection
+<!-- TODO Create AgnosticD role for OADP -->
+Step 4: Order OpenShift API for Data Protection
 
 Step 5: Wait for both services to become available.  ```This will take ~60 min.```. When the environment has finished provisioning you will receive an email with confirmation and access details for the labs.
-
+<!-- TODO replace this image -->
 ![RHPDS-MyServices](screenshots/rhpds-myservices.png)
 
 Step 6: Open a terminal window. You will use this to SSH into your OCP4 cluster. SSH into the OCP4 bastion host using the information provided in RHPDS for the provisioned service.
