@@ -35,6 +35,9 @@ modules:
     exit_sign: 10.2 Break-Fix Exercise II (Optional)
   exercises/debug/stage-pods:
     name: 10.2 Break-Fix Exercise II (Optional)
+    exit_sign: 10.3 GVK Incompatability Exercise III (Optional) 
+  exercises/debug/gvk:
+    name: 10.3 GVK Incompatability Exercise III (Optional)
     exit_sign: 11.0 Conclusion
   Conclusion:
     name: 11.0 Conclusion
