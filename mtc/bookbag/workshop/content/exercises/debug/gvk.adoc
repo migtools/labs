@@ -25,11 +25,13 @@ image:../../screenshots/debug/ex3/migplan.png[MTC Mig Plan]
 
 Run a migration by clicking _Migrate_ option from the dropdown menu on the migplan.
 
-The migration will fail at _FinalRestoreCreated_ phase:
+The migration will complete with message `Completed with warnings`::
 
 image:../../screenshots/debug/ex3/migmigration-failed.png[MTC Mig Plan Failed]
 
 === Investigate
+
+The Warning message indicates that the migration ran to completion, however, one of the steps in the migration failed.  Navigate to the details page of the migration by clicking on the link under the `Type` column:
 
 For each migration, MTC creates a MigMigration Custom Resource. We will investigate the resource to find out the cause of the issue.
 
