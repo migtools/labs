@@ -23,19 +23,20 @@ Let's launch MTC and create a Migration Plan to migrate the gvk-demo namespace.
 
 image:../../screenshots/debug/ex3/migplan.png[MTC Mig Plan]
 
-Run a migration by clicking _Migrate_ option from the dropdown menu on the migplan.
+Run a migration by clicking _Migrate_ option from the dropdown menu on the migration plan.
 
-The migration will complete with message `Completed with warnings`::
+The migration will complete with message: `Completed with warnings`
 
-image:../../screenshots/debug/ex3/migmigration-failed.png[MTC Mig Plan Failed]
-
-=== Investigate
+image:../../screenshots/debug/ex3/migmigration-complete-warnings.png[MTC Mig Plan Complete Warnings]
 
 The Warning message indicates that the migration ran to completion, however, one of the steps in the migration failed.  Navigate to the details page of the migration by clicking on the link under the `Type` column:
 
-For each migration, MTC creates a MigMigration Custom Resource. We will investigate the resource to find out the cause of the issue.
+image:../../screenshots/debug/ex3/pipeline-view.png[MTC Mig Plan Pipeline View]
 
-Login to the OCP 4 destination cluster and find the MigMigration resource associated with the MigPlan you created:
+As shown in the details page above, the `Restore` step in the migration failed.  This step is responsible for restoring the Kubernetes objects in the target cluster.
+
+
+=== Investigate
 
 ```sh
 oc get migmigration -n openshift-migration -l migration.openshift.io/migplan-name=<migplan_name>
@@ -98,7 +99,7 @@ status:
   startTimestamp: "2020-11-06T14:37:11Z"
 --------------------------------------------------------------------------------
 
-Examine the `status` in the yaml output of _MigMigration_. In the above case, the error message indicates that the Velero Restore `8e4f2ee0-203d-11eb-99ec-ed3270ea9cf2-xxl2r` partially failed. 
+Examine the `status` in the yaml output of _MigMigration_. In the above case, the error message indicates that the Velero Restore `8e4f2ee0-203d-11eb-99ec-ed3270ea9cf2-xxl2r` partially failed.
 
 We will now locate the tarball associated with this restore in the _Replication Repository_ and download the archive.
 
@@ -122,7 +123,7 @@ Download the `restore-<restore_name>-results.gz` archive. Extract the archive to
 {"errors":{"namespaces":{"gvk-demo":["error restoring gvkdemoes.konveyor.openshift.io/gvk-demo/gvk-demo: the server could not find the requested resource"]}}}
 ```
 
-From the error message above, it is clear that Velero failed to restore the Custom Resource `gvkdemoes.konveyor.openshift.io` we created. 
+From the error message above, it is clear that Velero failed to restore the Custom Resource `gvkdemoes.konveyor.openshift.io` we created.
 
 Let's take a closer look at the `GvkDemo` CRD on both source and destination:
 
