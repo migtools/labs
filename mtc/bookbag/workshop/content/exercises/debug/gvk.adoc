@@ -233,4 +233,10 @@ status:
 
 As you can see, we have a CRD version mismatch.  `v1alpha1` on the source cluster and `v1` on the destination cluster.
 
-Next, we will look at ways in which we can resolve this situation.
+
+==== How to Resolve
+
+There are numerous ways to fix this situation depending on the API (CRD) changes themselves or number of versions between the differing versions;
+`alpha to beta` changes can be extensive, where `beta to v1` tend to be minimal.
+In the most simplest form, you could export the resource yaml on the source side, manually edit to make the version changes, and finally apply to the destination cluster.   Additionally,
+there are tools, such as `kubectl-convert` that can assist with making these types of resource conversions.
