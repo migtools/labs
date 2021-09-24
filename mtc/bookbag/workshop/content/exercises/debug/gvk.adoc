@@ -38,6 +38,58 @@ As shown in the details page above, the `Restore` step in the migration failed. 
 
 === Investigate
 
+MTC UI displays a _Debug View_ to list Kubernetes resources created during a migration. It is updated dynamically as and when the new resources are created or when there are updates to the existing resources. It can be found on the migration details page at the bottom of the page:
+
+image:../../screenshots/debug/ex3/debug-view.png[MTC Mig Plan Debug View]
+
+Find the Restore that appears to have problems and click on the dropdown menu:
+
+image:../../screenshots/debug/ex3/debug-view-clicked.png[MTC Mig Plan Debug View Clicked]
+
+Click `copy oc describe command` link. It will copy the `oc` command to the clipboard. Login to the destination cluster and run the command:
+
+```sh
+[nobody@dragonfly ~]$ oc describe restore --namespace openshift-migration migration-d123c-final-nl22t
+Name:         migration-d123c-final-nl22t
+Namespace:    openshift-migration
+Labels:       app.kubernetes.io/part-of=openshift-migration
+              migmigration=4993595a-995f-45df-9d4e-80161a716dc9
+              migration-final-restore=4993595a-995f-45df-9d4e-80161a716dc9
+              migration.openshift.io/migmigration-name=migration-d123c
+              migration.openshift.io/migplan-name=gvkdemo-00
+              migration.openshift.io/migrated-by-migmigration=4993595a-995f-45df-9d4e-80161a716dc9
+              migration.openshift.io/migrated-by-migplan=e0d4b8d6-3ddc-4ff2-8c41-3f15bbb98d56
+Annotations:  migration.openshift.io/migmigration-type: final
+API Version:  velero.io/v1
+Kind:         Restore
+Metadata:
+  Creation Timestamp:  2021-09-16T15:58:01Z
+  Generate Name:       migration-d123c-final-
+  Generation:          6
+  Resource Version:  4208804
+Spec:
+  Backup Name:  migration-d123c-initial-82jpq
+  Excluded Resources:
+    nodes
+    events
+    events.events.k8s.io
+    backups.velero.io
+    restores.velero.io
+    resticrepositories.velero.io
+  Hooks:
+  Restore P Vs:  true
+Status:
+  Completion Timestamp:  2021-09-16T15:58:05Z
+  Errors:                1
+  Phase:                 PartiallyFailed
+  Progress:
+    Items Restored:  23
+    Total Items:     23
+  Start Timestamp:   2021-09-16T15:58:01Z
+  Warnings:          7
+Events:              <none>
+```
+
 ```sh
 oc get migmigration -n openshift-migration -l migration.openshift.io/migplan-name=<migplan_name>
 ```
