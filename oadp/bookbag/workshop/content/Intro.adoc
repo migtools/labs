@@ -1,23 +1,18 @@
-== OpenShift Migration Toolkit for Containers (MTC) Lab
+== OpenShift API for Data Protection (OADP) Lab
 
-=== Migrating from OCP 3.x to OCP 4.x
+=== 
 
-This guide will provide you with hands-on exposure to the OpenShift Migration +
-Tooling through a series of exercises migrating application workloads (both +
-stateful and stateless) between OpenShift Clusters.
+This guide will provide you with how to operate the OpenShift API for Data Protection Operator to suite your data protection needs.
+
+We will guide you through a series of exercises running backups of application workloads and restoring them when disaster strikes. Both stateful and stateless applications will be covered.
 
 === Goals
 
 In this instructor-led, hands-on lab, you’ll experience:
 
-* Migrating applications from Red Hat OpenShift 3 clusters to Red Hat OpenShift +
-4 clusters using the Migration Toolkit for Containers (MTC) provided by OpenShift +
-Container Platform 4 leveraging both the UI and API.
+* Backing up and restoring applications running on OpenShift Container Platform 4 using various selectors to protect specific workloads
 
-* Use cases that migrate applications preserving state, including how to migrate +
-OpenShift Container Storage 3 (Gluster) to OpenShift Container Storage 4 (Ceph).
-
-* Tips, techniques, and best-practices for debugging failed migrations.
+* Tips, techniques, and best-practices for debugging failed backup and restore.
 
 === Modules
 
