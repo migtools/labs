@@ -1,9 +1,5 @@
 :sectlinks:
 :markup-in-source: verbatim,attributes,quotes
-:OCP3_GUID: %ocp3_guid%
-:OCP3_DOMAIN: %ocp3_domain%
-:OCP3_SSH_USER: %ocp3_ssh_user%
-:OCP3_PASSWORD: %ocp3_password%
 :OCP4_GUID: %ocp4_guid%
 :OCP4_DOMAIN: %ocp4_domain%
 :OCP4_SSH_USER: %ocp4_ssh_user%

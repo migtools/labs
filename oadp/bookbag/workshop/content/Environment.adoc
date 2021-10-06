@@ -1,9 +1,5 @@
 :sectlinks:
 :markup-in-source: verbatim,attributes,quotes
-:OCP3_GUID: %ocp3_guid%
-:OCP3_DOMAIN: %ocp3_domain%
-:OCP3_SSH_USER: %ocp3_ssh_user%
-:OCP3_PASSWORD: %ocp3_password%
 :OCP3_BASTION: %ocp3_bastion%
 :OCP4_BASTION: %ocp4_bastion%
 :OCP4_GUID: %ocp4_guid%
@@ -18,20 +14,6 @@ You can open this page in a separate tab as well, so that you will have the foll
 
 image::screenshots/lab1/labenv-overview2.png[Lab Environment Overview, width=50%, align="center"]
 
-=== OpenShift 3 Cluster
-
-[width="100%",cols="50%,50%",options="header",]
-|===
-|Key |Value
-|GUID | {OCP3_GUID}
-|OCP Console |https://master.{OCP3_GUID}.{OCP3_DOMAIN}/console
-|Password |{OCP3_PASSWORD}
-|API |https://master.{OCP3_GUID}.{OCP3_DOMAIN}
-|OCP admin user/password| admin/{OCP3_PASSWORD}
-|Bastion Host |{OCP3_BASTION}
-|Bastion SSH user/password |{OCP3_SSH_USER}/{OCP3_PASSWORD}
-|===
-
 === OpenShift 4 Cluster
 
 [width="100%",cols="50%,50%",options="header",]
@@ -45,3 +27,17 @@ image::screenshots/lab1/labenv-overview2.png[Lab Environment Overview, width=50%
 |Bastion Host |{OCP4_BASTION}
 |Bastion SSH user/password |{OCP4_SSH_USER}/{OCP4_PASSWORD}
 |===
+
+Test execute
+[source,bash,role=execute]
+----
+echo upper
+----
+[source,bash,role=execute-2]
+----
+echo lower
+----
+[source,bash,role=copy]
+----
+echo copy
+----
