@@ -25,18 +25,6 @@ Verify OADP Version
 oc get clusterserviceversion -n openshift-adp
 ----
 
-Verify OADP Velero Custom Resource configuration
-[source,bash,role=execute]
-----
-oc get velero -n openshift-adp -oyaml
-----
-
-Verify OADP resources are ready
-[source,bash,role=execute]
-----
-oc get deployments -n openshift-adp
-----
-
 Required versions of products used:
 
 [cols=",",options="header",]

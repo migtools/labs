@@ -8,9 +8,9 @@ modules:
     exit_sign: 3.0 Prerequisites
   Prereqs:
     name: 3.0 Prerequisites
-    exit_sign: 4.0 MTC Overview
+    exit_sign: 4.0 OADP Overview
   Overview:
-    name: 4.0 MTC Overview
+    name: 4.0 OADP Overview
     exit_sign: 5.0 Migration Exercise I
   exercises/Ex1:
     name: 5.0 Migration Exercise I

@@ -1,5 +1,5 @@
 ---
-name: OpenShift Migration Toolkit for Containers (MTC) Lab
+name: OpenShift API for Data Protection (OADP) Lab
 modules:
   activate:
     - Intro

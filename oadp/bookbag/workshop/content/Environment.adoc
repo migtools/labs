@@ -29,17 +29,17 @@ On the right, you will see two split terminals. We will generally use the lower 
 
 There are two types of lab buttons you will find in this lab.
 
-- The first two below are command buttons which will send commands to either the upper or lower terminal.
+- The first two below are execute buttons which will send commands to either the upper or lower terminal.
 - The third is a command copy button. It will be used for copying content to be pasted later.
 
-Test execute
+Try the execute buttons
 [source,bash,role=execute]
 ----
-echo upper
+echo upper terminal
 ----
 [source,bash,role=execute-2]
 ----
-echo lower
+echo lower terminal
 ----
 [source,bash,role=copy]
 ----

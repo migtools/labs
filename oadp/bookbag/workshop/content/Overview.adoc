@@ -7,84 +7,53 @@
 :OCP3_BASTION: %ocp3_bastion%
 :OCP4_BASTION: %ocp4_bastion%
 
-The Migration Toolkit for Containers (MTC) is designed to migrate Application Workloads between OpenShift clusters. Specifically, MTC handles migration of k8s resource objects, persistent volumes, and internal images. MTC is designed to provide a migration experience while focusing on minimizing application downtime through the process.
-
-=== Upstream Projects
-
-MTC leverages two upstream projects: https://github.com/heptio/velero[Velero] and https://restic.net/[Restic]. Velero (formerly Heptio Ark) gives you tools to back up and restore your Kubernetes cluster resources and persistent volumes. Restic is a backup program that is fast, efficient and secure.
+The OpenShift API for Data Protection (OADP) is an Operator that helps you define and configure installation of https://velero.io/[Velero] and its required resources to run on OpenShift. OADP enables backup, restore, and disaster recovery of an OpenShift cluster. Data that can be protected with OADP include k8s resource objects, persistent volumes, and internal images.
+The OpenShift API for Data Protection (OADP) is designed to protect Application Workloads on the same OpenShift cluster. If you want to migrate data between clusters, please look into the https://access.redhat.com/documentation/en-us/openshift_container_platform/4.8/html/migration_toolkit_for_containers[Migration Toolkit for Containers project (MTC)].
 
 === Architecture
 
-MTC is implemented as a native k8s API extension through custom resource definitions. MTC orchestrates usage of Velero for performing backup/restores. OpenShift specific functionality is implemented in a series of Velero plugins. MTC is also equipped with a React/Patternfly 4 web UI to provide simple interactive experience.
+/** OADP Architecture */
 
+IMPORTANT: `cluster-admin` role is currently required to use OADP. +
 
-IMPORTANT: Migration is at scope of a Namespace. +
+=== Provided APIs
+OADP allow several https://velero.io/docs/v1.7/api-types/[Velero API types] to be configured and defined within a single Custom Resource YAML.
+The most up to date API reference for OADP is located https://github.com/openshift/oadp-operator/blob/master/docs/API_ref.md[here]
 
-IMPORTANT: `cluster-admin` role is currently required to execute migrations. +
+We are providing a copy below for convenience.
+[width="100%",cols="30%,30%,40%",options="header",]
+|===
+|Property |Type| Description
+| backupImages | bool |  Determine whether the Velero install will backup internal images when an imagestream is backed up.  
+| backupStorageLocations | [[]velero.BackupStorageLocationSpec](https://velero.io/docs/v1.6/api-types/backupstoragelocation/) |  Location(s) to store backups. For more details, see [here](config/bsl_and_vsl.md).  
+| customVeleroPlugins | map[string]interface{} |  Used for installation of custom Velero plugins. See [here](config/plugins.md) for further information.  
+| defaultVeleroPlugins |  []string |  Five types of default Velero plugins can be installed: `AWS`, `GCP`, `Azure` and `OpenShift`, and `CSI`. See [here](config/plugins.md) for further information. 
+| enableRestic |   bool  |   Enables backup/restore using Restic. If set to false, snapshots are needed.  
+| Noobaa | bool |  An optional backup storage locaion. For more information, go [here](config/noobaa/install_oadp_noobaa.md). 
+| podAnnotations |  map[string]string |   Add metadata to your pods to select and find certain pods. 
+| podDnsConfig |    [corev1.PodDNSConfig](https://pkg.go.dev/k8s.io/api/core/v1#PodDNSConfig)   |        
+| podDndPolicy | [corev1.DNSPolicy](https://pkg.go.dev/k8s.io/api/core/v1#DNSPolicy) |         
+| resticNodeSelector | map[string]string |   Assign Restic pods to only certain nodes. 
+| resticResourceAllocations | [corev1.ResourceRequirements](https://pkg.go.dev/k8s.io/api/core/v1#ResourceRequirements) |  Set specific resource `limits` and `requests` for the Restic pods. For more information, go [here](config/resource_req_limits.md). 
+| resticSupplementalGroups | []int64  |        
+| resticTimeout | string | Used when a Restic backup/restore sits in progress for X amount of time. Defaults to 1 hour. Usage: `--restic-timeout` 
+| resticTolerations | [[]corev1.Toleration](https://pkg.go.dev/k8s.io/api/core/v1#Toleration) |       
+| restoreResourcesVersionPriority |  string  |        
+| veleroFeatureFlags | []string{} |  Enables additional Velero features. For more details and usage, see [here](config/features_flag.md). 
+| veleroResourceAllocations | [corev1.ResourceRequirements](https://pkg.go.dev/k8s.io/api/core/v1#ResourceRequirements) |  Set specific resource `limits` and `requests` for the Velero pod. For more information, go [here](config/resource_req_limits.md). 
+| veleroTolerations | [[]corev1.Toleration](https://pkg.go.dev/k8s.io/api/core/v1#Toleration) |        
+| volumeSnapshotLocations | [[]velero.VolumeSnapshotLocationSpec](https://velero.io/docs/v1.6/api-types/volumesnapshotlocation/) |  Location to store volume snapshots. For further details, see [here](config/bsl_and_vsl.md). 
+| noDefaultBackupLocation | [bool](https://pkg.go.dev/builtin#bool) |  Assert that you do not want to use velero with a backup storage location. See [Velero Docs](https://velero.io/docs/v1.7/customize-installation/#do-not-configure-a-backup-storage-location-during-install). 
+|===
 
-image:./screenshots/lab3/mtcprocess.png[MTC Process]
+Look at OADP Velero Custom Resource configuration we have setup for you
+[source,bash,role=execute]
+----
+oc get velero -n openshift-adp -oyaml
+----
 
-=== Persistent Volume Handling
-
-MTC provides two methods for migrating persistent volumes:
-
-*Move*:: Move or "`swinging`" the PV recreates the PVC/PV definitions from source cluster to destination cluster. This option is highly desirable for environments with shared storage between the source and target clusters (i.e. NFS).
-
-image:./screenshots/lab3/movepv.png[Move PV Diagram]
-
-*Copy*:: Copy creates a copy of the data from source cluster into the destination cluster. This option involves creating a PVC on destination and allowing cluster to find a PV to bind to the claim. We then copy data into the PV.
-
-image:./screenshots/lab3/copypv.png[Copy PV Diagram]
-
-=== Actions (Stage and Migrate)
-
-MTC introduces two actions on a Migration Plan:
-
-* *Stage* - Seeds data while leaving application up and running.
-* *Migrate* - Optionally quiesces the application and migrates deltas from stage runs.
-
-NOTE: Stage can be run multiple times on a Migration Plan
-
-NOTE: Migrate can only be run once.
-
-=== Migration Process
-
-There are 3 steps to the migration process within MTC:
-
-
-. *Plan*
-
-* Select source cluster
-* Select destination cluster
-* Specify intermediate object storage
-* Select namespaces
-* Choose Copy or Move for each Persistent volume
-
-. *Stage*
-
-* Stages the data from source to destination cluster
-* May be run multiple times
-* No downtime during this step for source applications
-
-. *Migrate*
-
-* Optionally quiesce the application
-* Migrate any delta state since last stage run
-* Migrate other related resources
-
-=== WebUI
-
-We should already have MTC UI opened from the previous steps. In case you don't have it open let’s bring up the webUI in preparation for our first Application Migration in Lab 4. In the destination OCP 4 cluster terminal, let’s run the following commands to get the route:
-
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-$ **oc get routes migration -n openshift-migration -o jsonpath='{.spec.host}{"\n"}'**
-migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
---------------------------------------------------------------------------------
-
-Next, open a browser to the route from above.  +
-https://migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
-
-image:./screenshots/lab2/mtcUI.png[MTC Main Screen]
-
-We are now ready to perform our first Application Migration.
+Verify OADP resources are ready
+[source,bash,role=execute]
+----
+oc get deployments -n openshift-adp
+----
