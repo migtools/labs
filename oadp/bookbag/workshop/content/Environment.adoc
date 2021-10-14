@@ -9,10 +9,9 @@
 
 == Overview
 
-The following lab environment has been provisioned for you for use with this Lab.
-You can open this page in a separate tab as well, so that you will have the following information at hand when needed later during the Lab.
+The following lab environment has been provisioned for you for use with this Lab. You can always come back to this section to review this information.
 
-image::screenshots/lab1/labenv-overview2.png[Lab Environment Overview, width=50%, align="center"]
+// image::screenshots/lab1/labenv-overview2.png[Lab Environment Overview, width=50%, align="center"]
 
 === OpenShift 4 Cluster
 
@@ -21,12 +20,17 @@ image::screenshots/lab1/labenv-overview2.png[Lab Environment Overview, width=50%
 |Key |Value
 |GUID | {OCP4_GUID}
 |OCP Console |http://console-openshift-console.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
-|Password |{OCP4_PASSWORD}
 |API |https://api.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}:6443
-|OCP admin user/password| admin/{OCP4_PASSWORD}
-|Bastion Host |{OCP4_BASTION}
-|Bastion SSH user/password |{OCP4_SSH_USER}/{OCP4_PASSWORD}
+|OCP admin username| kubeadmin
+|OCP admin password| {OCP4_PASSWORD}
 |===
+
+On the right, you will see two split terminals. We will generally use the lower terminal for most executions while upper terminal will be reserved for reviewing yaml files and watching result of executions.
+
+There are two types of lab buttons you will find in this lab.
+
+- The first two below are command buttons which will send commands to either the upper or lower terminal.
+- The third is a command copy button. It will be used for copying content to be pasted later.
 
 Test execute
 [source,bash,role=execute]
@@ -41,3 +45,12 @@ echo lower
 ----
 echo copy
 ----
+
+If you prefer to work in your own terminal, you can copy `kubeadmin` password below
+[source,bash,role=copy]
+----
+%ocp4_password%
+----
+
+
+In the next lab, we will be using the buttons above to login as kubeadmin on the terminal.
