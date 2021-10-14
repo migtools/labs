@@ -46,7 +46,7 @@ echo lower
 echo copy
 ----
 
-If you prefer to work in your own terminal, you can copy `kubeadmin` password below
+You copy `kubeadmin` password here if you need it.
 [source,bash,role=copy]
 ----
 %ocp4_password%
