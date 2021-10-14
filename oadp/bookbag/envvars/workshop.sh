@@ -2,9 +2,11 @@
 
 # Environment variables to set for the workshop
 pushd .
-mkdir /tmp/getupdatedoccli
-curl https://openshift-release-artifacts.apps.ci.l2s4.p1.openshiftapps.com/4.9.0-rc.8/openshift-client-linux-4.9.0-rc.8.tar.gz -o /tmp/getupdatedoccli/occli.tar.gz
-cd /tmp/getupdatedoccli
-tar -xvf /tmp/getupdatedoccli/occli.tar.gz
+# Install desired oc client version, from releases https://amd64.ocp.releases.ci.openshift.org/
+mkdir /tmp/getupdatedocclient
+curl https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz -o /tmp/getupdatedocclient/occli.tar.gz
+cd /tmp/getupdatedocclient
+tar -xvf /tmp/getupdatedocclient/occli.tar.gz
 mv oc ~/../bin/oc
+mv kubectl ~/../bin/kubectl
 popd

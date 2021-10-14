@@ -48,5 +48,3 @@ Required versions of products used:
 |===
 
 We are now ready to learn how to create backup and restores using Velero
-
-Let’s now take a closer look at the Migration Toolkit for Containers (MTC).

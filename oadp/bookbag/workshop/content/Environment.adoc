@@ -52,5 +52,4 @@ You copy `kubeadmin` password here if you need it.
 %ocp4_password%
 ----
 
-
 In the next lab, we will be using the buttons above to login as kubeadmin on the terminal.
