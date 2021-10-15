@@ -15,4 +15,5 @@ modules:
     - exercises/debug/misconfig
     - exercises/debug/stage-pods
     - exercises/debug/gvk
+    - exercises/debug/crashloopbackoff
     - Conclusion

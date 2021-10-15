@@ -1,0 +1,19 @@
+
+== CrashLoopBackOff
+oc get clusterserviceversion -n openshift-adp -l operators.coreos.com/oadp-operator.openshift-adp -oname
+
+oc get $(oc get clusterserviceversion -n openshift-adp -l operators.coreos.com/oadp-operator.openshift-adp -oname) -n openshift-adp
+
+In some clusters it is possible to see oadp-operator pod not create successfully, with status CrashLoopBackOff. It is usually caused by the operator requiring more cpu and memory resources than the default values requested in the Operator's ClusterServiceVersion.
+
+You can see the currently requested resources
+
+oc get $(oc get clusterserviceversion -n openshift-adp -l operators.coreos.com/oadp-operator.openshift-adp -oname) -n openshift-adp -ojsonpath={.spec.install.spec.deployments[0].spec.template.spec.containers[0].resources}
+
+Bumping this value up will resolve most CrashLoopBackOff errors on installation.
+You can edit ClusterServiceVersion by using the http://console-openshift-console.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}/k8s/ns/openshift-adp/operators.coreos.com~v1alpha1~ClusterServiceVersion/[web ui] or through `oc edit`.
+
+[source,role=copy]
+----
+http://console-openshift-console.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}/k8s/ns/openshift-adp/operators.coreos.com~v1alpha1~ClusterServiceVersion/
+----
