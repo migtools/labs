@@ -17,7 +17,7 @@ In this instructor-led, hands-on lab, you’ll experience:
 link:/workshop/Intro[Module 1 - Introduction] +
 link:/workshop/Environment[Module 2 - Environment] +
 link:/workshop/Prereqs[Module 3 - Prerequisites] +
-link:/workshop/Overview[Module 4 - MTC Overview] +
+link:/workshop/Overview[Module 4 - OADP Overview] +
 link:/workshop/exercises/Ex1[Module 5 - Migration Exercise (Migrate File-Uploader Application)] +
 link:/workshop/exercises/Ex2[Module 6 - Migration Exercise (Migrate MSSQL Server Application)] +
 link:/workshop/exercises/Ex3[Module 7 - Migration Exercise (Migrate Sock-Shop Application)] +

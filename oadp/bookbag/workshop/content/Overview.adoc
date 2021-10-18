@@ -9,16 +9,36 @@
 
 The OpenShift API for Data Protection (OADP) is an Operator that helps you define and configure installation of https://velero.io/[Velero] and its required resources to run on OpenShift.
 
+=== Problem Overview
+Provide application granular backups that covers cluster metadata and Application data
+image:slides/OADP Solution Overview/9.jpg[problem overview]
+
 OADP enables backup, restore, and disaster recovery of an OpenShift cluster. Data that can be protected with OADP include k8s resource objects, persistent volumes, and internal images.
 The OpenShift API for Data Protection (OADP) is designed to protect Application Workloads on the same OpenShift cluster.
 
 If you want to migrate data between clusters, please look into the https://access.redhat.com/documentation/en-us/openshift_container_platform/4.8/html/migration_toolkit_for_containers[Migration Toolkit for Containers project (MTC)].
 
 === Architecture
+image:slides/OADP Architecture/4.jpg[]
 
-/** OADP Architecture */
 
-IMPORTANT: `cluster-admin` role is currently required to use OADP. +
+=== Velero Plugins
+/** BSL */
+
+/** VSL */
+
+/** Backup/RestorePlugins */
+
+    /** OpenshiftPlugin */
+
+=== Requirements
+- ObjectStorage - AWS, GCP, and Azure. Other S3 compatible providers are available as an option with OpenShift Data Foundation which includes multicloud gateway for multicloud portability.
+- `cluster-admin` role is required to use OADP. Non-admin usage is on the roadmap for future iterations.
+
+=== Ways to use OADP
+/** Velero CLI */
+
+/** k8s api via oc/kubectl apply/create */
 
 === Provided APIs
 OADP allow several https://velero.io/docs/v1.7/api-types/[Velero API types] to be configured and defined within a single Custom Resource YAML.
@@ -49,6 +69,11 @@ We are providing a copy below for convenience.
 | volumeSnapshotLocations | https://velero.io/docs/v1.6/api-types/volumesnapshotlocation/[[\]velero.VolumeSnapshotLocationSpec] |  Location to store volume snapshots. For further details, see https://github.com/openshift/oadp-operator/tree/master/docs/config/bsl_and_vsl.md[here]. 
 | noDefaultBackupLocation | https://pkg.go.dev/builtin#bool[bool] |  Assert that you do not want to use velero with a backup storage location. See https://velero.io/docs/v1.7/customize-installation/#do-not-configure-a-backup-storage-location-during-install[Velero Docs]. 
 |===
+
+=== Installing OADP
+OADP is available to be installed via OperatorHub, but we have already set it up for you in this lab.
+image:screenshots/OperatorHub-OADP.png[Screenshot of OADP Operator in OperatorHub]
+_Screenshot of OADP Operator in OperatorHub_
 
 Look at OADP Velero Custom Resource configuration we have setup for you
 [source,bash,role=execute]
