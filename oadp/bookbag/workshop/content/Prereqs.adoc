@@ -25,6 +25,12 @@ Verify OADP Version
 oc get clusterserviceversion -n openshift-adp
 ----
 
+Verify Velero Version
+[source,bash,role=execute]
+----
+velero version -n openshift-adp
+----
+
 Required versions of products used:
 
 [cols=",",options="header",]
@@ -33,6 +39,8 @@ Required versions of products used:
 |OpenShift Server 4.x |v4.6+
 |OpenShift Client 4.x |v4.6+
 |OADP |v0.4.0+
+|velero server |v1.7.0+
+|velero client |v1.7.0+
 |===
 
 We are now ready to learn how to create backup and restores using Velero
