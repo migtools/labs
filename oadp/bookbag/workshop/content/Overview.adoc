@@ -23,9 +23,15 @@ image:slides/OADP Architecture/4.jpg[]
 
 
 === Velero Plugins
+There are three types of velero plugins
+
 /** BSL */
 
+Backup Storage Location
+
 /** VSL */
+
+VolumeSnapshotLocation
 
 /** Backup/RestorePlugins */
 
