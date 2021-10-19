@@ -31,6 +31,7 @@ items:
       labels:
         app: mssql
     spec:
+      storageClassName: ocs-storagecluster-ceph-rbd
       accessModes:
       - ReadWriteOnce
       resources:

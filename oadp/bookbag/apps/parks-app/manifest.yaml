@@ -223,6 +223,7 @@ items:
       name: "mongodb-data-claim"
       namespace: parks-app
     spec:
+      storageClassName: ocs-storagecluster-ceph-rbd
       accessModes:
         - ReadWriteOnce
       resources:
