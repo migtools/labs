@@ -29,6 +29,8 @@ Let’s get the route to the application, and bring up the webUI.
 ----
 oc get route -n mssql-persistent
 ----
+NOTE: You can also click https://mssql-app-route-mssql-persistent.apps.{OCP4_GUID}.{OCP4_DOMAIN}[here] to open the application.
+
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
