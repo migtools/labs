@@ -82,6 +82,11 @@ We can restore applications deleted earlier by restoring from the backup we crea
 velero restore create mssql-restore --from-backup mssql-backup -n openshift-adp
 ----
 
+[source,bash,role=execute]
+----
+velero restore describe mssql-restore -n openshift-adp
+----
+
 Wait until pods become available.
 [source,bash,role=execute]
 ----
@@ -96,4 +101,5 @@ mssql-deployment-1-xq4p4                1/1     Running   0          41m
 --------------------------------------------------------------------------------
 
 Verify that the data you added earlier persisted in the restored application.
+
 NOTE: Click http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[here] to open the application.
