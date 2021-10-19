@@ -1,214 +1,164 @@
 :sectlinks:
 :markup-in-source: verbatim,attributes,quotes
-:OCP3_VERSION: 3.11
 :OCP4_GUID: %ocp4_guid%
 :OCP4_DOMAIN: %ocp4_domain%
 :OCP4_SSH_USER: %ocp4_ssh_user%
 :OCP4_PASSWORD: %ocp4_password%
 
-== Migrate File-Uploader Application
+== Backing up single namespace
 
-The first application that we are going to migrate is a `file-uploader` application. The application consists of several front-end pods backed by a single RWX-mounted OCS3/Gluster volume. A single service/route load-balances requests across the front-end pods.
+Next, we are going to protecting a simple Product Inventory web-based application front-end, backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 3 cluster in the `mssql-persistent` namespace, using a single PV backed by NFS for persistent storage.
 
-_RWX is a ReadWriteMany Access Mode for persistent volumes in which the volume can be mounted as read-write by many nodes._
+In our source OCP 3 cluster terminal, we can see the app running:
 
-This application has been pre-deployed on the your OCP 3 cluster. We will be migrating this application to our OCP 4 cluster, including the state to OCS4/Ceph.
-
-image:../screenshots/lab4/file-uploader-app.png[File Uploader App]
-
-In the source OCP {OCP3_VERSION} cluster terminal, let’s examine the application. Execute the following commands:
-
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-$ **oc get pods -n file-uploader**
-NAME                    READY   STATUS      RESTARTS   AGE
-file-uploader-1-build   0/1     Completed   0          44m
-file-uploader-1-gbn49   1/1     Running     0          42m
-file-uploader-1-ggjhj   1/1     Running     0          42m
-file-uploader-1-rwlbt   1/1     Running     0          42m
---------------------------------------------------------------------------------
-
-We can see the 3 replicas running. Next, let’s take a look at the storage:
+[source,bash,role=execute]
+----
+oc get pods -n mssql-persistent
+----
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **oc get pvc -n file-uploader**
-NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS        AGE
-file-uploader-vol-claim   Bound    pvc-b660a697-6afe-11ea-a7fb-065ab8be0337   20Gi       RWX            glusterfs-storage   18h
+NAME                                    READY   STATUS    RESTARTS   AGE
+mssql-app-deployment-6ffb46c5d6-n5fvv   1/1     Running   0          41m
+mssql-deployment-1-xq4p4                1/1     Running   0          41m
 --------------------------------------------------------------------------------
 
-We can see that we do indeed have a 20Gi Gluster volume mounted RWX to our application pods.
+Let’s get the route to the application, and bring up the webUI.
 
-Next, let’s get the route to the application, and bring up the webUI.
+[source,bash,role=execute]
+----
+oc get route -n mssql-persistent
+----
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **oc get route -n file-uploader**
-NAME            HOST/PORT                                               PATH   SERVICES        PORT       TERMINATION   WILDCARD
-file-uploader   file-uploader-file-uploader.apps.{OCP3_GUID}.{OCP3_DOMAIN}          file-uploader   8080-tcp                 None
+NAME              HOST/PORT                                                       PATH   SERVICES     PORT   TERMINATION   WILDCARD
+mssql-app-route   mssql-app-route-mssql-persistent.apps.{OCP3_GUID}.{OCP3_DOMAIN}         mssql-app-service   5000                 None
 --------------------------------------------------------------------------------
 
-image:../screenshots/lab4/file-uploader-ui.png[File Uploader UI]
+image:../screenshots/lab5/mssql-product-catalog.png[MSSQL Product Catalog]
 
-Lastly, let’s verify that the file-uploader application is *not* running on our destination OCP 4 cluster. In the OCP4 terminal run the following command:
+Let’s go ahead and add a new product to the inventory. Click on the +Add button and enter some data.
+
+image:../screenshots/lab5/mssql-add-product.png[MSSQL Add Product]
+
+You can see the application is functioning and state is being saved in the DB.
+
+image:../screenshots/lab5/mssql-added-product.png[MSSQL Added Product]
+
+Let’s also verify that the application is NOT installed on our OCP 4 destination cluster. You can see that no pods are running; and in fact the mssql-persistent namespace does _not_ exist.
+
+[source,bash,role=execute]
+----
+oc get pods -n mssql-persistent
+----
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **oc get pods -n file-uploader**
-No resources found in file-uploader namespace.
+No resources found in mssql-persistent namespace.
 --------------------------------------------------------------------------------
 
-=== Migrate with MTC
+=== Using Velero to backup application namespace
 
-Next, let’s open up the migration UI. +
-Again, if we do not have it open, in order to get the route run the following command on the destination OCP 4 cluster terminal:
-
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-$ **oc get routes migration -n openshift-migration -o jsonpath='{.spec.host}{"\n"}'**
-migration-openshift-migration.apps.cluster-{OCP4_GUID}.{OCP4_DOMAIN}
---------------------------------------------------------------------------------
-
-The screen should look something like:
-
-image:../screenshots/lab2/mtcUI.png[MTC Main Screen]
-
-IMPORTANT: Remember our goal is to migrate our application from OCP/OCS 3 to OCP/OCS 4. This means moving our data from Gluster to Ceph. We will show you how to do this in MTC when setting up our migration plan.
-
-==== Add a Cluster
-
-The first thing we want to do is add the source OCP cluster we wish to migrate the application from. From the `Clusters` tab, click the `Add cluster` button. Fill out the necessary information. +
-We will need a Service Account Token in order for MTC to communicate with the destination cluster:
-
-Run the following in the *OCP 3* cluster terminal. Be aware that the below output is just an EXAMPLE. You need to copy the output you get from your own command execution. Copying and pasting the below token will not work.
-
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-$ **oc sa get-token migration-operator -n openshift-migration**
-eyJhbGciOifsfsds8ahmtpZCI6IiJ9fdsfdseyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJtaWciLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoibWlnLXRva2VuLTdxMnhjIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6Im1pZyIsImt1YmVybmss7gc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjQ5NjYyZjgxLWEzNDItMTFlOS05NGRjLTA2MDlkNjY4OTQyMCIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDptaWc6bWlnIn0.Qhcv0cwP539nSxbhIHFNHen0PNXSfLgBiDMFqt6BvHZBLET_UK0FgwyDxnRYRnDAHdxAGHN3dHxVtwhu-idHKI-mKc7KnyNXDfWe5O0c1xWv63BbEvyXnTNvpJuW1ChUGCY04DBb6iuSVcUMi04Jy_sVez00FCQ56xMSFzy5nLW5QpLFiFOTj2k_4Krcjhs8dgf02dgfkkshshjfgfsdfdsfdsa8fdsgdsfd8fasfdaTScsu4lEDSbMY25rbpr-XqhGcGKwnU58qlmtJcBNT3uffKuxAdgbqa-4zt9cLFeyayTKmelc1MLswlOvu3vvJ2soFx9VzWdPbGRMsjZWWLvJ246oyzwykYlBunYJbX3D_uPfyqoKfzA
---------------------------------------------------------------------------------
-We need to save the output of the 'get-token', that is the long string we will enter into the ui when we create a new cluster entry. +
-*Cluster name* is an arbitrary name you set for your cluster. +
-*URL* field is FQDN of your OCP3 Master API. You can find this in the '2.0 Environment' section as the OCP3 API field. +
-*Service account token* is the token you got in the previous command. +
-
-The last field is *Route to Image Registry*. This is provided so that you could include a route to the source cluster's image registry, if you wanted to allow direct image migration. Direct image and volume migrations have significant performance benefits, becuase they skip the intermediate steps of backing up files from the source cluster to the replication directory. Direct migrations use `rsync` to transfer the files. Since direct image migration requires some prerequisites, such as route to Image Registry on the source cluster, let's get this information from our *source OCP3* cluster.
-
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-$ **oc get route -n default docker-registry**
-NAME              HOST/PORT                                                       PATH      SERVICES          PORT      TERMINATION   WILDCARD
-docker-registry   docker-registry-default.apps.brno-7215.sandbox911.opentlc.com             docker-registry   <all>     passthrough   None
---------------------------------------------------------------------------------
-
-You will put the HOST into the field *Exposed route host to image registry*
-
-When done, click `Add cluster`. Here's an example:
-
-image:../screenshots/lab4/mtc-add-cluster.png[MTC Add Cluster]
-
-You should see a `Connection successful` message. Click `Close`. +
-Now you should see the source and destination clusters populated.
-
-image:../screenshots/lab4/mtc-clusters-added.png[MTC Clusters Added]
+Let’s go ahead and define our Migration Plan in the MTC UI.
 
 ==== Create a Migration Plan
 
-Now that we have a replication repository specified and both the source and destination clusters defined, we can create a migration plan. From the `Migration plans` tab, click the `Add migration plan` button:
+Give your plan a name, select the source and destination clusters, and your replication repository.  Then click Next.
 
-image:../screenshots/lab4/mtc-add-migration-plan.png[MTC Add Mig Plan]
+image:../screenshots/lab5/mtc-migplan-general.png[MTC Mig Plan General]
 
-This will launch the Migration plan creation wizard. +
-Give your plan a name, select the source and destination clusters, and your replication repository. The destination OCP4 cluster will be named by default `host`. Then click Next.
+Select the `mssql-persistent` namespace/project, and click Next.
 
-image:../screenshots/lab4/mtc-mig-plan-general.png[MTC Mig Plan General]
+image:../screenshots/lab5/mtc-migplan-namespaces.png[MTC Mig Plan Namespaces]
 
-Select the `file-uploader` namespace/project, and click Next.
+There is just one PV, so go ahead and click Next.
 
-image:../screenshots/lab4/mtc-mig-plan-namespaces.png[MTC Mig Plan Namespaces]
+image:../screenshots/lab5/mtc-migplan-pvs.png[MTC Mig Plan PVs]
 
-Now we are presented with the OCS3/Gluster persistent volume associated with our application. For this example, since we are migrating our storage from Gluster to Ceph, let’s choose `Copy` as our transfer type.  Click Next.
+Next, we will need to select the `copy method` and `target storage class`.  MTC will attempt to pre-select these for you as defaults.  In our case, we want to copy our data from NFS to AWS-EBS (`gp2:kubernetes.io/aws-ebs`). Click Next.
 
-image:../screenshots/lab4/mtc-mig-plan-pvolumes.png[MTC Mig Plan PVs]
+image:../screenshots/lab5/mtc-migplan-copyoptions.png[MTC Mig Plan Copy Options]
 
-Next, we will need to select the `copy method` and `target storage class`. MTC will attempt to pre-select these for you as defaults. In our case, we want *Filesystem copy* and *ocs-storagecluster-cephfs*. Click Next.
-
-image:../screenshots/lab4/mtc-mig-plan-copyoptions.png[MTC Mig Plan CopyOptions]
-
-If we configured the direct image location when the cluster was added, we can choose to use the Direct image migration. If the cluster was added without Image Registry, it will be unavailable. The rest can be left as it is. Click Next.
+We are presented with the same Migration Options like in the previous lab.
+Those can be left as is. Click Next. 
 
 image:../screenshots/lab4/mtc-mig-plan-migoptions.png[MTC Mig Plan Options]
 
-We will examine Migration Hooks in a subsequent exercise, so we will skip this step and proceed.  Click Finish.
+We will examine Migration Hooks in Lab 9, so we will skip this step and proceed.  Click Finish.
 
-image:../screenshots/lab4/mtc-mig-plan-hooks.png[MTC Mig Plan Hooks]
+image:../screenshots/lab5/mtc-migplan-hooks.png[MTC Mig Plan Hooks]
+
+After validating the migration plan, you will see a `Ready` message and you can click `Close`.
+You may be presented with a warning like the one below. That is due to our PV usage being high, and MTC telling us that this kind of situation could lead to problems. In our case we can acknowledge it and continue.
+
+image:../screenshots/lab5/mtc-migplan-warning.png[MTC Mig Plan Warning]
 
 
-After the migration plan has been successfully validated, you can click `Close`.
 
-image:../screenshots/lab4/mtc-mig-plan-validation.png[MTC Mig Plan Validation]
-
-
-
-==== Migrate the Application Workload
+==== Protecting the Application Workload
 
 Now we can select `Migrate` or `Stage` on the application. Since we don’t care about downtime for this example, let’s select `Migrate`:
 
-image:../screenshots/lab4/mtc-mig-plan-added.png[MTC Mig Plan Added]
+image:../screenshots/lab5/mtc-migplan-migrate.png[MTC Mig Plan Migrate]
 
-Optionally you may choose to _not_ terminate the application on the source cluster. Leave it checked and select `Migrate`.
+Optionally choose to _not_ terminate the application on the source cluster. Leave it checked and select `Migrate`.
 
-image:../screenshots/lab4/mtc-quiesce.png[MTC Quiesce]
+image:../screenshots/lab5/mtc-migplan-quiesce.png[MTC Mig Plan Quiesce]
 
-The migration will start and will update with each step in the process.
+The migration will progress with a progress bar showing each step in the process.
 
-image:../screenshots/lab4/mtc-startmig.png[MTC Migration Started]
+image:../screenshots/lab5/mtc-migplan-progress.png[MTC Mig Plan Progress]
 
-If you wish to see the progress bar, click on the drill down link under *Migrations* to see details of the individual migrations.
+Once done, you should see `Migration Completed` on the migration plan.
 
-image:../screenshots/lab4/mtc-progress-bar.png[MTC Progress Bar]
+image:../screenshots/lab5/mtc-migplan-complete.png[MTC Mig Plan Complete]
 
-Once done, you should see `Migration Succeeded` on the migration plan.
+=== Verify restored application
 
-image:../screenshots/lab4/mtc-migration-complete.png[MTC Migration Complete]
+In the terminal, let’s execute the following commands:
 
-=== Verify Migrated Application
-
-In the destination OCP 4 cluster terminal, let’s execute the following commands:
+[source,bash,role=execute]
+----
+oc get pods -n mssql-persistent
+----
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **oc get pods -n file-uploader**
-NAME                     READY   STATUS      RESTARTS   AGE
-file-uploader-1-build    1/1     Running     0          96s
-file-uploader-1-deploy   0/1     Completed   0          95s
-file-uploader-1-rc49v    1/1     Running     0          93s
-file-uploader-1-vf2pt    1/1     Running     0          93s
-file-uploader-1-zbt6d    1/1     Running     0          93s
+NAME                                    READY   STATUS      RESTARTS   AGE
+mssql-app-deployment-7cc7954fd8-swlkx   1/1     Running     0          3m55s
+mssql-deployment-1-deploy               0/1     Completed   0          3m58s
+mssql-deployment-1-wllln                1/1     Running     0          3m55s
 --------------------------------------------------------------------------------
 
-We see that the file-uploader application is running.
+We see that the mssql-persistent application is running.
 
 Let’s check the storage:
 
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-$ **oc get pvc -n file-uploader**
-NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS                AGE
-file-uploader-vol-claim   Bound    pvc-ff900007-c557-404c-852e-fca8bb4a5123   20Gi       RWX            ocs-storagecluster-cephfs   2m23s
---------------------------------------------------------------------------------
-
-We see that our 20Gi volume has been moved and is now running on Ceph.
-
-Lastly, let’s grab the route and open up the WebUI in our browser.
+[source,bash,role=execute]
+----
+oc get pvc -n mssql-persistent
+----
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **oc get route -n file-uploader**
-NAME            HOST/PORT                                                                                PATH   SERVICES        PORT       TERMINATION   WILDCARD
-file-uploader   file-uploader-file-uploader.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}         file-uploader   8080-tcp                 None
+NAME        STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+mssql-pvc   Bound    pvc-c0e077ea-e1c7-4ba7-a48e-051de94296fa   10Gi       RWO            gp2            4m52s
 --------------------------------------------------------------------------------
 
-image:../screenshots/lab4/file-uploader-destination.png[File-Uploader-Destination]
+We see that our 10Gi volume has been moved and is now running in AWS EBS.
 
-*Success!* You have now successfully migrated your first application using MTC.
+Lastly, let’s grab the route and open up the WebUI in our browser, and verify that the product we added prior to migration still exists.
+
+[source,bash,role=execute]
+----
+oc get routes -n mssql-persistent
+----
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+NAME              HOST/PORT                                                    PATH   SERVICES            PORT    TERMINATION   WILDCARD
+mssql-app-route   mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}    /      mssql-app-service   <all>                 None
+--------------------------------------------------------------------------------
+
+image:../screenshots/lab5/mssql-persistent-app-ocp4.png[app]

@@ -5,15 +5,19 @@
 :OCP4_SSH_USER: %ocp4_ssh_user%
 :OCP4_PASSWORD: %ocp4_password%
 
-== Migrate MSSQL Application
+== [WIP] Backing up multiple namespace
 
-Next, we are going to migrate a simple Product Inventory web-based application front-end, backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 3 cluster in the `mssql-persistent` namespace, using a single PV backed by NFS for persistent storage.
+Next, we are going to protecting a simple Product Inventory web-based application front-end, backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 3 cluster in the `mssql-persistent` namespace, using a single PV backed by NFS for persistent storage.
 
 In our source OCP 3 cluster terminal, we can see the app running:
 
+[source,bash,role=execute]
+----
+oc get pods -n mssql-persistent
+----
+
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **oc get pods -n mssql-persistent**
 NAME                                    READY   STATUS    RESTARTS   AGE
 mssql-app-deployment-6ffb46c5d6-n5fvv   1/1     Running   0          41m
 mssql-deployment-1-xq4p4                1/1     Running   0          41m
@@ -21,9 +25,13 @@ mssql-deployment-1-xq4p4                1/1     Running   0          41m
 
 Let’s get the route to the application, and bring up the webUI.
 
+[source,bash,role=execute]
+----
+oc get route -n mssql-persistent
+----
+
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$  **oc get route -n mssql-persistent**
 NAME              HOST/PORT                                                       PATH   SERVICES     PORT   TERMINATION   WILDCARD
 mssql-app-route   mssql-app-route-mssql-persistent.apps.{OCP3_GUID}.{OCP3_DOMAIN}         mssql-app-service   5000                 None
 --------------------------------------------------------------------------------
@@ -40,13 +48,17 @@ image:../screenshots/lab5/mssql-added-product.png[MSSQL Added Product]
 
 Let’s also verify that the application is NOT installed on our OCP 4 destination cluster. You can see that no pods are running; and in fact the mssql-persistent namespace does _not_ exist.
 
+[source,bash,role=execute]
+----
+oc get pods -n mssql-persistent
+----
+
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **oc get pods -n mssql-persistent**
 No resources found in mssql-persistent namespace.
 --------------------------------------------------------------------------------
 
-=== Using MTC
+=== Using Velero to backup application namespace
 
 Let’s go ahead and define our Migration Plan in the MTC UI.
 
@@ -84,7 +96,7 @@ image:../screenshots/lab5/mtc-migplan-warning.png[MTC Mig Plan Warning]
 
 
 
-==== Migrate the Application Workload
+==== Protecting the Application Workload
 
 Now we can select `Migrate` or `Stage` on the application. Since we don’t care about downtime for this example, let’s select `Migrate`:
 
@@ -102,13 +114,17 @@ Once done, you should see `Migration Completed` on the migration plan.
 
 image:../screenshots/lab5/mtc-migplan-complete.png[MTC Mig Plan Complete]
 
-=== Verify Migrated Application
+=== Verify restored application
 
-In the destination OCP 4 cluster terminal, let’s execute the following commands:
+In the terminal, let’s execute the following commands:
+
+[source,bash,role=execute]
+----
+oc get pods -n mssql-persistent
+----
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **oc get pods -n mssql-persistent**
 NAME                                    READY   STATUS      RESTARTS   AGE
 mssql-app-deployment-7cc7954fd8-swlkx   1/1     Running     0          3m55s
 mssql-deployment-1-deploy               0/1     Completed   0          3m58s
@@ -119,9 +135,13 @@ We see that the mssql-persistent application is running.
 
 Let’s check the storage:
 
+[source,bash,role=execute]
+----
+oc get pvc -n mssql-persistent
+----
+
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **oc get pvc -n mssql-persistent**
 NAME        STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
 mssql-pvc   Bound    pvc-c0e077ea-e1c7-4ba7-a48e-051de94296fa   10Gi       RWO            gp2            4m52s
 --------------------------------------------------------------------------------
@@ -130,9 +150,13 @@ We see that our 10Gi volume has been moved and is now running in AWS EBS.
 
 Lastly, let’s grab the route and open up the WebUI in our browser, and verify that the product we added prior to migration still exists.
 
+[source,bash,role=execute]
+----
+oc get routes -n mssql-persistent
+----
+
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-$ **oc get routes -n mssql-persistent**
 NAME              HOST/PORT                                                    PATH   SERVICES            PORT    TERMINATION   WILDCARD
 mssql-app-route   mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}    /      mssql-app-service   <all>                 None
 --------------------------------------------------------------------------------

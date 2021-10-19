@@ -34,11 +34,11 @@ migration-cluster-config   2         1m
 
 ## Migrate
 
-Now we will migrate an application (Rocket Chat) from source to the destination cluster. When creating a migplan, make sure you choose 'File System Copy' mode for PVs:
+Now we will protecting an application (Rocket Chat) from source to the destination cluster. When creating a migplan, make sure you choose 'File System Copy' mode for PVs:
 
 image:../../screenshots/debug/ex2/copy-options.png[Copy Options]
 
-Once the migplan is created successfully, migrate the application.
+Once the migplan is created successfully, protecting the application.
 This time make sure though that we are *NOT* using the DirectImage Migration.
 
 Notice that the migration will get stuck at `StageBackup` phase:

@@ -13,9 +13,9 @@ This exercise will guide you through a failed migration scenario due to incompat
 
 We have pre-installed a new Custom Resource Definition (`GvkDemo`) on your OCP 3 source cluster and created an instance within the `gvk-demo` namespace.  A different version of the same CRD has been installed on your OCP 4 destination cluster.
 
-=== Migrate GVK incompatible namespace
+=== ProtectingGVK incompatible namespace
 
-Let's launch MTC and create a Migration Plan to migrate the gvk-demo namespace.
+Let's launch MTC and create a Migration Plan to protecting the gvk-demo namespace.
 
 image:../../screenshots/debug/ex3/migplan.png[MTC Mig Plan]
 

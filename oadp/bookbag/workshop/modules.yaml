@@ -11,33 +11,27 @@ modules:
     exit_sign: 4.0 OADP Overview
   Overview:
     name: 4.0 OADP Overview
-    exit_sign: 5.0 Migration Exercise I
+    exit_sign: 5.0 Data Protection Exercise I
   exercises/Ex1:
-    name: 5.0 Migration Exercise I
-    exit_sign: 6.0 Migration Exercise II
+    name: 5.0 Data Protection Exercise I
+    exit_sign: 6.0 Data Protection Exercise II
   exercises/Ex2:
-    name: 6.0 Migration Exercise II
-    exit_sign: 7.0 Migration Exercise III
-  exercises/Ex3:
-    name: 7.0 Migration Exercise III
-    exit_sign: 8.0 Migration Exercise IV
-  exercises/Ex4:
-    name: 8.0 Migration Exercise IV
-    exit_sign: 9.0 Migration Hooks
+    name: 6.0 Data Protection Exercise II
+    exit_sign: 7.0 Data Protection Hooks
   Hooks:
-    name: 9.0 Migration Hooks
-    exit_sign: 10.0 Debugging
+    name: 7.0 Data Protection Hooks
+    exit_sign: 8.0 Debugging
   Debug:
-    name: 10.0 Debugging
-    exit_sign: 10.1 Break-Fix Exercise I (Optional)
+    name: 8.0 Debugging
+    exit_sign: 8.1 Break-Fix Exercise I (Optional)
   exercises/debug/misconfig:
-    name: 10.1 Break-Fix Exercise I (Optional)
-    exit_sign: 10.2 Break-Fix Exercise II (Optional)
+    name: 8.1 Break-Fix Exercise I (Optional)
+    exit_sign: 8.2 Break-Fix Exercise II (Optional)
   exercises/debug/stage-pods:
-    name: 10.2 Break-Fix Exercise II (Optional)
-    exit_sign: 10.3 Break-Fix Exercise III (Optional)
+    name: 8.2 Break-Fix Exercise II (Optional)
+    exit_sign: 8.3 Break-Fix Exercise III (Optional)
   exercises/debug/crashloopbackoff:
-    name: 10.3 Break-Fix Exercise III (Optional)
-    exit_sign: 11.0 Conclusion
+    name: 8.3 Break-Fix Exercise III (Optional)
+    exit_sign: 9.0 Conclusion
   Conclusion:
-    name: 11.0 Conclusion
+    name: 9.0 Conclusion
