@@ -33,7 +33,7 @@ oc get route -n mssql-persistent
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
 NAME              HOST/PORT                                                       PATH   SERVICES     PORT   TERMINATION   WILDCARD
-mssql-app-route   mssql-app-route-mssql-persistent.apps.{OCP3_GUID}.{OCP3_DOMAIN}         mssql-app-service   5000                 None
+mssql-app-route   mssql-app-route-mssql-persistent.apps.{OCP4_GUID}.{OCP4_DOMAIN}         mssql-app-service   5000                 None
 --------------------------------------------------------------------------------
 
 image:../screenshots/lab5/mssql-product-catalog.png[MSSQL Product Catalog]
