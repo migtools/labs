@@ -14,8 +14,11 @@ modules:
     exit_sign: 5.0 Data Protection Exercise I
   exercises/Ex1:
     name: 5.0 Data Protection Exercise I
-    exit_sign: 6.0 Data Protection Exercise II
+    exit_sign: 5.1 Data Protection Exercise I Extended
   exercises/Ex2:
+    name: 5.1 Data Protection Exercise I Extended
+    exit_sign: 6.0 Data Protection Exercise II
+  exercises/Ex3:
     name: 6.0 Data Protection Exercise II
     exit_sign: 7.0 Data Protection Hooks
   Hooks:

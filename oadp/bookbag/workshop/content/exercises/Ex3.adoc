@@ -1,0 +1,114 @@
+:sectlinks:
+:markup-in-source: verbatim,attributes,quotes
+:OCP4_GUID: %ocp4_guid%
+:OCP4_DOMAIN: %ocp4_domain%
+:OCP4_SSH_USER: %ocp4_ssh_user%
+:OCP4_PASSWORD: %ocp4_password%
+
+== Backing up single namespace and a subset of resources
+
+In previous exercises, we backed up by selecting namespaces using `--include-namespaces` flag from Velero CLI, separating each namespace by `,`.  In this exercise, we will be backing up by types of resources and not the entire namespace.
+
+Using the flag `--include-resources`, we can specify types of resources to include in backup separated by `,`.
+
+In our source OCP 4 cluster terminal, we can see the app running:
+
+[source,bash,role=execute]
+----
+oc get pods -n parks-app
+----
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+NAME               READY   STATUS      RESTARTS   AGE
+mongodb-1-qb6xw    1/1     Running     0          22h
+restify-1-fc59d    1/1     Running     0          22h
+--------------------------------------------------------------------------------
+
+Check that Microsoft SQL Server Application is still running.
+[source,bash,role=execute]
+----
+oc get pods -n mssql-persistent
+----
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+NAME                                    READY   STATUS    RESTARTS   AGE
+mssql-app-deployment-6ffb46c5d6-n5fvv   1/1     Running   0          41m
+mssql-deployment-1-xq4p4                1/1     Running   0          41m
+--------------------------------------------------------------------------------
+
+Let’s checkout the route to the applications user interfaces.
+
+[source,bash,role=execute]
+----
+oc get route -n parks-app
+----
+[source,bash,role=execute]
+----
+oc get route -n mssql-persistent
+----
+NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[mssql-app] and http://restify-parks-app.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[parks-app].
+
+Check that the routes are working correctly then proceed to the next section.
+
+=== Using Velero to backup application namespaces
+
+Let’s go ahead and create a backup of `mssql-persistent` and `parks-app` namespace, selecting only deployments and deploymentconfig resources.
+[source,bash,role=execute-2]
+----
+velero backup create two-ns-deployment-n-dconfig-backup --include-namespaces mssql-persistent,parks-app --include-resources deployments,deploymentconfig -n openshift-adp
+----
+
+You can check on the backup progress by running the following
+[source,bash,role=execute]
+----
+velero backup describe two-ns-deployment-n-dconfig-backup -n openshift-adp
+----
+When the backup is finished, proceed to next section.
+
+=== Simulate a disaster
+When the backup is finished, we'll proceed to simulate a disaster by deleting the backedup resources.
+[source,bash,role=execute]
+----
+oc delete deploymentconfig mssql-deployment -n mssql-persistent
+----
+[source,bash,role=execute]
+----
+oc delete deploymentconfig mongodb restify -n parks-app
+----
+[source,bash,role=execute]
+----
+oc delete deployment mssql-app-deployment -n mssql-persistent
+----
+
+Check that the applications are no longer available.
+
+NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[mssql-app] and http://restify-parks-app.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[parks-app].
+
+When application is no longer available, proceed to next section.
+
+=== Restoring deleted application
+We can restore applications deleted earlier by restoring from the backup we created.
+[source,bash,role=execute]
+----
+velero restore create two-ns-deployment-n-dconfig-restore --from-backup two-ns-deployment-n-dconfig-backup -n openshift-adp
+----
+
+[source,bash,role=execute]
+----
+velero restore describe two-ns-deployment-n-dconfig-restore -n openshift-adp
+----
+
+Wait until pods become available.
+[source,bash,role=execute]
+----
+oc get pods -n mssql-persistent
+----
+[source,bash,role=execute]
+----
+oc get pods -n parks-app
+----
+
+Verify that the data you added earlier persisted in the restored application.
+
+NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[mssql-app] and http://restify-parks-app.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[parks-app].
