@@ -5,17 +5,31 @@
 :OCP4_SSH_USER: %ocp4_ssh_user%
 :OCP4_PASSWORD: %ocp4_password%
 
-== [WIP] Backing up multiple namespace
+== Backing up multiple namespaces
 
-Next, we are going to protecting a simple Product Inventory web-based application front-end, backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 3 cluster in the `mssql-persistent` namespace, using a single PV backed by NFS for persistent storage.
+In previous exercise, we backed up a single namespace using `--include-namespaces` flag from Velero CLI. This flag actually accepts a `stringArray`. We can backup multiple namespaces using the flag separating them by `,`.
 
-In our source OCP 3 cluster terminal, we can see the app running:
+In addition to the Microsoft SQL Server application, we have pre-deployed for you a second application called `parks-app`. This application has been pre-deployed on your OCP 4 cluster in the `parks-app` namespace, using a single PV backed by NFS for persistent storage.
 
+In our source OCP 4 cluster terminal, we can see the app running:
+
+[source,bash,role=execute]
+----
+oc get pods -n parks-app
+----
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+NAME               READY   STATUS      RESTARTS   AGE
+mongodb-1-qb6xw    1/1     Running     0          22h
+restify-1-fc59d    1/1     Running     0          22h
+--------------------------------------------------------------------------------
+
+Check that Microsoft SQL Server Application is still running.
 [source,bash,role=execute]
 ----
 oc get pods -n mssql-persistent
 ----
-
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
 NAME                                    READY   STATUS    RESTARTS   AGE
@@ -23,142 +37,70 @@ mssql-app-deployment-6ffb46c5d6-n5fvv   1/1     Running   0          41m
 mssql-deployment-1-xq4p4                1/1     Running   0          41m
 --------------------------------------------------------------------------------
 
-Let’s get the route to the application, and bring up the webUI.
+Let’s checkout the route to the applications user interfaces.
 
+[source,bash,role=execute]
+----
+oc get route -n parks-app
+----
 [source,bash,role=execute]
 ----
 oc get route -n mssql-persistent
 ----
+NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[mssql-app] and http://restify-parks-app.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[parks-app].
 
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-NAME              HOST/PORT                                                       PATH   SERVICES     PORT   TERMINATION   WILDCARD
-mssql-app-route   mssql-app-route-mssql-persistent.apps.{OCP4_GUID}.{OCP4_DOMAIN}         mssql-app-service   5000                 None
---------------------------------------------------------------------------------
+Check that the routes are working correctly then proceed to the next section.
 
-image:../screenshots/lab5/mssql-product-catalog.png[MSSQL Product Catalog]
+=== Using Velero to backup application namespaces
 
-Let’s go ahead and add a new product to the inventory. Click on the +Add button and enter some data.
+Let’s go ahead and create a backup of `mssql-persistent` and `parks-app` namespace.
+[source,bash,role=execute-2]
+----
+velero backup create two-ns-backup --include-namespaces mssql-persistent,parks-app -n openshift-adp
+----
 
-image:../screenshots/lab5/mssql-add-product.png[MSSQL Add Product]
+You can check on the backup progress by running the following
+[source,bash,role=execute]
+----
+velero backup describe two-ns-backup -n openshift-adp
+----
+When the backup is finished, proceed to next section.
 
-You can see the application is functioning and state is being saved in the DB.
+=== Simulate a disaster
+When the backup is finished, we'll proceed to simulate a disaster by deleting the two namespaces.
+[source,bash,role=execute]
+----
+oc delete ns mssql-persistent parks-app
+----
 
-image:../screenshots/lab5/mssql-added-product.png[MSSQL Added Product]
+Check that the applications are no longer available.
 
-Let’s also verify that the application is NOT installed on our OCP 4 destination cluster. You can see that no pods are running; and in fact the mssql-persistent namespace does _not_ exist.
+NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[mssql-app] and http://restify-parks-app.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[parks-app].
 
+When application is no longer available, proceed to next section.
+
+=== Restoring deleted application
+We can restore applications deleted earlier by restoring from the backup we created.
+[source,bash,role=execute]
+----
+velero restore create two-ns-restore --from-backup two-ns-backup -n openshift-adp
+----
+
+[source,bash,role=execute]
+----
+velero restore describe two-ns-restore -n openshift-adp
+----
+
+Wait until pods become available.
 [source,bash,role=execute]
 ----
 oc get pods -n mssql-persistent
 ----
-
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-No resources found in mssql-persistent namespace.
---------------------------------------------------------------------------------
-
-=== Using Velero to backup application namespace
-
-Let’s go ahead and define our Migration Plan in the MTC UI.
-
-==== Create a Migration Plan
-
-Give your plan a name, select the source and destination clusters, and your replication repository.  Then click Next.
-
-image:../screenshots/lab5/mtc-migplan-general.png[MTC Mig Plan General]
-
-Select the `mssql-persistent` namespace/project, and click Next.
-
-image:../screenshots/lab5/mtc-migplan-namespaces.png[MTC Mig Plan Namespaces]
-
-There is just one PV, so go ahead and click Next.
-
-image:../screenshots/lab5/mtc-migplan-pvs.png[MTC Mig Plan PVs]
-
-Next, we will need to select the `copy method` and `target storage class`.  MTC will attempt to pre-select these for you as defaults.  In our case, we want to copy our data from NFS to AWS-EBS (`gp2:kubernetes.io/aws-ebs`). Click Next.
-
-image:../screenshots/lab5/mtc-migplan-copyoptions.png[MTC Mig Plan Copy Options]
-
-We are presented with the same Migration Options like in the previous lab.
-Those can be left as is. Click Next. 
-
-image:../screenshots/lab4/mtc-mig-plan-migoptions.png[MTC Mig Plan Options]
-
-We will examine Migration Hooks in Lab 9, so we will skip this step and proceed.  Click Finish.
-
-image:../screenshots/lab5/mtc-migplan-hooks.png[MTC Mig Plan Hooks]
-
-After validating the migration plan, you will see a `Ready` message and you can click `Close`.
-You may be presented with a warning like the one below. That is due to our PV usage being high, and MTC telling us that this kind of situation could lead to problems. In our case we can acknowledge it and continue.
-
-image:../screenshots/lab5/mtc-migplan-warning.png[MTC Mig Plan Warning]
-
-
-
-==== Protecting the Application Workload
-
-Now we can select `Migrate` or `Stage` on the application. Since we don’t care about downtime for this example, let’s select `Migrate`:
-
-image:../screenshots/lab5/mtc-migplan-migrate.png[MTC Mig Plan Migrate]
-
-Optionally choose to _not_ terminate the application on the source cluster. Leave it checked and select `Migrate`.
-
-image:../screenshots/lab5/mtc-migplan-quiesce.png[MTC Mig Plan Quiesce]
-
-The migration will progress with a progress bar showing each step in the process.
-
-image:../screenshots/lab5/mtc-migplan-progress.png[MTC Mig Plan Progress]
-
-Once done, you should see `Migration Completed` on the migration plan.
-
-image:../screenshots/lab5/mtc-migplan-complete.png[MTC Mig Plan Complete]
-
-=== Verify restored application
-
-In the terminal, let’s execute the following commands:
-
 [source,bash,role=execute]
 ----
-oc get pods -n mssql-persistent
+oc get pods -n parks-app
 ----
 
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-NAME                                    READY   STATUS      RESTARTS   AGE
-mssql-app-deployment-7cc7954fd8-swlkx   1/1     Running     0          3m55s
-mssql-deployment-1-deploy               0/1     Completed   0          3m58s
-mssql-deployment-1-wllln                1/1     Running     0          3m55s
---------------------------------------------------------------------------------
+Verify that the data you added earlier persisted in the restored application.
 
-We see that the mssql-persistent application is running.
-
-Let’s check the storage:
-
-[source,bash,role=execute]
-----
-oc get pvc -n mssql-persistent
-----
-
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-NAME        STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
-mssql-pvc   Bound    pvc-c0e077ea-e1c7-4ba7-a48e-051de94296fa   10Gi       RWO            gp2            4m52s
---------------------------------------------------------------------------------
-
-We see that our 10Gi volume has been moved and is now running in AWS EBS.
-
-Lastly, let’s grab the route and open up the WebUI in our browser, and verify that the product we added prior to migration still exists.
-
-[source,bash,role=execute]
-----
-oc get routes -n mssql-persistent
-----
-
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-NAME              HOST/PORT                                                    PATH   SERVICES            PORT    TERMINATION   WILDCARD
-mssql-app-route   mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}    /      mssql-app-service   <all>                 None
---------------------------------------------------------------------------------
-
-image:../screenshots/lab5/mssql-persistent-app-ocp4.png[app]
+NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[mssql-app] and http://restify-parks-app.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[parks-app].

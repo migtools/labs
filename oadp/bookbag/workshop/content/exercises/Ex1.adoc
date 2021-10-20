@@ -7,9 +7,9 @@
 
 == Backing up single namespace
 
-Next, we are going to protecting a simple Product Inventory web-based application front-end, backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 3 cluster in the `mssql-persistent` namespace, using a single PV backed by NFS for persistent storage.
+We are going to protecting a simple Product Inventory web-based application front-end, backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 4 cluster in the `mssql-persistent` namespace, using a single PV backed by NFS for persistent storage.
 
-In our source OCP 3 cluster terminal, we can see the app running:
+In our source OCP 4 cluster terminal, we can see the app running:
 
 [source,bash,role=execute]
 ----
