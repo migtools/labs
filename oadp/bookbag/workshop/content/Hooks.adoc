@@ -7,7 +7,7 @@
 :OCP3_BASTION: %ocp3_bastion%
 :OCP4_BASTION: %ocp4_bastion%
 
-== Introduction
+== Introduction [WIP - BLOCKED]
 
 Backup/Restore hooks provide a means for running custom code at points in the Backup/Restore to handle logic unique to a Backup/Restore.
 This may include scenarios where custom quiesce logic is desired, manual data Backup/Restore of unsupported types is needed, or to handle application repair after it has been migrated to a new environment.
@@ -44,8 +44,8 @@ Let's add a simple pre and post backup hooks to pod
 [source,bash,role=execute]
 ----
 oc annotate pod -n mssql-persistent -l app=mssql \
-pre.hook.backup.velero.io/command='["/bin/bash", "-c", "touch /var/opt/mssql/data/lab-pre-backup"]' \
-post.hook.backup.velero.io/command='["/bin/bash", "-c", "touch /var/opt/mssql/data/lab-post-backup"]'
+pre.hook.backup.velero.io/command='["/bin/bash", "-c", "echo \"pre\" > /var/opt/mssql/data/lab-pre-backup"]' \
+post.hook.backup.velero.io/command='["/bin/bash", "-c", "echo \"post\" > /var/opt/mssql/data/lab-post-backup"]'
 ----
 
 Check that file pre-backup and post-backup did not exist in pod container
