@@ -114,6 +114,13 @@ oc get velero example-velero -n openshift-adp -o=jsonpath="{.spec.defaultVeleroP
 oc get velero example-velero -n openshift-adp -o=jsonpath="{.spec.veleroFeatureFlags}"
 ----
 
+Velero server is configured to take CSI snapshot of persistent volumes when it finds a VolumeSnapshotClass object with label `velero.io/csi-volumesnapshot-class: 'true'` pointing to the persistent volume's storageclass. We have added this label to a VolumeSnapshotClass object for the `openshift-storage.rbd.csi.ceph.com` driver.
+
+[source,bash,role=execute]
+----
+oc get VolumeSnapshotClass ocs-storagecluster-rbdplugin-snapclass -ojsonpath='{.metadata.labels}'
+----
+
 The namespace mssql-persistent we backup earlier contained a persistent volume claim that has storage class `ocs-storagecluster-ceph-rbd`
 [source,bash,role=execute]
 ----
