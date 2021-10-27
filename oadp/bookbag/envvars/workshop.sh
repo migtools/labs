@@ -16,4 +16,11 @@ cd /tmp/velero-client
 curl -L https://github.com/vmware-tanzu/velero/releases/download/v1.7.0/velero-v1.7.0-linux-amd64.tar.gz -o /tmp/velero-client/velero-cli.tar.gz
 tar -xvf /tmp/velero-client/velero-cli.tar.gz
 mv velero-v1.7.0-linux-amd64/velero ~/../bin/velero
+
+cd ~
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip ~/awscliv2.zip
+~/aws/install -i ~/aws-cli
+alias aws=~/aws-cli/v2/2.*/bin/aws
+alias aws_completer=~/aws-cli/v2/2.*/bin/aws_completer
 popd
