@@ -22,6 +22,6 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip
 unzip ~/awscliv2.zip
 ~/aws/install -i ~/aws-cli
 
-alias aws=~/aws-cli/v2/2.*/bin/aws >> ~/.bash_profile
-alias aws_completer=~/aws-cli/v2/2.*/bin/aws_completer >> ~/.bash_profile
+echo "alias aws=~/aws-cli/v2/2.*/bin/aws" >> ~/.bash_profile
+echo "alias aws_completer=~/aws-cli/v2/2.*/bin/aws_completer" >> ~/.bash_profile
 popd
