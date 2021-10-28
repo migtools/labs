@@ -10,11 +10,9 @@ modules:
     - exercises/Ex2
     - exercises/Ex3
     - exercises/Ex4
-    - Hooks
-    - Debug
-    - exercises/debug/misconfig
-    - exercises/debug/stage-pods
-    - exercises/debug/gvk
-    - exercises/debug/crashloopbackoff
+    # - Hooks
+    - Troubleshooting
+    - exercises/troubleshooting/crashloopbackoff
+    - exercises/troubleshooting/velero-pod-errors
     - Conclusion
     - lab-reset

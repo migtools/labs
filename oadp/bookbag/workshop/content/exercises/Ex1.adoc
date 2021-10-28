@@ -72,6 +72,9 @@ Backup content is stored in S3 storage in the specified content in the prefix lo
 ----
 awsocs s3 ls migstorage/velero/backups/mssql-backup/
 ----
+
+Content on these files are explained in https://velero.io/docs/v1.7/output-file-format/[Velero Docs].
+
 === A snapshot was taken
 When a backup includes a persistent volume claim, a snapshot is created provided you have configured Velero to take snapshots (see last section of this exercise).
 View persistent volume claim in the namespace `mssql-persistent`.

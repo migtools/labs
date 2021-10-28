@@ -20,23 +20,26 @@ modules:
     exit_sign: 6.0 Data Protection Exercise II
   exercises/Ex3:
     name: 6.0 Data Protection Exercise II
-    exit_sign: 7.0 Data Protection Hooks
-  Hooks:
-    name: 7.0 Data Protection Hooks
-    exit_sign: 8.0 Debugging
+    exit_sign: 7.0 Debugging
+  # exercises/Ex3:
+  #   name: 6.0 Data Protection Exercise II
+  #   exit_sign: 7.0 Data Protection Hooks
+  # Hooks:
+  #   name: 7.0 Data Protection Hooks
+  #   exit_sign: 8.0 Debugging
   Debug:
-    name: 8.0 Debugging
-    exit_sign: 8.1 Break-Fix Exercise I (Optional)
+    name: 7.0 Debugging
+    exit_sign: 7.1 Break-Fix Exercise I (Optional)
   exercises/debug/misconfig:
-    name: 8.1 Break-Fix Exercise I (Optional)
-    exit_sign: 8.2 Break-Fix Exercise II (Optional)
+    name: 7.1 Break-Fix Exercise I (Optional)
+    exit_sign: 7.2 Break-Fix Exercise II (Optional)
   exercises/debug/stage-pods:
-    name: 8.2 Break-Fix Exercise II (Optional)
-    exit_sign: 8.3 Break-Fix Exercise III (Optional)
+    name: 7.2 Break-Fix Exercise II (Optional)
+    exit_sign: 7.3 Break-Fix Exercise III (Optional)
   exercises/debug/crashloopbackoff:
-    name: 8.3 Break-Fix Exercise III (Optional)
-    exit_sign: 9.0 Conclusion
+    name: 7.3 Break-Fix Exercise III (Optional)
+    exit_sign: 8.0 Conclusion
   Conclusion:
-    name: 9.0 Conclusion
+    name: 8.0 Conclusion
   lab-reset:
     name: Lab Reset
