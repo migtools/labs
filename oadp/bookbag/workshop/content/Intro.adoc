@@ -12,16 +12,4 @@ In this instructor-led, hands-on lab, you’ll experience:
 
 * Tips, techniques, and best-practices for debugging failed backup and restore.
 
-=== Modules
-
-link:/workshop/Intro[Module 1 - Introduction] +
-link:/workshop/Environment[Module 2 - Environment] +
-link:/workshop/Prereqs[Module 3 - Prerequisites] +
-link:/workshop/Overview[Module 4 - OADP Overview] +
-link:/workshop/exercises/Ex1[Module 5 - Data Protection Exercise (Protecting File-Uploader Application)] +
-link:/workshop/exercises/Ex2[Module 6 - Data Protection Exercise (Protecting MSSQL Server Application)] +
-link:/workshop/exercises/Ex3[Module 7 - Data Protection Exercise (Protecting Sock-Shop Application)] +
-link:/workshop/exercises/Ex4[Module 8 - Data Protection Exercise (Data Protection at Scale via API)] +
-link:/workshop/Hooks[Module 9 - Data Protection Hooks] +
-link:/workshop/Debug[Module 10 - Debugging Failed Data Protections (with optional break-fix exercises)] +
-link:/workshop/Conclusion[Module 11 - Conclusion]
+Table of content can be accessed on the left. If you cannot see it, resize the content area to see it.
