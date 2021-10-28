@@ -38,3 +38,5 @@ modules:
     exit_sign: 9.0 Conclusion
   Conclusion:
     name: 9.0 Conclusion
+  lab-reset:
+    name: Lab Reset
