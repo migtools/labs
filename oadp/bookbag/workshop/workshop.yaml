@@ -17,3 +17,4 @@ modules:
     - exercises/debug/gvk
     - exercises/debug/crashloopbackoff
     - Conclusion
+    - lab-reset
