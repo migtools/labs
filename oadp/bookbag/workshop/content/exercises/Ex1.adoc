@@ -63,6 +63,35 @@ velero backup describe mssql-backup -n openshift-adp
 ----
 When the backup is finished, proceed to next section.
 
+=== Viewing backup content in S3 storage
+Backup content is stored in S3 storage in the specified content in the prefix location under folder backup inside the backup name's folder.
+
+`<bucket>/<velero-prefix>/backup/<backup-name>/<backup-content>`
+
+[source,bash,role=execute]
+----
+awsocs s3 ls migstorage/velero/backups/mssql-backup/
+----
+=== A snapshot was taken
+When a backup includes a persistent volume claim, a snapshot is created provided you have configured Velero to take snapshots (see last section of this exercise).
+View persistent volume claim in the namespace `mssql-persistent`.
+[source,bash,role=execute]
+----
+oc get pvc -n mssql-persistent
+----
+View VolumeSnapshot taken.
+[source,bash,role=execute]
+----
+NEWEST_VS_MSSQL=$(oc get volumesnapshot -n mssql-persistent --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
+oc get $NEWEST_VS_MSSQL -n mssql-persistent
+----
+View VolumeSnapshotContent.
+[source,bash,role=execute]
+----
+VOLUME_SNAPSHOT_CONTENT_NAME=$(oc get $NEWEST_VS_MSSQL -n mssql-persistent -o go-template='{{.status.boundVolumeSnapshotContentName}}')
+oc get volumesnapshotcontent $VOLUME_SNAPSHOT_CONTENT_NAME
+----
+
 === Simulate a disaster
 When the backup is finished, we'll proceed to simulate a disaster by deleting the namespace.
 [source,bash,role=execute]

@@ -52,4 +52,13 @@ You copy `kubeadmin` password here if you need it.
 %ocp4_password%
 ----
 
+We have also setup credentials for aws cli to be used with openshift storage.
+We will be using alias `awsocs` to interact with the openshift storage endpoint.
+See what the awsocs alias is set to.
+[source,bash,role=execute-2]
+----
+alias awsocs
+----
+`s3.openshift-storage.svc` is an internal openshift storage endpoint address where s3 is the service name and openshift-storage is the namespace.
+
 In the next lab, we will be using the buttons above to login as kubeadmin on the terminal.

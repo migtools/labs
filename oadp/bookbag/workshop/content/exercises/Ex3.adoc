@@ -66,6 +66,40 @@ velero backup describe two-ns-deployment-n-dconfig-backup -n openshift-adp
 ----
 When the backup is finished, proceed to next section.
 
+=== Viewing backup content in S3 storage
+Backup content is stored in S3 storage in the specified content in the prefix location under folder backup inside the backup name's folder.
+
+`<bucket>/<velero-prefix>/backup/<backup-name>/<backup-content>`
+
+[source,bash,role=execute]
+----
+awsocs s3 ls migstorage/velero/backups/two-ns-deployment-n-dconfig-backup/
+----
+=== A snapshot was taken
+When a backup includes a persistent volume claim, a snapshot is created provided you have configured Velero to take snapshots.
+View persistent volume claim in the namespace `mssql-persistent` and `parks-app`.
+[source,bash,role=execute]
+----
+oc get pvc -n mssql-persistent
+oc get pvc -n parks-app
+----
+View VolumeSnapshot taken.
+[source,bash,role=execute]
+----
+NEWEST_VS_MSSQL=$(oc get volumesnapshot -n mssql-persistent --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
+NEWEST_VS_PARKS=$(oc get volumesnapshot -n parks-app --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
+oc get $NEWEST_VS_MSSQL -n mssql-persistent 
+oc get $NEWEST_VS_PARKS -n parks-app
+----
+View VolumeSnapshotContent.
+[source,bash,role=execute]
+----
+MSSQL_VS_CONTENT_NAME=$(oc get $NEWEST_VS_MSSQL -n mssql-persistent -o go-template='{{.status.boundVolumeSnapshotContentName}}')
+PARKS_VS_CONTENT_NAME=$(oc get $NEWEST_VS_PARKS -n parks-app -o go-template='{{.status.boundVolumeSnapshotContentName}}')
+oc get volumesnapshotcontent $MSSQL_VS_CONTENT_NAME
+oc get volumesnapshotcontent $PARKS_VS_CONTENT_NAME
+----
+
 === Simulate a disaster
 When the backup is finished, we'll proceed to simulate a disaster by deleting the backedup resources.
 [source,bash,role=execute]

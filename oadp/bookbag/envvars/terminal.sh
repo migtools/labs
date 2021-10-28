@@ -24,4 +24,6 @@ unzip ~/awscliv2.zip
 
 echo "alias aws=~/aws-cli/v2/2.*/bin/aws" >> ~/.bash_profile
 echo "alias aws_completer=~/aws-cli/v2/2.*/bin/aws_completer" >> ~/.bash_profile
+
+echo "alias awsocs='aws --endpoint-url http://s3.openshift-storage.svc'" >> ~/.bash_profile
 popd
