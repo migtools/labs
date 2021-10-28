@@ -66,7 +66,7 @@ When the backup is finished, proceed to next section.
 === Viewing backup content in S3 storage
 Backup content is stored in S3 storage in the specified content in the prefix location under folder backup inside the backup name's folder.
 
-`<bucket>/<velero-prefix>/backup/<backup-name>/<backup-content>`
+`<bucket>/<velero-prefix>/backups/<backup-name>/<backup-content>`
 
 [source,bash,role=execute]
 ----
