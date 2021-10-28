@@ -15,10 +15,7 @@ We’ve included a couple of additional applications in the 3.11 cluster deploym
 [width="100%",cols="50%,50%",options="header",]
 |===
 |Type |Link
-|Source Code |https://github.com/konveyor/mig-operator
-|Source Code |https://github.com/konveyor/mig-ui
-|Source Code |https://github.com/konveyor/mig-controller
-|Source Code |https://github.com/konveyor/mig-demo-apps
-|Best Practices Guide |https://github.com/redhat-cop/openshift-migration-best-practices
+|Source Code |https://github.com/openshift/oadp-operator
+|Velero Documentation |https://velero.io/docs/v1.7
 |YouTube Channel |https://www.youtube.com/channel/UCBDU5UK5Okg3mlIMygpkbNA?view_as=subscriber
 |===
