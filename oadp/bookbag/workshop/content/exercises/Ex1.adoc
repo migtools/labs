@@ -75,25 +75,63 @@ awsocs s3 ls migstorage/velero/backups/mssql-backup/
 
 Content on these files are explained in https://velero.io/docs/v1.7/output-file-format/[Velero Docs].
 
-=== A snapshot was taken
-When a backup includes a persistent volume claim, a snapshot is created provided you have configured Velero to take snapshots (see last section of this exercise).
-View persistent volume claim in the namespace `mssql-persistent`.
+=== About Velero CSI Snapshot with OpenShift Data Foundation
+The backup we did just now used CSI snapshot capability of OpenShift Data Foundation. This is because the Velero server is configured to use CSI snapshot when it finds persistent volumes with storageclass.
+
+Looking at OADP Velero Custom Resource configuration we have setup for you, you'll see that `defaultVeleroPlugins` contain `csi` and `veleroFeatureFlags` contains `EnableCSI`
+[source,bash,role=execute]
+----
+oc get velero example-velero -n openshift-adp -o=jsonpath="{.spec.defaultVeleroPlugins}" && echo "" && \
+oc get velero example-velero -n openshift-adp -o=jsonpath="{.spec.veleroFeatureFlags}"
+----
+
+Velero CSI plugin is configured to take CSI snapshot of persistent volumes when it finds a VolumeSnapshotClass object with label `velero.io/csi-volumesnapshot-class: 'true'` pointing to the persistent volume's storageclass. We have added this label to a VolumeSnapshotClass object for the `openshift-storage.rbd.csi.ceph.com` driver.
+
+[source,bash,role=execute]
+----
+oc get VolumeSnapshotClass ocs-storagecluster-rbdplugin-snapclass -ojsonpath='{.metadata.labels}'
+----
+
+The namespace mssql-persistent we backup earlier contained a persistent volume claim that has storage class `ocs-storagecluster-ceph-rbd` which triggered VolumeSnapshot to be backedup
 [source,bash,role=execute]
 ----
 oc get pvc -n mssql-persistent
 ----
+
 View VolumeSnapshot taken.
 [source,bash,role=execute]
 ----
 NEWEST_VS_MSSQL=$(oc get volumesnapshot -n mssql-persistent --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
 oc get $NEWEST_VS_MSSQL -n mssql-persistent
 ----
-View VolumeSnapshotContent.
+
+View VolumeSnapshotContent created.
 [source,bash,role=execute]
 ----
 VOLUME_SNAPSHOT_CONTENT_NAME=$(oc get $NEWEST_VS_MSSQL -n mssql-persistent -o go-template='{{.status.boundVolumeSnapshotContentName}}')
 oc get volumesnapshotcontent $VOLUME_SNAPSHOT_CONTENT_NAME
 ----
+
+This storage class has provisioner `openshift-storage.rbd.csi.ceph.com`
+[source,bash,role=execute]
+----
+oc get storageclass ocs-storagecluster-ceph-rbd
+----
+
+which is one of the CSI driver installed on the system
+[source,bash,role=execute]
+----
+oc get csidrivers
+----
+
+CSI Snapshot is local to the cluster. In the future, a DataMover capability will be added to allow for moving snapshots to an external location.
+
+ Volumesnapshots created by the plugin will be retained only for the lifetime of the backup even if the DeletionPolicy on the volumesnapshotclass is set to Retain. To accomplish this, during deletion of the backup the prior to deleting the volumesnapshot, volumesnapshotcontent object will be patched to set its DeletionPolicy to Delete. Thus deleting volumesnapshot object will result in cascade delete of the volumesnapshotcontent and the snapshot in the storage provider.
+
+For more information about how CSI plugin works, see https://velero.io/docs/v1.7/csi/#how-it-works---overview[Velero Docs].
+
+We have set DeletionPolicy of Retain on the VolumeSnapshotClass to preserve the volume snapshot in the storage system for the lifetime of the Velero backup and prevent the deletion of the volume snapshot, in the storage system, in the event of a disaster where the namespace with the VolumeSnapshot object may be lost. We will attempt to create this disaster scenario in the next section.
+
 
 === Simulate a disaster
 When the backup is finished, we'll proceed to simulate a disaster by deleting the namespace.
@@ -135,40 +173,3 @@ mssql-deployment-1-xq4p4                1/1     Running   0          41m
 Verify that the data you added earlier persisted in the restored application.
 
 NOTE: Click http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[here] to open the application.
-
-=== About Velero CSI Snapshot with OpenShift Data Foundation
-The backup we did just now used CSI snapshot capability of OpenShift Data Foundation. This is because the Velero server is configured to use CSI snapshot when it finds persistent volumes with storageclass.
-
-Looking at OADP Velero Custom Resource configuration we have setup for you, you'll see that `defaultVeleroPlugins` contain `csi` and `veleroFeatureFlags` contains `EnableCSI`
-[source,bash,role=execute]
-----
-oc get velero example-velero -n openshift-adp -o=jsonpath="{.spec.defaultVeleroPlugins}" && echo "" && \
-oc get velero example-velero -n openshift-adp -o=jsonpath="{.spec.veleroFeatureFlags}"
-----
-
-Velero server is configured to take CSI snapshot of persistent volumes when it finds a VolumeSnapshotClass object with label `velero.io/csi-volumesnapshot-class: 'true'` pointing to the persistent volume's storageclass. We have added this label to a VolumeSnapshotClass object for the `openshift-storage.rbd.csi.ceph.com` driver.
-
-[source,bash,role=execute]
-----
-oc get VolumeSnapshotClass ocs-storagecluster-rbdplugin-snapclass -ojsonpath='{.metadata.labels}'
-----
-
-The namespace mssql-persistent we backup earlier contained a persistent volume claim that has storage class `ocs-storagecluster-ceph-rbd`
-[source,bash,role=execute]
-----
-oc get pvc -n mssql-persistent
-----
-
-This storage class has provisioner `openshift-storage.rbd.csi.ceph.com`
-[source,bash,role=execute]
-----
-oc get storageclass ocs-storagecluster-ceph-rbd
-----
-
-which is one of the CSI driver installed on the system
-[source,bash,role=execute]
-----
-oc get csidrivers
-----
-
-CSI Snapshot is local to the cluster. In the future, a DataMover capability will be added to allow for moving snapshots to an external location.
