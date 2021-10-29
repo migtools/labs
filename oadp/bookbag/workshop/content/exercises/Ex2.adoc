@@ -77,6 +77,15 @@ awsocs s3 ls migstorage/velero/backups/two-ns-backup/
 ----
 === A snapshot was taken
 When a backup includes a persistent volume claim, a snapshot is created provided you have configured Velero to take snapshots.
+
+
+=== About Velero CSI Snapshots
+The backup we did just now of the parks-app and mssql namespace used CSI snapshot capability of Velero to create snapshot on AWS EBS and OpenShift Storage Ceph Rados Block Device (RBD) using their respective CSI Drivers
+
+The details were explained in the first exercise.
+
+The namespace parks-app we backup earlier contained a persistent volume claim that has storage class `gp2-csi` so that the snapshot was created using the AWS EBS CSI Driver.
+
 View persistent volume claim in the namespace `mssql-persistent` and `parks-app`.
 [source,bash,role=execute]
 ----
@@ -91,7 +100,7 @@ NEWEST_VS_PARKS=$(oc get volumesnapshot -n parks-app --sort-by=.metadata.creatio
 oc get $NEWEST_VS_MSSQL -n mssql-persistent 
 oc get $NEWEST_VS_PARKS -n parks-app
 ----
-View VolumeSnapshotContent.
+View VolumeSnapshotContent created.
 [source,bash,role=execute]
 ----
 MSSQL_VS_CONTENT_NAME=$(oc get $NEWEST_VS_MSSQL -n mssql-persistent -o go-template='{{.status.boundVolumeSnapshotContentName}}')
@@ -99,6 +108,20 @@ PARKS_VS_CONTENT_NAME=$(oc get $NEWEST_VS_PARKS -n parks-app -o go-template='{{.
 oc get volumesnapshotcontent $MSSQL_VS_CONTENT_NAME
 oc get volumesnapshotcontent $PARKS_VS_CONTENT_NAME
 ----
+
+This storage class has provisioner `ebs.csi.aws.com`
+[source,bash,role=execute]
+----
+oc get storageclass gp2-csi
+----
+
+which is one of the CSI driver installed on the system
+[source,bash,role=execute]
+----
+oc get csidrivers
+----
+
+CSI Snapshot is local to the cluster. In the future, a DataMover capability will be added to allow for moving snapshots to an external location.
 
 === Simulate a disaster
 When the backup is finished, we'll proceed to simulate a disaster by deleting the two namespaces.
@@ -138,40 +161,3 @@ oc get pods -n parks-app
 Verify that the data you added earlier persisted in the restored application.
 
 NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[mssql-app] and http://restify-parks-app.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[parks-app].
-
-=== About Velero CSI Snapshot with Amazon Elastic Block Storage (EBS)
-The backup we did just now of the parks-app namespace used CSI snapshot capability of Velero to create AWS EBS Snapshot using AWS EBS CSI Driver.
-
-We know from previous exercise that for a mounted volume to be snapshotted, the OADP Velero custom resource spec field `defaultVeleroPlugins` must contain `csi` and field `veleroFeatureFlags` must contains `EnableCSI`. We have setup for you,
-[source,bash,role=execute]
-----
-oc get velero example-velero -n openshift-adp -o=jsonpath="{.spec.defaultVeleroPlugins}" && echo "" && \
-oc get velero example-velero -n openshift-adp -o=jsonpath="{.spec.veleroFeatureFlags}"
-----
-
-Velero server is configured to take CSI snapshot of persistent volumes when it finds a VolumeSnapshotClass object with label `velero.io/csi-volumesnapshot-class: 'true'` pointing to the persistent volume's storageclass. We have added this label to a VolumeSnapshotClass object for the `ebs.csi.aws.com` driver.
-
-[source,bash,role=execute]
-----
-oc get VolumeSnapshotClass ebs-csi-snapclass -ojsonpath='{.metadata.labels}'
-----
-
-The namespace mssql-persistent we backup earlier contained a persistent volume claim that has storage class `gp2-csi`
-[source,bash,role=execute]
-----
-oc get pvc -n parks-app
-----
-
-This storage class has provisioner `ebs.csi.aws.com`
-[source,bash,role=execute]
-----
-oc get storageclass gp2-csi
-----
-
-which is one of the CSI driver installed on the system
-[source,bash,role=execute]
-----
-oc get csidrivers
-----
-
-CSI Snapshot is local to the cluster. In the future, a DataMover capability will be added to allow for moving snapshots to an external location.

@@ -5,9 +5,9 @@
 :OCP4_SSH_USER: %ocp4_ssh_user%
 :OCP4_PASSWORD: %ocp4_password%
 
-== Backing up single namespace and a subset of resources
+== Backing up multiple namespace and a subset of resources
 
-In previous exercises, we backed up by selecting namespaces using `--include-namespaces` flag from Velero CLI, separating each namespace by `,`.  In this exercise, we will be backing up by types of resources and not the entire namespace.
+In previous exercises, we backed up by selecting namespaces using `--include-namespaces` flag from Velero CLI, separating each namespace by `,`.  In this exercise, we will be backing up by types of resources and not every resource type in the entire namespace.
 
 Using the flag `--include-resources`, we can specify types of resources to include in backup separated by `,`.
 
@@ -99,6 +99,50 @@ PARKS_VS_CONTENT_NAME=$(oc get $NEWEST_VS_PARKS -n parks-app -o go-template='{{.
 oc get volumesnapshotcontent $MSSQL_VS_CONTENT_NAME
 oc get volumesnapshotcontent $PARKS_VS_CONTENT_NAME
 ----
+
+=== About Velero CSI Snapshots
+The backup we did just now of the parks-app and mssql namespace used CSI snapshot capability of Velero to create snapshot on AWS EBS and OpenShift Storage Ceph Rados Block Device (RBD) using their respective CSI Drivers
+
+The details were explained in the first exercise.
+
+The namespace parks-app we backup earlier contained a persistent volume claim that has storage class `gp2-csi` so that the snapshot was created using the AWS EBS CSI Driver.
+
+View persistent volume claim in the namespace `mssql-persistent` and `parks-app`.
+[source,bash,role=execute]
+----
+oc get pvc -n mssql-persistent
+oc get pvc -n parks-app
+----
+View VolumeSnapshot taken.
+[source,bash,role=execute]
+----
+NEWEST_VS_MSSQL=$(oc get volumesnapshot -n mssql-persistent --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
+NEWEST_VS_PARKS=$(oc get volumesnapshot -n parks-app --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
+oc get $NEWEST_VS_MSSQL -n mssql-persistent 
+oc get $NEWEST_VS_PARKS -n parks-app
+----
+View VolumeSnapshotContent created.
+[source,bash,role=execute]
+----
+MSSQL_VS_CONTENT_NAME=$(oc get $NEWEST_VS_MSSQL -n mssql-persistent -o go-template='{{.status.boundVolumeSnapshotContentName}}')
+PARKS_VS_CONTENT_NAME=$(oc get $NEWEST_VS_PARKS -n parks-app -o go-template='{{.status.boundVolumeSnapshotContentName}}')
+oc get volumesnapshotcontent $MSSQL_VS_CONTENT_NAME
+oc get volumesnapshotcontent $PARKS_VS_CONTENT_NAME
+----
+
+This storage class has provisioner `ebs.csi.aws.com`
+[source,bash,role=execute]
+----
+oc get storageclass gp2-csi
+----
+
+which is one of the CSI driver installed on the system
+[source,bash,role=execute]
+----
+oc get csidrivers
+----
+
+CSI Snapshot is local to the cluster. In the future, a DataMover capability will be added to allow for moving snapshots to an external location.
 
 === Simulate a disaster
 When the backup is finished, we'll proceed to simulate a disaster by deleting the backedup resources.
