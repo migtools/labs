@@ -135,4 +135,4 @@ post-backup  pre-backup
 
 
 *Success!*  
-In the next lab, we will explore some debugging techniques for when migrations don't go quite as planned.
+In the next lab, we will explore some debugging techniques for when backups/restores don't go quite as planned.
