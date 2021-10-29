@@ -15,7 +15,7 @@ The Migration Toolkit for Containers (MTC) is designed to migrate Application Wo
 
 === Upstream Projects
 
-MTC leverages two upstream projects: https://github.com/heptio/velero[Velero] and https://restic.net/[Restic]. Velero (formerly Heptio Ark) gives you tools to back up and restore your Kubernetes cluster resources and persistent volumes. Restic is a backup program that is fast, efficient and secure.
+MTC leverages two upstream projects: https://velero.io/[Velero] and https://restic.net/[Restic]. Velero (formerly Heptio Ark) gives you tools to back up and restore your Kubernetes cluster resources and persistent volumes. Restic is a backup program that is fast, efficient and secure.
 
 === Architecture
 
