@@ -1,0 +1,64 @@
+:sectlinks:
+:markup-in-source: verbatim,attributes,quotes
+:OCP3_BASTION: %ocp3_bastion%
+:OCP4_BASTION: %ocp4_bastion%
+:OCP4_GUID: %ocp4_guid%
+:OCP4_DOMAIN: %ocp4_domain%
+:OCP4_SSH_USER: %ocp4_ssh_user%
+:OCP4_PASSWORD: %ocp4_password%
+
+== Overview
+
+The following lab environment has been provisioned for you for use with this Lab. You can always come back to this section to review this information.
+
+// image::screenshots/lab1/labenv-overview2.png[Lab Environment Overview, width=50%, align="center"]
+
+=== OpenShift 4 Cluster
+
+[width="100%",cols="50%,50%",options="header",]
+|===
+|Key |Value
+|GUID | {OCP4_GUID}
+|OCP Console |http://console-openshift-console.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
+|API |https://api.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}:6443
+|OCP admin username| kubeadmin
+|OCP admin password| {OCP4_PASSWORD}
+|===
+
+On the right, you will see two split terminals. We will generally use the lower terminal for most executions while upper terminal will be reserved for reviewing yaml files and watching result of executions.
+
+There are two types of lab buttons you will find in this lab.
+
+- The first two below are execute buttons which will send commands to either the upper or lower terminal.
+- The third is a command copy button. It will be used for copying content to be pasted later.
+
+Try the execute buttons
+[source,bash,role=execute]
+----
+echo upper terminal
+----
+[source,bash,role=execute-2]
+----
+echo lower terminal
+----
+[source,bash,role=copy]
+----
+echo copy
+----
+
+You copy `kubeadmin` password here if you need it.
+[source,bash,role=copy]
+----
+%ocp4_password%
+----
+
+We have also setup credentials for aws cli to be used with openshift storage.
+We will be using alias `awsocs` to interact with the openshift storage endpoint.
+See what the awsocs alias is set to.
+[source,bash,role=execute-2]
+----
+alias awsocs
+----
+`s3.openshift-storage.svc` is an internal openshift storage endpoint address where s3 is the service name and openshift-storage is the namespace.
+
+In the next lab, we will be using the buttons above to login as kubeadmin on the terminal.

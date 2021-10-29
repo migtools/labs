@@ -1,0 +1,46 @@
+:sectlinks:
+:markup-in-source: verbatim,attributes,quotes
+:OCP4_GUID: %ocp4_guid%
+:OCP4_DOMAIN: %ocp4_domain%
+:OCP4_SSH_USER: %ocp4_ssh_user%
+:OCP4_PASSWORD: %ocp4_password%
+:OCP3_BASTION: %ocp3_bastion%
+:OCP4_BASTION: %ocp4_bastion%
+
+Login as kubeadmin
+[source,bash,role=execute]
+----
+oc login -u kubeadmin -p %ocp4_password%
+----
+
+Verify OpenShift version
+[source,bash,role=execute]
+----
+oc version
+----
+
+Verify OADP Version
+[source,bash,role=execute]
+----
+oc get clusterserviceversion -n openshift-adp
+----
+
+Verify Velero Version
+[source,bash,role=execute]
+----
+velero version -n openshift-adp
+----
+
+Required versions of products used:
+
+[cols=",",options="header",]
+|===
+|Product |Versions
+|OpenShift Server 4.x |v4.6+
+|OpenShift Client 4.x |v4.6+
+|OADP |v0.4.0+
+|velero server |v1.7.0+
+|velero client |v1.7.0+
+|===
+
+We are now ready to learn how to create backup and restores using Velero

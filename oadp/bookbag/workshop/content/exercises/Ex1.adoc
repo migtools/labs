@@ -1,0 +1,175 @@
+:sectlinks:
+:markup-in-source: verbatim,attributes,quotes
+:OCP4_GUID: %ocp4_guid%
+:OCP4_DOMAIN: %ocp4_domain%
+:OCP4_SSH_USER: %ocp4_ssh_user%
+:OCP4_PASSWORD: %ocp4_password%
+
+== Backing up single namespace
+
+We are going to protecting a simple Product Inventory web-based application front-end, backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 4 cluster in the `mssql-persistent` namespace, using a single PV backed by NFS for persistent storage.
+
+In our source OCP 4 cluster terminal, we can see the app running:
+
+[source,bash,role=execute]
+----
+oc get pods -n mssql-persistent
+----
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+NAME                                    READY   STATUS    RESTARTS   AGE
+mssql-app-deployment-6ffb46c5d6-n5fvv   1/1     Running   0          41m
+mssql-deployment-1-xq4p4                1/1     Running   0          41m
+--------------------------------------------------------------------------------
+
+Let’s get the route to the application, and bring up the webUI.
+
+[source,bash,role=execute]
+----
+oc get route -n mssql-persistent
+----
+NOTE: You can also click http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[here] to open the application.
+
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+NAME              HOST/PORT                                                       PATH   SERVICES     PORT   TERMINATION   WILDCARD
+mssql-app-route   mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}         mssql-app-service   5000                 None
+--------------------------------------------------------------------------------
+
+image:../screenshots/lab5/mssql-product-catalog.png[MSSQL Product Catalog]
+
+Let’s go ahead and add a new product to the inventory. Click on the +Add button and enter some data.
+
+image:../screenshots/lab5/mssql-add-product.png[MSSQL Add Product]
+
+You can see the application is functioning and state is being saved in the DB.
+
+image:../screenshots/lab5/mssql-added-product.png[MSSQL Added Product]
+
+=== Using Velero to backup application namespace
+
+Let’s go ahead and create a backup of `mssql-persistent` namespace.
+[source,bash,role=execute-2]
+----
+velero backup create mssql-backup --include-namespaces mssql-persistent -n openshift-adp
+----
+
+You can check on the backup progress by running the following
+[source,bash,role=execute]
+----
+velero backup describe mssql-backup -n openshift-adp
+----
+When the backup is finished, proceed to next section.
+
+=== Viewing backup content in S3 storage
+Backup content is stored in S3 storage in the specified content in the prefix location under folder backup inside the backup name's folder.
+
+`<bucket>/<velero-prefix>/backups/<backup-name>/<backup-content>`
+
+[source,bash,role=execute]
+----
+awsocs s3 ls migstorage/velero/backups/mssql-backup/
+----
+
+Content on these files are explained in https://velero.io/docs/v1.7/output-file-format/[Velero Docs].
+
+=== About Velero CSI Snapshot with OpenShift Data Foundation
+The backup we did just now used CSI snapshot capability of OpenShift Data Foundation. This is because the Velero server is configured to use CSI snapshot when it finds persistent volumes with storageclass.
+
+Looking at OADP Velero Custom Resource configuration we have setup for you, you'll see that `defaultVeleroPlugins` contain `csi` and `veleroFeatureFlags` contains `EnableCSI`
+[source,bash,role=execute]
+----
+oc get velero example-velero -n openshift-adp -o=jsonpath="{.spec.defaultVeleroPlugins}" && echo "" && \
+oc get velero example-velero -n openshift-adp -o=jsonpath="{.spec.veleroFeatureFlags}"
+----
+
+Velero CSI plugin is configured to take CSI snapshot of persistent volumes when it finds a VolumeSnapshotClass object with label `velero.io/csi-volumesnapshot-class: 'true'` pointing to the persistent volume's storageclass. We have added this label to a VolumeSnapshotClass object for the `openshift-storage.rbd.csi.ceph.com` driver.
+
+[source,bash,role=execute]
+----
+oc get VolumeSnapshotClass ocs-storagecluster-rbdplugin-snapclass -ojsonpath='{.metadata.labels}'
+----
+
+The namespace mssql-persistent we backup earlier contained a persistent volume claim that has storage class `ocs-storagecluster-ceph-rbd` which triggered VolumeSnapshot to be backedup
+[source,bash,role=execute]
+----
+oc get pvc -n mssql-persistent
+----
+
+View VolumeSnapshot taken.
+[source,bash,role=execute]
+----
+NEWEST_VS_MSSQL=$(oc get volumesnapshot -n mssql-persistent --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
+oc get $NEWEST_VS_MSSQL -n mssql-persistent
+----
+
+View VolumeSnapshotContent created.
+[source,bash,role=execute]
+----
+VOLUME_SNAPSHOT_CONTENT_NAME=$(oc get $NEWEST_VS_MSSQL -n mssql-persistent -o go-template='{{.status.boundVolumeSnapshotContentName}}')
+oc get volumesnapshotcontent $VOLUME_SNAPSHOT_CONTENT_NAME
+----
+
+This storage class has provisioner `openshift-storage.rbd.csi.ceph.com`
+[source,bash,role=execute]
+----
+oc get storageclass ocs-storagecluster-ceph-rbd
+----
+
+which is one of the CSI driver installed on the system
+[source,bash,role=execute]
+----
+oc get csidrivers
+----
+
+CSI Snapshot is local to the cluster. In the future, a DataMover capability will be added to allow for moving snapshots to an external location.
+
+ Volumesnapshots created by the plugin will be retained only for the lifetime of the backup even if the DeletionPolicy on the volumesnapshotclass is set to Retain. To accomplish this, during deletion of the backup the prior to deleting the volumesnapshot, volumesnapshotcontent object will be patched to set its DeletionPolicy to Delete. Thus deleting volumesnapshot object will result in cascade delete of the volumesnapshotcontent and the snapshot in the storage provider.
+
+For more information about how CSI plugin works, see https://velero.io/docs/v1.7/csi/#how-it-works---overview[Velero Docs].
+
+We have set DeletionPolicy of Retain on the VolumeSnapshotClass to preserve the volume snapshot in the storage system for the lifetime of the Velero backup and prevent the deletion of the volume snapshot, in the storage system, in the event of a disaster where the namespace with the VolumeSnapshot object may be lost. We will attempt to create this disaster scenario in the next section.
+
+
+=== Simulate a disaster
+When the backup is finished, we'll proceed to simulate a disaster by deleting the namespace.
+[source,bash,role=execute]
+----
+oc delete ns mssql-persistent
+----
+
+Check that the application is no longer available.
+NOTE: Click http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[here] to open the application.
+
+When application is no longer available, proceed to next section.
+
+=== Restoring deleted application
+We can restore applications deleted earlier by restoring from the backup we created.
+[source,bash,role=execute]
+----
+velero restore create mssql-restore --from-backup mssql-backup -n openshift-adp
+----
+
+[source,bash,role=execute]
+----
+velero restore describe mssql-restore -n openshift-adp
+----
+
+Wait until pods become available.
+[source,bash,role=execute]
+----
+oc get pods -n mssql-persistent
+----
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+NAME                                    READY   STATUS    RESTARTS   AGE
+mssql-app-deployment-6ffb46c5d6-n5fvv   1/1     Running   0          41m
+mssql-deployment-1-xq4p4                1/1     Running   0          41m
+--------------------------------------------------------------------------------
+
+Verify that the data you added earlier persisted in the restored application.
+
+NOTE: Click http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[here] to open the application.

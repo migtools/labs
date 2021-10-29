@@ -1,0 +1,42 @@
+---
+modules:
+  Intro:
+    name: 1.0 Introduction
+    exit_sign: 2.0 Environment
+  Environment:
+    name: 2.0 Environment
+    exit_sign: 3.0 Prerequisites
+  Prereqs:
+    name: 3.0 Prerequisites
+    exit_sign: 4.0 OADP Overview
+  Overview:
+    name: 4.0 OADP Overview
+    exit_sign: 5.0 Data Protection Exercise I
+  exercises/Ex1:
+    name: 5.0 Data Protection Exercise I
+    exit_sign: 5.1 Data Protection Exercise I Extended
+  exercises/Ex2:
+    name: 5.1 Data Protection Exercise I Extended
+    exit_sign: 6.0 Data Protection Exercise II
+  exercises/Ex3:
+    name: 6.0 Data Protection Exercise II
+    exit_sign: 7.0 Troubleshooting
+  # exercises/Ex3:
+  #   name: 6.0 Data Protection Exercise II
+  #   exit_sign: 7.0 Data Protection Hooks
+  # Hooks:
+  #   name: 7.0 Data Protection Hooks
+  #   exit_sign: 8.0 Troubleshooting
+  Troubleshooting:
+    name: 7.0 Troubleshooting
+    exit_sign: 7.1 Break-Fix Exercise I (Optional)
+  exercises/troubleshooting/crashloopbackoff:
+    name: 7.1 Break-Fix Exercise I (Optional)
+    exit_sign: 7.2 Break-Fix Exercise II (Optional)
+  exercises/troubleshooting/velero-pod-errors:
+    name: 7.2 Break-Fix Exercise II (Optional)
+    exit_sign: 8.0 Conclusion
+  Conclusion:
+    name: 8.0 Conclusion
+  lab-reset:
+    name: Lab Reset

@@ -1,0 +1,18 @@
+== Troubleshooting
+You can generally find the root cause of the problem with OADP operator by finding errors in the running resources
+[source,bash,role=execute]
+----
+oc get all -n openshift-adp
+----
+
+If an issue is related to a specific backup or restore you may the following commands useful for troubleshooting:
+
+`velero backup describe <backupName>` - describe the details of a backup
+
+`velero backup logs <backupName>` - fetch the logs for this specific backup. Useful for viewing failures and warnings, including resources that could not be backed up.
+
+`velero restore describe <restoreName>` - describe the details of a restore
+
+`velero restore logs <restoreName>` - fetch the logs for this specific restore. Useful for viewing failures and warnings, including resources that could not be restored.
+
+`kubectl logs deployment/velero -n velero` - fetch the logs of the Velero server pod. This provides the output of the Velero server processes.

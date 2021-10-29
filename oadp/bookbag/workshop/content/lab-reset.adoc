@@ -1,0 +1,8 @@
+== Execute command to reset the lab
+[source,bash,role=execute]
+----
+velero delete backup --all --confirm -n openshift-adp
+oc delete ns mssql-persistent parks-app
+oc apply -f apps/mssql-persistent/mssql-persistent-template.yaml
+oc apply -f apps/parks-app/manifest.yaml
+----

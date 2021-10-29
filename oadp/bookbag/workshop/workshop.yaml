@@ -1,0 +1,18 @@
+---
+name: OpenShift API for Data Protection (OADP) Lab
+modules:
+  activate:
+    - Intro
+    - Environment
+    - Prereqs
+    - Overview
+    - exercises/Ex1
+    - exercises/Ex2
+    - exercises/Ex3
+    - exercises/Ex4
+    # - Hooks
+    - Troubleshooting
+    - exercises/troubleshooting/crashloopbackoff
+    - exercises/troubleshooting/velero-pod-errors
+    - Conclusion
+    - lab-reset

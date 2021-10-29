@@ -1,0 +1,138 @@
+:sectlinks:
+:markup-in-source: verbatim,attributes,quotes
+:OCP4_GUID: %ocp4_guid%
+:OCP4_DOMAIN: %ocp4_domain%
+:OCP4_SSH_USER: %ocp4_ssh_user%
+:OCP4_PASSWORD: %ocp4_password%
+:OCP3_BASTION: %ocp3_bastion%
+:OCP4_BASTION: %ocp4_bastion%
+
+== Introduction [WIP - BLOCKED]
+
+Backup/Restore hooks provide a means for running custom code at points in the Backup/Restore to handle logic unique to a Backup/Restore.
+This may include scenarios where custom quiesce logic is desired, manual data Backup/Restore of unsupported types is needed, or to handle application repair after it has been migrated to a new environment.
+
+There are 2 phases where hooks can be run. `Pre-` and `Post-` backup or restore.
+One hook may be run per phase for a maximum total of 2 hooks per backup or restore.
+
+The phases where hooks may be run are:
+
+ * *PreBackup*: Before backup task is performed.
+ * *PostBackup*: After backup tasks are complete.
+ * *PreRestore*: Before restore tasks are performed.
+ * *PostRestore*: After restore tasks are complete.
+
+=== Backing up single namespace with pre and post backup hook
+
+We are going to add pre and post backup hooks to the previous single namespace backup exercise.
+
+In our source OCP 4 cluster terminal, we can see the app running:
+
+[source,bash,role=execute]
+----
+oc get pods -n mssql-persistent -l app=mssql
+----
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+NAME                                    READY   STATUS    RESTARTS   AGE
+mssql-deployment-1-dbxd7   1/1     Running   0          41m
+--------------------------------------------------------------------------------
+==== Adding pre and post backup hook
+
+Let's add a simple pre and post backup hooks to pod
+[source,bash,role=execute]
+----
+oc annotate pod -n mssql-persistent -l app=mssql \
+pre.hook.backup.velero.io/command='["/bin/bash", "-c", "echo \"pre\" > /var/opt/mssql/data/lab-pre-backup"]' \
+post.hook.backup.velero.io/command='["/bin/bash", "-c", "echo \"post\" > /var/opt/mssql/data/lab-post-backup"]'
+----
+
+Check that file pre-backup and post-backup did not exist in pod container
+[source,bash,role=execute]
+----
+oc -n mssql-persistent rsh deploymentconfig/mssql-deployment ls /var/opt/mssql/data/lab-pre-backup /var/opt/mssql/data/lab-post-backup
+----
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+ls: cannot access '/var/opt/mssql/data/lab-pre-backup': No such file or directory
+ls: cannot access '/var/opt/mssql/data/lab-post-backup': No such file or directory
+--------------------------------------------------------------------------------
+
+
+==== Using Velero to backup application namespace
+
+Let’s go ahead and create a backup of `mssql-persistent` namespace.
+[source,bash,role=execute-2]
+----
+velero backup create mssql-hooked-backup --include-namespaces mssql-persistent -n openshift-adp
+----
+
+You can check on the backup progress by running the following
+[source,bash,role=execute]
+----
+velero backup describe mssql-hooked-backup -n openshift-adp
+----
+
+Check that file pre-backup and post-backup exist in the pod container
+[source,bash,role=execute]
+----
+oc -n mssql-persistent rsh deploymentconfig/mssql-deployment ls /var/opt/mssql/data/lab-pre-backup /var/opt/mssql/data/lab-post-backup
+----
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+/var/opt/mssql/data/lab-post-backup  /var/opt/mssql/data/lab-pre-backup
+--------------------------------------------------------------------------------
+==== Simulate a disaster
+When the backup is finished, we'll proceed to simulate a disaster by deleting the namespace.
+[source,bash,role=execute]
+----
+oc delete ns mssql-persistent
+----
+
+Check that the application is no longer available.
+NOTE: Click http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[here] to open the application.
+
+When application is no longer available, proceed to next section.
+
+==== Restoring deleted application
+We can restore applications deleted earlier by restoring from the backup we created.
+[source,bash,role=execute]
+----
+velero restore create mssql-hooked-restore --from-backup mssql-hooked-backup -n openshift-adp
+----
+
+[source,bash,role=execute]
+----
+velero restore describe mssql-hooked-restore -n openshift-adp
+----
+
+Wait until pods become available.
+[source,bash,role=execute]
+----
+oc get pods -n mssql-persistent -l app=mssql
+----
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+NAME                                    READY   STATUS    RESTARTS   AGE
+mssql-deployment-1-dbxd7   1/1     Running   0          41m
+--------------------------------------------------------------------------------
+
+Check that only pre-backup file exist in the pod container
+[source,bash,role=execute]
+----
+oc -n mssql-persistent rsh deploymentconfig/mssql-deployment ls /var/opt/mssql/data/lab-pre-backup /var/opt/mssql/data/lab-post-backup
+----
+
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+post-backup  pre-backup
+--------------------------------------------------------------------------------
+
+
+
+*Success!*  
+In the next lab, we will explore some debugging techniques for when backups/restores don't go quite as planned.

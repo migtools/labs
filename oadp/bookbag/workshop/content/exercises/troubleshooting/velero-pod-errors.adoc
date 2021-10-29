@@ -1,0 +1,20 @@
+
+== Velero pod errors
+Pre-requisite: Exercise 1 completed
+
+When a backup or restore is not completed successfully, inspect the backup/restore logs for errors. `velero <backup/restore> logs <backup/restore name> -n <operator namespace>
+
+View backup logs from exercise 1.
+[source,bash,role=execute]
+----
+velero backup logs mssql-backup -n openshift-adp
+----
+
+If there are errors, you can use `grep` to help find the errors.
+[source,bash,role=execute]
+----
+velero backup logs mssql-backup -n openshift-adp | grep -i error
+----
+We don't expect any errors here so the result should be empty.
+
+Here are some of the commonly encountered errors when using Velero to backup and restore Kubernetes clusters.
