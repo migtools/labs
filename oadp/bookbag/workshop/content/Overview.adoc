@@ -21,30 +21,75 @@ If you want to protecting data between clusters, please look into the https://ac
 === Architecture
 image:slides/OADP Architecture/4.jpg[]
 
-
-=== Velero Plugins
-There are three types of velero plugins
-
-/** BSL */
-
-Backup Storage Location
-
-/** VSL */
-
-VolumeSnapshotLocation
-
-/** Backup/RestorePlugins */
-
-    /** OpenshiftPlugin */
-
 === Requirements
 - ObjectStorage - AWS, GCP, and Azure. Other S3 compatible providers are available as an option with OpenShift Data Foundation which includes multicloud gateway for multicloud portability.
 - `cluster-admin` role is required to use OADP. Non-admin usage is on the roadmap for future iterations.
 
-=== Ways to use OADP
-/** Velero CLI */
+=== Ways to use Velero
+You can use velero CLI to perform most of the operations. See available commands.
+[source,bash,role=execute]
+----
+velero help
+----
 
-/** k8s api via oc/kubectl apply/create */
+You can also configure velero via kubernetes object json/yaml files using `oc` or `kubectl`. Click below for Velero API types references.
+
+- https://velero.io/docs/v1.7/api-types/backup/[Backup]
+- https://velero.io/docs/v1.7/api-types/restore/[Restore]
+- https://velero.io/docs/v1.7/api-types/schedule/[Schedule]
+- https://velero.io/docs/v1.7/api-types/backupstoragelocation/[BackupStorageLocation]
+- https://velero.io/docs/v1.7/api-types/volumesnapshotlocation/[VolumeSnapshotLocation]
+
+=== Velero Plugins
+Velero support uses of plugins to integrate with different storage systems, snapshot operations, and supporting backup and restore of additional types of resources.
+
+For server installation, velero will require at least one plugin is either of the type object store or volume snapshotter, or a plugin that contains both. Exception to this is if you will not be configuring a backup storage location or a snapshot location at install time.
+
+To install plugins to Velero server, you will specify in the fields below.
+There are mainly two categories of Velero plugins that can be specified while Velero:
+
+- `defaultVeleroPlugins`:
+
+There are five types of default Velero plugins can be installed: 
+`AWS`, `GCP`, `Azure` and `OpenShift`, and `CSI`. For installation, 
+you need to specify them in the `oadp_v1alpha1_velero_cr.yaml` file 
+during deployment.
+
+```
+ apiVersion: oadp.openshift.io/v1alpha1
+ kind: Velero
+ metadata:
+   name: velero-sample
+ spec:
+   defaultVeleroPlugins:
+   - azure
+   - gcp
+   - aws
+   - openshift    
+```
+The above specification will install Velero with four of the default plugins.
+   
+- `customVeleroPlugins`:
+For installation of custom Velero plugins, you need to specify the plugin 
+`image` and plugin `name` in the `oadp_v1alpha1_velero_cr.yaml` file during 
+deployment.
+
+For instance, 
+```
+apiVersion: oadp.openshift.io/v1alpha1
+kind: Velero
+metadata:
+    name: velero-sample
+spec:
+    defaultVeleroPlugins:
+    - azure
+    - gcp
+    customVeleroPlugins:
+    - name: custom-plugin-example
+    image: quay.io/example-repo/custom-velero-plugin   
+```
+The above specification will install Velero with three plugins: 
+`azure`, `gcp`, and `custom-plugin-example`.
 
 === Provided APIs
 OADP allow several https://velero.io/docs/v1.7/api-types/[Velero API types] to be configured and defined within a single Custom Resource YAML.
