@@ -86,7 +86,7 @@ spec:
     - gcp
     customVeleroPlugins:
     - name: custom-plugin-example
-    image: quay.io/example-repo/custom-velero-plugin   
+      image: quay.io/example-repo/custom-velero-plugin   
 ```
 The above specification will install Velero with three plugins: 
 `azure`, `gcp`, and `custom-plugin-example`.
