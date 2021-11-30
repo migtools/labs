@@ -1,6 +1,6 @@
 == OpenShift API for Data Protection (OADP) Lab
 
-This guide will provide you with how to operate the OpenShift API for Data Protection Operator to suite your data protection needs.
+This guide will show you how to use the OpenShift API for Data Protection Operator to suit your data protection needs
 
 We will guide you through a series of exercises running backups of application workloads and restoring them when disaster strikes. Both stateful and stateless applications will be covered.
 
