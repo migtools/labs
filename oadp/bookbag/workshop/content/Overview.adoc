@@ -6,15 +6,13 @@
 :OCP4_PASSWORD: %ocp4_password%
 :OCP3_BASTION: %ocp3_bastion%
 :OCP4_BASTION: %ocp4_bastion%
-
+== Overview
 The OpenShift API for Data Protection (OADP) is an Operator that helps you define and configure installation of https://velero.io/[Velero] and its required resources to run on OpenShift.
 
-=== Problem Overview
-Provide application granular backups that covers cluster metadata and Application data
+=== What problem is OADP attempting to solve?
+OADP enables backup, restore, and disaster recovery of applications on an OpenShift cluster. Data that can be protected with OADP include k8s resource objects, persistent volumes, and internal images.
+The OpenShift API for Data Protection (OADP) is designed to protect Application Workloads on a single OpenShift cluster.
 image:slides/OADP Solution Overview/9.jpg[problem overview]
-
-OADP enables backup, restore, and disaster recovery of an OpenShift cluster. Data that can be protected with OADP include k8s resource objects, persistent volumes, and internal images.
-The OpenShift API for Data Protection (OADP) is designed to protect Application Workloads on the same OpenShift cluster.
 
 If you want to migrate data between clusters, please look into the https://access.redhat.com/documentation/en-us/openshift_container_platform/4.8/html/migration_toolkit_for_containers[Migration Toolkit for Containers project (MTC)].
 
