@@ -7,10 +7,10 @@
 :OCP3_BASTION: %ocp3_bastion%
 :OCP4_BASTION: %ocp4_bastion%
 
-Login as kubeadmin
+Login as admin
 [source,bash,role=execute]
 ----
-oc login -u kubeadmin -p %ocp4_password%
+oc login -u admin -p %ocp4_password%
 ----
 
 Verify OpenShift version
