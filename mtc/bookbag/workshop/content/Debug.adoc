@@ -25,14 +25,14 @@ It’s important to first understand the custom resources in play. The above arc
 
 === View Debug Resources from WebUI
 
-In MTC 1.3 a new kebab option was added to the WebUI to make it easier to see the specific MTC and Velero resources related to a given MigMigration.
+After a migration event, a link will appear in the WebUI to make it easier to see the specific MTC and Velero resources related to a given MigMigration. 
 
 image:./screenshots/lab7/mig-view-debug-resources_1.png[View migration plan resources (DEBUG) ]
 
 
 You can view the resources of a migration plan in the MTC web console:
 
- . Click the Options menu beside a migration plan and select **View migration plan resources (DEBUG)**.
+ . Click the link below a migration plan and select **View debug page for more info**.
  .. A new tab will be opened and the migration related resources will be displayed
 
 image:./screenshots/lab7/mig-view-debug-resources_2.png[View migration plan resources (DEBUG) ]

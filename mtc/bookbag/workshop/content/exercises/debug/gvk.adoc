@@ -23,82 +23,78 @@ Let's launch MTC and create a Migration Plan to migrate the gvk-demo namespace.
 
 image:../../screenshots/debug/ex3/migplan.png[MTC Mig Plan]
 
-Run a migration by clicking _Migrate_ option from the dropdown menu on the migplan.
+Run a migration by clicking _Migrate_ option from the dropdown menu on the migration plan.
 
-The migration will fail at _FinalRestoreCreated_ phase:
+The migration will complete with message: `Completed with warnings`
 
-image:../../screenshots/debug/ex3/migmigration-failed.png[MTC Mig Plan Failed]
+image:../../screenshots/debug/ex3/migmigration-complete-warnings.png[MTC Mig Plan Complete Warnings]
+
+The Warning message indicates that the migration ran to completion, however, one of the steps in the migration failed.  Navigate to the details page of the migration by clicking on the link under the `Type` column:
+
+image:../../screenshots/debug/ex3/pipeline-view.png[MTC Mig Plan Pipeline View]
+
+As shown in the details page above, the `Restore` step in the migration failed.  This step is responsible for restoring the Kubernetes objects in the target cluster.
+
 
 === Investigate
 
-For each migration, MTC creates a MigMigration Custom Resource. We will investigate the resource to find out the cause of the issue.
+MTC UI displays a _Debug View_ to list Kubernetes resources created during a migration. It is updated dynamically as and when the new resources are created or when there are updates to the existing resources. It can be found on the migration details page at the bottom of the page:
 
-Login to the OCP 4 destination cluster and find the MigMigration resource associated with the MigPlan you created:
+image:../../screenshots/debug/ex3/debug-view.png[MTC Mig Plan Debug View]
+
+Find the Restore that appears to have problems and click on the dropdown menu:
+
+image:../../screenshots/debug/ex3/debug-view-clicked.png[MTC Mig Plan Debug View Clicked]
+
+Click `copy oc describe command` link. It will copy the `oc` command to the clipboard. Login to the destination cluster and run the command:
 
 ```sh
-oc get migmigration -n openshift-migration -l migration.openshift.io/migplan-name=<migplan_name>
+$ oc describe restore --namespace openshift-migration migration-d123c-final-nl22t
+Name:         migration-d123c-final-nl22t
+Namespace:    openshift-migration
+Labels:       app.kubernetes.io/part-of=openshift-migration
+              migmigration=4993595a-995f-45df-9d4e-80161a716dc9
+              migration-final-restore=4993595a-995f-45df-9d4e-80161a716dc9
+              migration.openshift.io/migmigration-name=migration-d123c
+              migration.openshift.io/migplan-name=gvkdemo-00
+              migration.openshift.io/migrated-by-migmigration=4993595a-995f-45df-9d4e-80161a716dc9
+              migration.openshift.io/migrated-by-migplan=e0d4b8d6-3ddc-4ff2-8c41-3f15bbb98d56
+Annotations:  migration.openshift.io/migmigration-type: final
+API Version:  velero.io/v1
+Kind:         Restore
+Metadata:
+  Creation Timestamp:  2021-09-16T15:58:01Z
+  Generate Name:       migration-d123c-final-
+  Generation:          6
+  Resource Version:  4208804
+Spec:
+  Backup Name:  migration-d123c-initial-82jpq
+  Excluded Resources:
+    nodes
+    events
+    events.events.k8s.io
+    backups.velero.io
+    restores.velero.io
+    resticrepositories.velero.io
+  Hooks:
+  Restore P Vs:  true
+Status:
+  Completion Timestamp:  2021-09-16T15:58:05Z
+  Errors:                1
+  Phase:                 PartiallyFailed
+  Progress:
+    Items Restored:  23
+    Total Items:     23
+  Start Timestamp:   2021-09-16T15:58:01Z
+  Warnings:          7
+Events:              <none>
 ```
 
-Replace `<migplan_name>` with the name of _MigPlan_ you created.
-
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-$ **oc get migmigration -n openshift-migration -l migration.openshift.io/migplan-name=migplan**
-NAME                                   READY   PLAN      STAGE   ITINERARY   PHASE       AGE
-8e4f2ee0-203d-11eb-99ec-ed3270ea9cf2           migplan   false   Failed      Completed   5m30s
---------------------------------------------------------------------------------
-
-Copy the name of the _MigMigration_ and run `oc get` to read the yaml definition:
-
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-$ oc get migmigration -n openshift-migration 8e4f2ee0-203d-11eb-99ec-ed3270ea9cf2 -o yaml
-apiVersion: migration.openshift.io/v1alpha1
-kind: MigMigration
-metadata:
-  annotations:
-    openshift.io/touch: a582a9ee-203d-11eb-a5ec-0a580a80021e
-  creationTimestamp: "2020-11-06T14:37:11Z"
-  generation: 17
-  labels:
-    migration.openshift.io/migplan-name: migplan
-  name: 8e4f2ee0-203d-11eb-99ec-ed3270ea9cf2
-  namespace: openshift-migration
-  ownerReferences:
-  - apiVersion: migration.openshift.io/v1alpha1
-    kind: MigPlan
-    name: migplan
-    uid: 2a970978-13bf-427e-b9a4-4bc7bea7ae96
-  resourceVersion: "42334"
-  selfLink: /apis/migration.openshift.io/v1alpha1/namespaces/openshift-migration/migmigrations/8e4f2ee0-203d-11eb-99ec-ed3270ea9cf2
-  uid: 75c32bee-1382-4137-9b4a-cb042678e52f
-spec:
-  migPlanRef:
-    name: migplan
-    namespace: openshift-migration
-  quiescePods: true
-  stage: false
-status:
-  conditions:
-  - category: Advisory
-    durable: true
-    lastTransitionTime: "2020-11-06T14:37:50Z"
-    message: 'The migration has failed.  See: Errors.'
-    reason: FinalRestoreCreated
-    status: "True"
-    type: Failed
-  errors:
-  - 'Restore: openshift-migration/8e4f2ee0-203d-11eb-99ec-ed3270ea9cf2-xxl2r partially
-    failed.'
-  itinerary: Failed
-  observedDigest: b15f8b108168a9050e082b7e4edc3a517653cdec1ce6485df005f321c7d7d6a6
-  phase: Completed
-  startTimestamp: "2020-11-06T14:37:11Z"
---------------------------------------------------------------------------------
-
-Examine the `status` in the yaml output of _MigMigration_. In the above case, the error message indicates that the Velero Restore `8e4f2ee0-203d-11eb-99ec-ed3270ea9cf2-xxl2r` partially failed. 
+By inspecting the `Status` field of the resource above we can see that the restore `PartiallyFailed`.
 
 We will now locate the tarball associated with this restore in the _Replication Repository_ and download the archive.
+
+
 
 Let's login to the Noobaa console.  Again, you can obtain the route with the following command on your OCP 4 cluster:
 
@@ -120,7 +116,7 @@ Download the `restore-<restore_name>-results.gz` archive. Extract the archive to
 {"errors":{"namespaces":{"gvk-demo":["error restoring gvkdemoes.konveyor.openshift.io/gvk-demo/gvk-demo: the server could not find the requested resource"]}}}
 ```
 
-From the error message above, it is clear that Velero failed to restore the Custom Resource `gvkdemoes.konveyor.openshift.io` we created. 
+From the error message above, it is clear that Velero failed to restore the Custom Resource `gvkdemoes.konveyor.openshift.io` we created.
 
 Let's take a closer look at the `GvkDemo` CRD on both source and destination:
 
@@ -237,4 +233,10 @@ status:
 
 As you can see, we have a CRD version mismatch.  `v1alpha1` on the source cluster and `v1` on the destination cluster.
 
-Next, we will look at ways in which we can resolve this situation.
+
+==== How to Resolve
+
+There are numerous ways to fix this situation depending on the API (CRD) changes themselves or number of versions between the differing versions;
+`alpha to beta` changes can be extensive, where `beta to v1` tend to be minimal.
+In the most simplest form, you could export the resource yaml on the source side, manually edit to make the version changes, and finally apply to the destination cluster.   Additionally,
+there are tools, such as `kubectl-convert` that can assist with making these types of resource conversions.
