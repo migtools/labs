@@ -78,11 +78,10 @@ Content on these files are explained in https://velero.io/docs/v1.7/output-file-
 === About Velero CSI Snapshot with OpenShift Data Foundation
 The backup we did just now used CSI snapshot capability of OpenShift Data Foundation. This is because the Velero server is configured to use CSI snapshot when it finds persistent volumes with storageclass.
 
-Looking at OADP Velero Custom Resource configuration we have setup for you, you'll see that `defaultVeleroPlugins` contain `csi` and `veleroFeatureFlags` contains `EnableCSI`
+Looking at OADP DataProtectionApplication Custom Resource configuration we have setup for you, you'll see that `defaultVeleroPlugins` contain `csi` and `veleroFeatureFlags` contains `EnableCSI`
 [source,bash,role=execute]
 ----
-oc get velero example-velero -n openshift-adp -o=jsonpath="{.spec.defaultVeleroPlugins}" && echo "" && \
-oc get velero example-velero -n openshift-adp -o=jsonpath="{.spec.veleroFeatureFlags}"
+oc get dpa example-dpa -n openshift-adp -o=jsonpath="{.spec.configuration.velero}"
 ----
 
 Velero CSI plugin is configured to take CSI snapshot of persistent volumes when it finds a VolumeSnapshotClass object with label `velero.io/csi-volumesnapshot-class: 'true'` pointing to the persistent volume's storageclass. We have added this label to a VolumeSnapshotClass object for the `openshift-storage.rbd.csi.ceph.com` driver.

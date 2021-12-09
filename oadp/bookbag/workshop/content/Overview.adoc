@@ -240,7 +240,7 @@ OADP is available to be installed via OperatorHub, but we have already set it up
 image:screenshots/OperatorHub-OADP.png[Screenshot of OADP Operator in OperatorHub]
 _Screenshot of OADP Operator in OperatorHub_
 
-Look at OADP Velero Custom Resource configuration we have setup for you
+Look at OADP DataProtectionApplication Custom Resource Custom Resource configuration we have setup for you
 [source,bash,role=execute]
 ----
 oc get dpa -n openshift-adp -oyaml
