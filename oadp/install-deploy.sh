@@ -1,12 +1,12 @@
 pushd .
 
-#ansible forksafety issue on macos
-if [ "$OS" = "Darwin" ]; then
-    # Required for MacOS with virtualenv
-    # as per https://github.com/konveyor/mig-agnosticd/issues/182
-    export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+if oc whoami > /dev/null 2>&1; then
+  echo "You are logged in to the OpenShift cluster."
+else
+  echo "You are not logged in to the OpenShift cluster."
+  echo "Please log in to the OpenShift cluster and re-run this script."
+  exit 1
 fi
-
 ANSIBLE_USER=$(whoami)
 
 # if theses are not set, you won't be prompted again
@@ -64,7 +64,6 @@ ansible-playbook ./ansible/configs/ocp-workloads/ocp-workload.yml \
 -e"ocs_migstorage=true" \
 -e"ACTION=create"
 
-deactivate
 rm -rf $RAND_TMP_DIR
 rm -rf $RAND_VENV_DIR
 
