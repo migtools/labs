@@ -42,7 +42,7 @@ sed -i=.bak 's/hosts: all/hosts: localhost/g' ./ansible/configs/ocp-workloads/oc
 sed -i=.bak 's/k8s_facts/kubernetes.core.k8s_info/g' ./ansible/roles/ocp4-workload-ocs-poc/tasks/workload.yml
 sed -i=.bak 's/k8s_facts/kubernetes.core.k8s_info/g' ./ansible/roles/ocp4-workload-ocs-poc/tasks/./pre_workload.yml
 # this playbook can error out if it already has namespace openshift-storage. This most likely mean ocs-poc was already successfully run.. and therefore can proceed to next step
-ansible-playbook -vvv ./ansible/configs/ocp-workloads/ocp-workload.yml \
+ansible-playbook ./ansible/configs/ocp-workloads/ocp-workload.yml \
 -e"ansible_user=${ANSIBLE_USER}" \
 -e"ocp_workload=ocp4-workload-ocs-poc" \
 -e"silent=False" \
