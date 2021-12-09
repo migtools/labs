@@ -1,6 +1,9 @@
 :sectlinks:
 :markup-in-source: verbatim,attributes,quotes
 :OCP4_PASSWORD: %ocp4_password%
+:CLUSTER_ADMIN_USER: %cluster_admin_user%
+:APPS_URL: %apps_url%
+:API_URL: %api_url%
 == Overview
 The OpenShift API for Data Protection (OADP) is an Operator that helps you define and configure installation of https://velero.io/[Velero] and its required resources to run on OpenShift.
 

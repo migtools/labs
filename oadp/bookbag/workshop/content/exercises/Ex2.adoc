@@ -1,6 +1,9 @@
 :sectlinks:
 :markup-in-source: verbatim,attributes,quotes
 :OCP4_PASSWORD: %ocp4_password%
+:CLUSTER_ADMIN_USER: %cluster_admin_user%
+:APPS_URL: %apps_url%
+:API_URL: %api_url%
 
 == Backing up multiple namespaces
 
@@ -44,7 +47,7 @@ oc get route -n parks-app
 ----
 oc get route -n mssql-persistent
 ----
-NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.{apps_url}[mssql-app] and http://restify-parks-app.{apps_url}[parks-app].
+NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.{APPS_URL}[mssql-app] and http://restify-parks-app.{APPS_URL}[parks-app].
 
 Check that the routes are working correctly then proceed to the next section.
 
@@ -129,7 +132,7 @@ oc delete ns mssql-persistent parks-app
 
 Check that the applications are no longer available.
 
-NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.{apps_url}[mssql-app] and http://restify-parks-app.{apps_url}[parks-app].
+NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.{APPS_URL}[mssql-app] and http://restify-parks-app.{APPS_URL}[parks-app].
 
 When application is no longer available, proceed to next section.
 
@@ -157,4 +160,4 @@ oc get pods -n parks-app
 
 Verify that the data you added earlier persisted in the restored application.
 
-NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.{apps_url}[mssql-app] and http://restify-parks-app.{apps_url}[parks-app].
+NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.{APPS_URL}[mssql-app] and http://restify-parks-app.{APPS_URL}[parks-app].
