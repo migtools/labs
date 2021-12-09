@@ -1,7 +1,5 @@
 :sectlinks:
 :markup-in-source: verbatim,attributes,quotes
 :OCP3_VERSION: 3.11 
-:OCP4_GUID: %ocp4_guid%
-:OCP4_DOMAIN: %ocp4_domain%
 :OCP4_PASSWORD: %ocp4_password%
 :OCP4_VERSION: 4.3 

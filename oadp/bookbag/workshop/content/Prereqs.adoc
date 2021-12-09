@@ -1,13 +1,11 @@
 :sectlinks:
 :markup-in-source: verbatim,attributes,quotes
-:OCP4_GUID: %ocp4_guid%
-:OCP4_DOMAIN: %ocp4_domain%
 :OCP4_PASSWORD: %ocp4_password%
 
-Login as kubeadmin
+Login as {cluster_admin_user}
 [source,bash,role=execute]
 ----
-oc login -u kubeadmin -p %ocp4_password%
+oc login -u %cluster_admin_user% -p %ocp4_password%
 ----
 
 Verify OpenShift version

@@ -1,7 +1,5 @@
 :sectlinks:
 :markup-in-source: verbatim,attributes,quotes
-:OCP4_GUID: %ocp4_guid%
-:OCP4_DOMAIN: %ocp4_domain%
 :OCP4_PASSWORD: %ocp4_password%
 
 == Overview
@@ -15,10 +13,9 @@ The following lab environment has been provisioned for you to use with this Lab.
 [width="100%",cols="50%,50%",options="header",]
 |===
 |Key |Value
-|GUID | {OCP4_GUID}
-|OCP Console |http://console-openshift-console.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
-|API |https://api.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}:6443
-|OCP admin username| kubeadmin
+|OCP Console |http://console-openshift-console.{apps_url}
+|API |{api_url}
+|OCP admin username| {cluster_admin_user}
 |OCP admin password| {OCP4_PASSWORD}
 |===
 
@@ -43,7 +40,7 @@ echo lower terminal
 echo copy
 ----
 
-You copy `kubeadmin` password here if you need it.
+You copy `{cluster_admin_user}` password here if you need it.
 [source,bash,role=copy]
 ----
 %ocp4_password%
@@ -58,4 +55,4 @@ alias awsocs
 ----
 `s3.openshift-storage.svc` is an internal openshift storage endpoint address where s3 is the service name and openshift-storage is the namespace.
 
-In the next lab, we will be using the buttons above to login as kubeadmin on the terminal.
+In the next lab, we will be using the buttons above to login as {cluster_admin_user} on the terminal.

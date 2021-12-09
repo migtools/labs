@@ -1,7 +1,5 @@
 :sectlinks:
 :markup-in-source: verbatim,attributes,quotes
-:OCP4_GUID: %ocp4_guid%
-:OCP4_DOMAIN: %ocp4_domain%
 :OCP4_PASSWORD: %ocp4_password%
 
 == Backing up single namespace
@@ -28,13 +26,13 @@ Let’s get the route to the application, and bring up the webUI.
 ----
 oc get route -n mssql-persistent
 ----
-NOTE: You can also click http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[here] to open the application.
+NOTE: You can also click http://mssql-app-route-mssql-persistent.{apps_url}[here] to open the application.
 
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
 NAME              HOST/PORT                                                       PATH   SERVICES     PORT   TERMINATION   WILDCARD
-mssql-app-route   mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}         mssql-app-service   5000                 None
+mssql-app-route   mssql-app-route-mssql-persistent.{apps_url}         mssql-app-service   5000                 None
 --------------------------------------------------------------------------------
 
 image:../screenshots/lab5/mssql-product-catalog.png[MSSQL Product Catalog]
@@ -140,7 +138,7 @@ oc delete ns mssql-persistent
 ----
 
 Check that the application is no longer available.
-NOTE: Click http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[here] to open the application.
+NOTE: Click http://mssql-app-route-mssql-persistent.{apps_url}[here] to open the application.
 
 When application is no longer available, proceed to next section.
 
@@ -171,4 +169,4 @@ mssql-deployment-1-xq4p4                1/1     Running   0          41m
 
 Verify that the data you added earlier persisted in the restored application.
 
-NOTE: Click http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[here] to open the application.
+NOTE: Click http://mssql-app-route-mssql-persistent.{apps_url}[here] to open the application.

@@ -1,7 +1,5 @@
 :sectlinks:
 :markup-in-source: verbatim,attributes,quotes
-:OCP4_GUID: %ocp4_guid%
-:OCP4_DOMAIN: %ocp4_domain%
 :OCP4_PASSWORD: %ocp4_password%
 
 == Introduction [WIP - BLOCKED]
@@ -90,7 +88,7 @@ oc delete ns mssql-persistent
 ----
 
 Check that the application is no longer available.
-NOTE: Click http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[here] to open the application.
+NOTE: Click http://mssql-app-route-mssql-persistent.{apps_url}[here] to open the application.
 
 When application is no longer available, proceed to next section.
 
