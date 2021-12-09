@@ -33,9 +33,9 @@ cd $RAND_TMP_DIR
 git clone https://github.com/kaovilai/agnosticd --single-branch --branch oadp-5
 cd $RAND_TMP_DIR/agnosticd
 
-python3 -m pip install --upgrade pip
 python3 -m venv $RAND_VENV_DIR
 source $RAND_VENV_DIR/bin/activate
+python3 -m pip install --upgrade pip
 python3 -m pip install openshift ansible jmespath
 
 sed -i=.bak 's/hosts: all/hosts: localhost/g' ./ansible/configs/ocp-workloads/ocp-workload.yml
