@@ -6,7 +6,7 @@
 
 == Overview
 
-The following lab environment has been provisioned for you for use with this Lab. You can always come back to this section to review this information.
+The following lab environment has been provisioned for you to use with this Lab. You can always come back to this section to review this information.
 
 // image::screenshots/lab1/labenv-overview2.png[Lab Environment Overview, width=50%, align="center"]
 
