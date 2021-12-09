@@ -128,7 +128,7 @@ _Screenshot of OADP Operator in OperatorHub_
 Look at OADP Velero Custom Resource configuration we have setup for you
 [source,bash,role=execute]
 ----
-oc get velero example-velero -n openshift-adp -oyaml
+oc get dpa -n openshift-adp -oyaml
 ----
 
 Verify OADP resources are ready
