@@ -41,13 +41,19 @@ python3 -m pip install openshift ansible jmespath
 sed -i=.bak 's/hosts: all/hosts: localhost/g' ./ansible/configs/ocp-workloads/ocp-workload.yml
 sed -i=.bak 's/k8s_facts/kubernetes.core.k8s_info/g' ./ansible/roles/ocp4-workload-ocs-poc/tasks/workload.yml
 sed -i=.bak 's/k8s_facts/kubernetes.core.k8s_info/g' ./ansible/roles/ocp4-workload-ocs-poc/tasks/./pre_workload.yml
-# this playbook can error out if it already has namespace openshift-storage. This most likely mean ocs-poc was already successfully run.. and therefore can proceed to next step
-ansible-playbook ./ansible/configs/ocp-workloads/ocp-workload.yml \
--e"ansible_user=${ANSIBLE_USER}" \
--e"ocp_workload=ocp4-workload-ocs-poc" \
--e"silent=False" \
--e"ocs_namespace=${OCS_NAMESPACE}" \
--e"ACTION=create"
+
+MCG_PHASE=$(oc get obc mcg -n openshift-storage -ojsonpath=‘{.status.phase}’)
+if [[ $MCG_PHASE == *"Bound"* ]]; then
+    echo "MCG is already deployed"
+else
+    echo "Deploying MCG"
+    ansible-playbook ./ansible/configs/ocp-workloads/ocp-workload.yml \
+    -e"ansible_user=${ANSIBLE_USER}" \
+    -e"ocp_workload=ocp4-workload-ocs-poc" \
+    -e"silent=False" \
+    -e"ocs_namespace=${OCS_NAMESPACE}" \
+    -e"ACTION=create"
+fi
 
 # clear openshift-adp namespace to remove old operator if any
 echo "Please wait for openshift-adp namespace to delete if there are existing. This can take a while"
