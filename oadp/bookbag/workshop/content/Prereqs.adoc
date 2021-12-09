@@ -37,7 +37,7 @@ Required versions of products used:
 |Product |Versions
 |OpenShift Server 4.x |v4.7+
 |OpenShift Client 4.x |v4.7+
-|OADP |v0.4.0+
+|OADP |v0.5.1+
 |velero server |v1.7.0+
 |velero client |v1.7.0+
 |===
