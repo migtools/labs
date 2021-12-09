@@ -30,7 +30,7 @@ OCS_NAMESPACE=openshift-storage
 echo "Using temp dir $RAND_TMP_DIR"
 mkdir $RAND_TMP_DIR
 cd $RAND_TMP_DIR
-git clone https://github.com/kaovilai/agnosticd --single-branch --branch oadp-5
+git clone https://github.com/konveyor/agnosticd --single-branch --branch konveyor-dev
 cd $RAND_TMP_DIR/agnosticd
 
 python3 -m venv $RAND_VENV_DIR
