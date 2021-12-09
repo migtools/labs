@@ -1,15 +1,12 @@
 :sectlinks:
 :markup-in-source: verbatim,attributes,quotes
-:OCP3_BASTION: %ocp3_bastion%
-:OCP4_BASTION: %ocp4_bastion%
-:OCP4_GUID: %ocp4_guid%
-:OCP4_DOMAIN: %ocp4_domain%
-:OCP4_SSH_USER: %ocp4_ssh_user%
 :OCP4_PASSWORD: %ocp4_password%
-
+:CLUSTER_ADMIN_USER: %cluster_admin_user%
+:APPS_URL: %apps_url%
+:API_URL: %api_url%
 == Overview
 
-The following lab environment has been provisioned for you for use with this Lab. You can always come back to this section to review this information.
+The following lab environment has been provisioned for you to use with this Lab. You can always come back to this section to review this information.
 
 // image::screenshots/lab1/labenv-overview2.png[Lab Environment Overview, width=50%, align="center"]
 
@@ -18,10 +15,9 @@ The following lab environment has been provisioned for you for use with this Lab
 [width="100%",cols="50%,50%",options="header",]
 |===
 |Key |Value
-|GUID | {OCP4_GUID}
-|OCP Console |http://console-openshift-console.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}
-|API |https://api.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}:6443
-|OCP admin username| admin
+|OCP Console |http://console-openshift-console.{APPS_URL}
+|API |{API_URL}
+|OCP admin username| {CLUSTER_ADMIN_USER}
 |OCP admin password| {OCP4_PASSWORD}
 |===
 
@@ -46,7 +42,7 @@ echo lower terminal
 echo copy
 ----
 
-You copy `admin` password here if you need it.
+You copy `{CLUSTER_ADMIN_USER}` password here if you need it.
 [source,bash,role=copy]
 ----
 %ocp4_password%
@@ -61,4 +57,4 @@ alias awsocs
 ----
 `s3.openshift-storage.svc` is an internal openshift storage endpoint address where s3 is the service name and openshift-storage is the namespace.
 
-In the next lab, we will be using the buttons above to login as admin on the terminal.
+In the next lab, we will be using the buttons above to login as {CLUSTER_ADMIN_USER} on the terminal.

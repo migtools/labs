@@ -1,11 +1,9 @@
 :sectlinks:
 :markup-in-source: verbatim,attributes,quotes
-:OCP4_GUID: %ocp4_guid%
-:OCP4_DOMAIN: %ocp4_domain%
-:OCP4_SSH_USER: %ocp4_ssh_user%
 :OCP4_PASSWORD: %ocp4_password%
-:OCP3_BASTION: %ocp3_bastion%
-:OCP4_BASTION: %ocp4_bastion%
+:CLUSTER_ADMIN_USER: %cluster_admin_user%
+:APPS_URL: %apps_url%
+:API_URL: %api_url%
 
 == Introduction [WIP - BLOCKED]
 
@@ -93,7 +91,7 @@ oc delete ns mssql-persistent
 ----
 
 Check that the application is no longer available.
-NOTE: Click http://mssql-app-route-mssql-persistent.apps.cluster-{OCP4_GUID}.{OCP4_GUID}.{OCP4_DOMAIN}[here] to open the application.
+NOTE: Click http://mssql-app-route-mssql-persistent.{APPS_URL}[here] to open the application.
 
 When application is no longer available, proceed to next section.
 

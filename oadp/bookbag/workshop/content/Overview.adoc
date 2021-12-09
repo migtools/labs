@@ -1,81 +1,240 @@
 :sectlinks:
 :markup-in-source: verbatim,attributes,quotes
-:OCP4_GUID: %ocp4_guid%
-:OCP4_DOMAIN: %ocp4_domain%
-:OCP4_SSH_USER: %ocp4_ssh_user%
 :OCP4_PASSWORD: %ocp4_password%
-:OCP3_BASTION: %ocp3_bastion%
-:OCP4_BASTION: %ocp4_bastion%
-
+:CLUSTER_ADMIN_USER: %cluster_admin_user%
+:APPS_URL: %apps_url%
+:API_URL: %api_url%
+== Overview
 The OpenShift API for Data Protection (OADP) is an Operator that helps you define and configure installation of https://velero.io/[Velero] and its required resources to run on OpenShift.
 
-=== Problem Overview
-Provide application granular backups that covers cluster metadata and Application data
+=== What problem is OADP attempting to solve?
+OADP enables backup, restore, and disaster recovery of applications on an OpenShift cluster. Data that can be protected with OADP include k8s resource objects, persistent volumes, and internal images.
+The OpenShift API for Data Protection (OADP) is designed to protect Application Workloads on a single OpenShift cluster.
 image:slides/OADP Solution Overview/9.jpg[problem overview]
 
-OADP enables backup, restore, and disaster recovery of an OpenShift cluster. Data that can be protected with OADP include k8s resource objects, persistent volumes, and internal images.
-The OpenShift API for Data Protection (OADP) is designed to protect Application Workloads on the same OpenShift cluster.
-
-If you want to protecting data between clusters, please look into the https://access.redhat.com/documentation/en-us/openshift_container_platform/4.8/html/migration_toolkit_for_containers[Migration Toolkit for Containers project (MTC)].
+If you want to migrate data between clusters, please look into the https://access.redhat.com/documentation/en-us/openshift_container_platform/4.8/html/migration_toolkit_for_containers[Migration Toolkit for Containers project (MTC)].
 
 === Architecture
 image:slides/OADP Architecture/4.jpg[]
 
-
-=== Velero Plugins
-There are three types of velero plugins
-
-/** BSL */
-
-Backup Storage Location
-
-/** VSL */
-
-VolumeSnapshotLocation
-
-/** Backup/RestorePlugins */
-
-    /** OpenshiftPlugin */
-
 === Requirements
 - ObjectStorage - AWS, GCP, and Azure. Other S3 compatible providers are available as an option with OpenShift Data Foundation which includes multicloud gateway for multicloud portability.
+  - Needed for backup and restore of kubernetes resourcces and internal images.
 - `cluster-admin` role is required to use OADP. Non-admin usage is on the roadmap for future iterations.
+  - Cluster admin is used to add custom resource definitions for OADP and Velero resources.
 
-=== Ways to use OADP
-/** Velero CLI */
 
-/** k8s api via oc/kubectl apply/create */
+=== Working with Velero
+You can use velero CLI to perform most of the operations. See available commands.
+[source,bash,role=execute]
+----
+velero help
+----
+
+You can also configure velero via kubernetes object json/yaml files using `oc` or `kubectl`. Click below for Velero API types references.
+
+- https://velero.io/docs/v1.7/api-types/backup/[Backup]
+- https://velero.io/docs/v1.7/api-types/restore/[Restore]
+- https://velero.io/docs/v1.7/api-types/schedule/[Schedule]
+- https://velero.io/docs/v1.7/api-types/backupstoragelocation/[BackupStorageLocation]
+- https://velero.io/docs/v1.7/api-types/volumesnapshotlocation/[VolumeSnapshotLocation]
+
+=== Velero Plugins
+Velero supports the use of plugins to integrate with different storage systems, snapshot providers, and supporting backup and restore of additional types of resources.
+
+For server installation, velero will require at least one plugin is either of the type object store or volume snapshotter, or a plugin that contains both. Exception to this is if you will not be configuring a backup storage location or a snapshot location at install time.
+
+To install plugins to Velero server, you will specify in the fields below.
+There are mainly two categories of Velero plugins that can be specified while Velero:
+
+- `defaultVeleroPlugins`:
+
+There are five types of default Velero plugins can be installed: 
+`AWS`, `GCP`, `Azure` and `OpenShift`, and `CSI`. For installation, 
+you need to specify them in the `oadp_v1alpha1_velero_cr.yaml` file 
+during deployment.
+
+```
+ apiVersion: oadp.openshift.io/v1alpha1
+ kind: Velero
+ metadata:
+   name: velero-sample
+ spec:
+   defaultVeleroPlugins:
+   - azure
+   - gcp
+   - aws
+   - openshift    
+```
+The above specification will install Velero with four of the default plugins.
+   
+- `customVeleroPlugins`:
+For installation of custom Velero plugins, you need to specify the plugin 
+`image` and plugin `name` in the `oadp_v1alpha1_velero_cr.yaml` file during 
+deployment.
+
+For instance, 
+```
+apiVersion: oadp.openshift.io/v1alpha1
+kind: Velero
+metadata:
+    name: velero-sample
+spec:
+    defaultVeleroPlugins:
+    - azure
+    - gcp
+    customVeleroPlugins:
+    - name: custom-plugin-example
+      image: quay.io/example-repo/custom-velero-plugin   
+```
+The above specification will install Velero with three plugins: 
+`azure`, `gcp`, and `custom-plugin-example`.
 
 === Provided APIs
 OADP allow several https://velero.io/docs/v1.7/api-types/[Velero API types] to be configured and defined within a single Custom Resource YAML.
 The most up to date API reference for OADP is located on the https://github.com/openshift/oadp-operator/blob/master/docs/API_ref.md[openshift/oadp-operator] repository
 
 We are providing a copy below for convenience.
-[width="100%",cols="30%,30%,40%",options="header",]
+
+==== DataProtectionApplicationSpec
+
+[width="100%",cols="11%,36%,53%",options="header",]
 |===
-|Property |Type| Description
-| backupImages | bool |  Determine whether the Velero install will backup internal images when an imagestream is backed up.  
-| backupStorageLocations | https://velero.io/docs/v1.6/api-types/backupstoragelocation/[[\]velero.BackupStorageLocationSpec] | Location(s) to store backups. For more details, see https://github.com/openshift/oadp-operator/tree/master/docs/config/bsl_and_vsl.md[here].  
-| customVeleroPlugins | map[string]interface{} |  Used for installation of custom Velero plugins. See https://github.com/openshift/oadp-operator/tree/master/docs/config/plugins.md[here] for further information.  
-| defaultVeleroPlugins |  []string |  Five types of default Velero plugins can be installed: `AWS`, `GCP`, `Azure` and `OpenShift`, and `CSI`. See https://github.com/openshift/oadp-operator/tree/master/docs/config/plugins.md[here] for further information. 
-| enableRestic |   bool  |   Enables backup/restore using Restic. If set to false, snapshots are needed.  
-| Noobaa | bool |  An optional backup storage locaion. For more information, go https://github.com/openshift/oadp-operator/tree/master/docs/config/noobaa/install_oadp_noobaa.md[here]. 
-| podAnnotations |  map[string]string |   Add metadata to your pods to select and find certain pods. 
-| podDnsConfig |    https://pkg.go.dev/k8s.io/api/core/v1#PodDNSConfig[corev1.PodDNSConfig]   |        
-| podDndPolicy | https://pkg.go.dev/k8s.io/api/core/v1#DNSPolicy[corev1.DNSPolicy] |         
-| resticNodeSelector | map[string]string |   Assign Restic pods to only certain nodes. 
-| resticResourceAllocations | https://pkg.go.dev/k8s.io/api/core/v1#ResourceRequirements[corev1.ResourceRequirements] |  Set specific resource `limits` and `requests` for the Restic pods. For more information, go https://github.com/openshift/oadp-operator/tree/master/docs/config/resource_req_limits.md[here]. 
-| resticSupplementalGroups | []int64  |        
-| resticTimeout | string | Used when a Restic backup/restore sits in progress for X amount of time. Defaults to 1 hour. Usage: `--restic-timeout` 
-| resticTolerations | https://pkg.go.dev/k8s.io/api/core/v1#Toleration[[\]corev1.Toleration] |       
-| restoreResourcesVersionPriority |  string  |        
-| veleroFeatureFlags | []string{} |  Enables additional Velero features. For more details and usage, see https://github.com/openshift/oadp-operator/tree/master/docs/config/features_flag.md[here]. 
-| veleroResourceAllocations | https://pkg.go.dev/k8s.io/api/core/v1#ResourceRequirements[corev1.ResourceRequirements] |  Set specific resource `limits` and `requests` for the Velero pod. For more information, go https://github.com/openshift/oadp-operator/tree/master/docs/config/resource_req_limits.md[here]. 
-| veleroTolerations | https://pkg.go.dev/k8s.io/api/core/v1#Toleration[[\]corev1.Toleration] |        
-| volumeSnapshotLocations | https://velero.io/docs/v1.6/api-types/volumesnapshotlocation/[[\]velero.VolumeSnapshotLocationSpec] |  Location to store volume snapshots. For further details, see https://github.com/openshift/oadp-operator/tree/master/docs/config/bsl_and_vsl.md[here]. 
-| noDefaultBackupLocation | https://pkg.go.dev/builtin#bool[bool] |  Assert that you do not want to use velero with a backup storage location. See https://velero.io/docs/v1.7/customize-installation/#do-not-configure-a-backup-storage-location-during-install[Velero Docs]. 
+|Property |Type |Description
+|BackupLocations |[] BackupLocation |BackupLocations defines the list of
+desired configuration to use for BackupStorageLocations
+
+|SnapshotLocations |[] SnapshotLocation |SnapshotLocations defines the
+list of desired configuration to use for VolumeSnapshotLocations
+
+|UnsupportedOverrides |map [ UnsupportedImageKey ] string
+|UnsupportedOverrides can be used to override the deployed dependent
+images for development
+
+|PodAnnotations |map [ string ] string |Used to add annotations to pods
+deployed by operator
+
+|PodDnsPolicy |[corev1.DNSPolicy] (
+https://pkg.go.dev/k8s.io/api/core/v1#DNSPolicy) |DNSPolicy defines how
+a pod’s DNS will be configured.
+
+|PodDnsConfig |[corev1.PodDNSConfig] (
+https://pkg.go.dev/k8s.io/api/core/v1#PodDNSConfig) |PodDNSConfig
+defines the DNS parameters of a pod in addition to those generated from
+DNSPolicy.
+
+|BackupImages |*bool |BackupImages is used to specify whether you want
+to deploy a registry for enabling backup and restore of images
+
+|Configuration |*ApplicationConfig |Configuration is used to configure
+the data protection application’s server config.
 |===
 
+==== BackupLocation
+
+[width="100%",cols="6%,48%,46%",options="header",]
+|===
+|Property |Type |Description
+|name |metav1. ObjectMeta |
+
+|velero
+|[*velero.BackupStorageLocationSpec](https://velero.io/docs/v1.6/api-types/backupstoragelocation/)
+|Location to store volume snapshots. For further details, see [here] (
+config/bsl_and_vsl.md).
+|===
+
+==== VolumeSnapshot
+
+[width="100%",cols="6%,48%,46%",options="header",]
+|===
+|Property |Type |Description
+|name |metav1. ObjectMeta |
+
+|velero
+|[*velero.VolumeSnapshotLocationSpec](https://velero.io/docs/v1.6/api-types/volumesnapshotlocation/)
+|Location to store volume snapshots. For further details, see [here] (
+config/bsl_and_vsl.md).
+|===
+
+==== ApplicationConfig (DataProtectionApplicationSpec.Configuration)
+
+[cols=",,",options="header",]
+|===
+|Property |Type |Description
+|velero |*VeleroConfig |This defines the configuration for the Velero
+server
+
+|restic |*resticConfig |This defines the configuration for the Restic
+server
+|===
+
+==== VeleroConfig
+
+[width="100%",cols="11%,8%,81%",options="header",]
+|===
+|Property |Type |Description
+|featureFlags |[] string |FeatureFlags defines the list of features to
+enable for Velero instance
+
+|defaultPlugins |[] string |Five types of default Velero plugins can be
+installed: `AWS` , `GCP` , `Azure` and `OpenShift` , and `CSI` . See
+[here] ( config/plugins.md) for further information.
+
+|customPlugins |map [string]interface\{} |Used for installation of
+custom Velero plugins. See [here] ( config/plugins.md) for further
+information.
+
+|restoreResourcesVersionPriority |string |RestoreResourceVersionPriority
+represents a configmap that will be created if defined for use in
+conjunction with `EnableAPIGroupVersions` feature flag. Defining this
+field automatically add EnableAPIGroupVersions to the velero server
+feature flag
+
+|noDefaultBackupLocation |bool |If you need to install Velero without a
+default backup storage location NoDefaultBackupLocation flag is required
+for confirmation
+
+|podConfig |*PodConfig |Velero Pod specific configuration
+|===
+
+==== ResticConfig
+
+[width="100%",cols="19%,11%,70%",options="header",]
+|===
+|Property |Type |Description
+|enable |*bool |Enables backup/restore using Restic. If set to false,
+snapshots are needed.
+
+|supplementalGroups |[]int64 |SupplementalGroups defines the linux
+groups to be applied to the Restic Pod
+
+|timeout |string |Timeout defines the Restic timeout, default value is
+1h
+
+|PodConfig |*PodConfig |Restic Pod specific configuration
+|===
+
+==== PodConfig
+
+[width="100%",cols="9%,36%,55%",options="header",]
+|===
+|Property |Type |Description
+|nodeSelector |map [ string ] string |NodeSelector defines the
+nodeSelector to be supplied to Velero/Restic podSpec
+
+|tolerations |https://pkg.go.dev/k8s.io/api/core/v1#Toleration[[]corev1.
+Toleration] |Tolerations defines the list of tolerations to be applied
+to Velero Deployment/Restic daemonset
+
+|resourceAllocations
+|https://pkg.go.dev/k8s.io/api/core/v1#ResourceRequirements[corev1.ResourceRequirements]
+|Set specific resource `limits` and `requests` for the Velero/Restic
+pods. For more information, go [here] ( config/resource_req_limits.md).
+|===
+
+See also
+https://pkg.go.dev/github.com/openshift/oadp-operator[image:https://pkg.go.dev/badge/github.com/openshift/oadp-operator.svg[Go
+Reference]] for a deeper dive.
 === Installing OADP
 OADP is available to be installed via OperatorHub, but we have already set it up for you in this lab.
 image:screenshots/OperatorHub-OADP.png[Screenshot of OADP Operator in OperatorHub]
@@ -84,7 +243,7 @@ _Screenshot of OADP Operator in OperatorHub_
 Look at OADP Velero Custom Resource configuration we have setup for you
 [source,bash,role=execute]
 ----
-oc get velero example-velero -n openshift-adp -oyaml
+oc get dpa -n openshift-adp -oyaml
 ----
 
 Verify OADP resources are ready
