@@ -42,7 +42,9 @@ sed -i=.bak 's/hosts: all/hosts: localhost/g' ./ansible/configs/ocp-workloads/oc
 sed -i=.bak 's/k8s_facts/kubernetes.core.k8s_info/g' ./ansible/roles/ocp4-workload-ocs-poc/tasks/workload.yml
 sed -i=.bak 's/k8s_facts/kubernetes.core.k8s_info/g' ./ansible/roles/ocp4-workload-ocs-poc/tasks/./pre_workload.yml
 
-MCG_PHASE=$(oc get obc mcg -n openshift-storage -ojsonpath=‘{.status.phase}’)
+ocs_mcg_pv_pool_bucket_name="migstorage"
+
+MCG_PHASE=$(oc get obc $ocs_mcg_pv_pool_bucket_name -n openshift-storage -ojsonpath=‘{.status.phase}’)
 if [[ $MCG_PHASE == *"Bound"* ]]; then
     echo "MCG is already deployed"
 else
@@ -52,6 +54,7 @@ else
     -e"ocp_workload=ocp4-workload-ocs-poc" \
     -e"silent=False" \
     -e"ocs_namespace=${OCS_NAMESPACE}" \
+    -e"ocs_mcg_pv_pool_bucket_name=${ocs_mcg_pv_pool_bucket_name}" \
     -e"ACTION=create"
 fi
 
@@ -68,6 +71,7 @@ ansible-playbook ./ansible/configs/ocp-workloads/ocp-workload.yml \
 -e"cluster_admin_user=${CLUSTER_ADMIN_USER}" \
 -e"student_password=${STUDENT_PASSWORD}" \
 -e"ocs_migstorage=true" \
+-e"ocs_mcg_pv_pool_bucket_name=${ocs_mcg_pv_pool_bucket_name}" \
 -e"ACTION=create"
 
 rm -rf $RAND_TMP_DIR
