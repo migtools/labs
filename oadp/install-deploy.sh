@@ -52,7 +52,7 @@ cd $RAND_TMP_DIR
 python3 -m pip install pipenv
 pipenv --three
 pipenv install pip openshift ansible jmespath
-git clone https://github.com/kaovilai/agnosticd --single-branch --branch oadp-5
+git clone https://github.com/konveyor/agnosticd --single-branch --branch konveyor-dev
 cd $RAND_TMP_DIR/agnosticd
 
 
@@ -90,7 +90,6 @@ pipenv run ansible-playbook ./ansible/configs/ocp-workloads/ocp-workload.yml \
 -e"student_password=${STUDENT_PASSWORD}" \
 -e"ocs_migstorage=true" \
 -e"ocs_mcg_pv_pool_bucket_name=${ocs_mcg_pv_pool_bucket_name}" \
--e"bookbag_repo=https://github.com/kaovilai/labs.git" \
 -e"ACTION=create"
 pipenv --rm
 rm -rf $RAND_TMP_DIR
