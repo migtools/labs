@@ -14,4 +14,4 @@ oc get $(oc get clusterserviceversion -n openshift-adp -l operators.coreos.com/o
 ----
 
 Bumping this value up will resolve most CrashLoopBackOff errors on installation.
-You can edit ClusterServiceVersion by going to the http://console-openshift-console.%APPS_URL%/k8s/ns/openshift-adp/operators.coreos.com%7Ev1alpha1%7EClusterServiceVersion/[Installed Operators page] then editing the resources values in the YAML of OADP operators' ClusterServiceVersion or through `oc edit`.
+You can edit ClusterServiceVersion by going to the http://console-openshift-console.{APPS_URL}/k8s/ns/openshift-adp/operators.coreos.com%7Ev1alpha1%7EClusterServiceVersion/[Installed Operators page] then editing the resources values in the YAML of OADP operators' ClusterServiceVersion or through `oc edit`.
