@@ -18,11 +18,11 @@ If you want to migrate data between clusters, please look into the https://acces
 image:slides/OADP Architecture/4.jpg[]
 
 === Requirements
-- ObjectStorage - AWS, GCP, and Azure. Other S3 compatible providers are available as an option with OpenShift Data Foundation which includes multicloud gateway for multicloud portability.
-  - Needed for backup and restore of kubernetes resourcces and internal images.
-- `cluster-admin` role is required to use OADP. Non-admin usage is on the roadmap for future iterations.
-  - Cluster admin is used to add custom resource definitions for OADP and Velero resources.
+* ObjectStorage - AWS, GCP, and Azure. Other S3 compatible providers are available as an option with OpenShift Data Foundation which includes multicloud gateway for multicloud portability.
+** Needed for backup and restore of kubernetes resources and internal images.
 
+* `cluster-admin` role is required to use OADP. Non-admin usage is on the roadmap for future iterations.
+** Cluster admin is used to add custom resource definitions for OADP and Velero resources.
 
 === Working with Velero
 You can use velero CLI to perform most of the operations. See available commands.
@@ -95,7 +95,7 @@ The above specification will install Velero with three plugins:
 `azure`, `openshift`, and `custom-plugin-example`.
 
 === Provided APIs
-OADP allow several https://velero.io/docs/v1.7/api-types/[Velero API types] to be configured and defined within a single Custom Resource YAML.
+OADP allows several https://velero.io/docs/v1.7/api-types/[Velero API types] to be configured and defined within a single Custom Resource YAML.
 The most up to date API reference for OADP is located on the https://github.com/openshift/oadp-operator/blob/master/docs/API_ref.md[openshift/oadp-operator] repository
 
 We are providing a copy below for convenience.
@@ -239,6 +239,7 @@ pods. For more information, go [here] ( config/resource_req_limits.md).
 See also
 https://pkg.go.dev/github.com/openshift/oadp-operator[image:https://pkg.go.dev/badge/github.com/openshift/oadp-operator.svg[Go
 Reference]] for a deeper dive.
+
 === Installing OADP
 OADP is available to be installed via OperatorHub, but we have already set it up for you in this lab.
 image:screenshots/OperatorHub-OADP.png[Screenshot of OADP Operator in OperatorHub]
