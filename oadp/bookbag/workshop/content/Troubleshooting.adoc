@@ -15,4 +15,4 @@ If an issue is related to a specific backup or restore you may the following com
 
 `velero restore logs <restoreName>` - fetch the logs for this specific restore. Useful for viewing failures and warnings, including resources that could not be restored.
 
-`kubectl logs deployment/velero -n velero` - fetch the logs of the Velero server pod. This provides the output of the Velero server processes.
+`oc logs deployment/velero -n openshift-adp` - fetch the logs of the Velero server pod. This provides the output of the Velero server processes.
