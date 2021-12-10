@@ -10,7 +10,7 @@ In some clusters it is possible to see oadp-operator pod not create successfully
 You can see the currently requested resources
 [source,bash,role=execute]
 ----
-oc get $(oc get clusterserviceversion -n openshift-adp -l operators.coreos.com/oadp-operator.openshift-adp -oname) -n openshift-adp -ojsonpath={.spec.install.spec.deployments[0].spec.template.spec.containers[0].resources}
+oc get $(oc get clusterserviceversion -n openshift-adp -l operators.coreos.com/oadp-operator.openshift-adp -o name) -n openshift-adp -ojsonpath="{.spec.install.spec.deployments[?(@.name=='openshift-adp-controller-manager')].spec.template.spec.containers[?(@.name=='manager')].resources}"
 ----
 
 Bumping this value up will resolve most CrashLoopBackOff errors on installation.
