@@ -64,13 +64,13 @@ ls: cannot access '/var/opt/mssql/data/lab-post-backup': No such file or directo
 Let’s go ahead and create a backup of `mssql-persistent` namespace.
 [source,bash,role=execute-2]
 ----
-velero backup create mssql-hooked-backup --include-namespaces mssql-persistent -n openshift-adp
+velero backup create mssql-hooked-backup --include-namespaces mssql-persistent
 ----
 
 You can check on the backup progress by running the following
 [source,bash,role=execute]
 ----
-velero backup describe mssql-hooked-backup -n openshift-adp
+velero backup describe mssql-hooked-backup
 ----
 
 Check that file pre-backup and post-backup exist in the pod container
@@ -99,12 +99,12 @@ When application is no longer available, proceed to next section.
 We can restore applications deleted earlier by restoring from the backup we created.
 [source,bash,role=execute]
 ----
-velero restore create mssql-hooked-restore --from-backup mssql-hooked-backup -n openshift-adp
+velero restore create mssql-hooked-restore --from-backup mssql-hooked-backup
 ----
 
 [source,bash,role=execute]
 ----
-velero restore describe mssql-hooked-restore -n openshift-adp
+velero restore describe mssql-hooked-restore
 ----
 
 Wait until pods become available.

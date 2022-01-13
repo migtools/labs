@@ -56,13 +56,13 @@ Check that the routes are working correctly then proceed to the next section.
 Let’s go ahead and create a backup of `mssql-persistent` and `parks-app` namespace, selecting only deployments and deploymentconfig resources.
 [source,bash,role=execute-2]
 ----
-velero backup create two-ns-deployment-n-dconfig-backup --include-namespaces mssql-persistent,parks-app --include-resources deployments,deploymentconfig -n openshift-adp
+velero backup create two-ns-deployment-n-dconfig-backup --include-namespaces mssql-persistent,parks-app --include-resources deployments,deploymentconfig
 ----
 
 You can check on the backup progress by running the following
 [source,bash,role=execute]
 ----
-velero backup describe two-ns-deployment-n-dconfig-backup -n openshift-adp
+velero backup describe two-ns-deployment-n-dconfig-backup
 ----
 When the backup is finished, proceed to next section.
 
@@ -169,12 +169,12 @@ When application is no longer available, proceed to next section.
 We can restore applications deleted earlier by restoring from the backup we created.
 [source,bash,role=execute]
 ----
-velero restore create two-ns-deployment-n-dconfig-restore --from-backup two-ns-deployment-n-dconfig-backup -n openshift-adp
+velero restore create two-ns-deployment-n-dconfig-restore --from-backup two-ns-deployment-n-dconfig-backup
 ----
 
 [source,bash,role=execute]
 ----
-velero restore describe two-ns-deployment-n-dconfig-restore -n openshift-adp
+velero restore describe two-ns-deployment-n-dconfig-restore
 ----
 
 Wait until pods become available.
