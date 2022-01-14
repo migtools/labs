@@ -140,6 +140,7 @@ oc delete ns mssql-persistent
 ----
 
 Check that the application is no longer available.
+
 NOTE: Click http://mssql-app-route-mssql-persistent.{APPS_URL}[here] to open the application.
 
 When application is no longer available, proceed to next section.
