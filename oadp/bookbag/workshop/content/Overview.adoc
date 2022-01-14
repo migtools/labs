@@ -25,7 +25,7 @@ image:slides/OADP Architecture/4.jpg[]
 ** Cluster admin is used to add custom resource definitions for OADP and Velero resources.
 
 === Working with Velero
-You can use velero CLI to perform most of the operations.
+You can use velero CLI to perform most of the operations. They can be downloaded from https://github.com/vmware-tanzu/velero/releases/[Velero github page].
 The velero CLI we have setup for you is an alias to a binary within the velero deployment on the cluster.
 
 Inspect the alias:
