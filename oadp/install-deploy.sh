@@ -50,8 +50,8 @@ echo "Using temp dir $RAND_TMP_DIR"
 mkdir $RAND_TMP_DIR
 cd $RAND_TMP_DIR
 python3 -m pip install pipenv
-pipenv --three
-pipenv install pip openshift ansible jmespath
+python3 -m pipenv --three
+python3 -m pipenv install pip openshift ansible jmespath
 git clone https://github.com/konveyor/agnosticd --single-branch --branch konveyor-dev
 cd $RAND_TMP_DIR/agnosticd
 
@@ -67,7 +67,7 @@ if [[ $MCG_PHASE == *"Bound"* ]]; then
     echo "MCG is already deployed"
 else
     echo "Deploying MCG"
-    pipenv run ansible-playbook ./ansible/configs/ocp-workloads/ocp-workload.yml \
+    python3 -m pipenv run ansible-playbook ./ansible/configs/ocp-workloads/ocp-workload.yml \
     -e"ansible_user=${ANSIBLE_USER}" \
     -e"ocp_workload=ocp4-workload-ocs-poc" \
     -e"silent=False" \
@@ -81,7 +81,7 @@ echo "Please wait for openshift-adp namespace to delete if there are existing. T
 oc delete namespace openshift-adp
 
 # install operator
-pipenv run ansible-playbook ./ansible/configs/ocp-workloads/ocp-workload.yml \
+python3 -m pipenv run ansible-playbook ./ansible/configs/ocp-workloads/ocp-workload.yml \
 -e"ansible_user=${ANSIBLE_USER}" \
 -e"ocp_workload=ocp4-workload-oadp" \
 -e"silent=False" \
@@ -91,7 +91,7 @@ pipenv run ansible-playbook ./ansible/configs/ocp-workloads/ocp-workload.yml \
 -e"ocs_migstorage=true" \
 -e"ocs_mcg_pv_pool_bucket_name=${ocs_mcg_pv_pool_bucket_name}" \
 -e"ACTION=create"
-pipenv --rm
+python3 -m pipenv --rm
 rm -rf $RAND_TMP_DIR
 rm -rf $RAND_VENV_DIR
 
