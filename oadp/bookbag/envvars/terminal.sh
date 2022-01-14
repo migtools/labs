@@ -16,7 +16,7 @@ mv kubectl ~/../bin/kubectl
 # curl -L https://github.com/vmware-tanzu/velero/releases/download/v1.7.0/velero-v1.7.0-linux-amd64.tar.gz -o /tmp/velero-client/velero-cli.tar.gz
 # tar -xvf /tmp/velero-client/velero-cli.tar.gz
 # mv velero-v1.7.0-linux-amd64/velero ~/../bin/velero
-echo $'alias velero=\'oc exec $(oc get pods -n openshift-adp -o name | grep pod/velero) -c velero -n openshift-adp -- ./velero\'' >> ~/.bash_profile
+echo $'alias velero=\'oc exec $(oc get pods -n openshift-adp -o name | grep pod/velero) -c velero -it -n openshift-adp -- ./velero\'' >> ~/.bash_profile
 
 cd ~
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
