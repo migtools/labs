@@ -27,7 +27,7 @@ oc get clusterserviceversion -n openshift-adp
 Verify Velero Version
 [source,bash,role=execute]
 ----
-velero version -n openshift-adp
+velero version
 ----
 
 Required versions of products used:

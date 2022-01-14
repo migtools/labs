@@ -7,13 +7,13 @@ When a backup or restore is not completed successfully, inspect the backup/resto
 View backup logs from exercise 1.
 [source,bash,role=execute]
 ----
-velero backup logs mssql-backup -n openshift-adp
+velero backup logs mssql-backup
 ----
 
 If there are errors, you can use `grep` to help find the errors.
 [source,bash,role=execute]
 ----
-velero backup logs mssql-backup -n openshift-adp | grep -i error
+velero backup logs mssql-backup | grep -i error
 ----
 We don't expect any errors here so the result should be empty.
 
