@@ -61,7 +61,7 @@ You can check on the backup progress by running the following
 ----
 velero backup describe mssql-backup
 ----
-When the backup is finished, proceed to next section.
+When the backup `Phase:` is `Completed`., proceed to next section.
 
 === Viewing backup content in S3 storage
 Backup content is stored in S3 storage in the specified content in the prefix location under folder backup inside the backup name's folder.
@@ -133,7 +133,7 @@ We have set DeletionPolicy of Retain on the VolumeSnapshotClass to preserve the 
 
 
 === Simulate a disaster
-When the backup is finished, we'll proceed to simulate a disaster by deleting the namespace.
+When the backup `Phase:` is `Completed`, we'll proceed to simulate a disaster by deleting the namespace.
 [source,bash,role=execute]
 ----
 oc delete ns mssql-persistent
@@ -152,6 +152,7 @@ We can restore applications deleted earlier by restoring from the backup we crea
 velero restore create mssql-restore --from-backup mssql-backup
 ----
 
+We can check when the restore is completed by running the following. The restore is complete when `Phase:` is `Completed`.
 [source,bash,role=execute]
 ----
 velero restore describe mssql-restore
