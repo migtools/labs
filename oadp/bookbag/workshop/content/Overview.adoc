@@ -49,14 +49,14 @@ You can also configure velero via kubernetes object json/yaml files using `oc` o
 - https://velero.io/docs/v1.7/api-types/volumesnapshotlocation/[VolumeSnapshotLocation]
 
 === Velero Plugins
-Velero supports the use of plugins to integrate with different storage systems, snapshot providers, and supporting backup and restore of additional types of resources.
+Velero supports the use of plugins to integrate with different storage systems, snapshot providers, and supporting backup and restore of additional types of resources. You can browse the available plugins here: https://velero.io/plugins/[Velero plugins page].
 
 For server installation, velero will require at least one plugin is either of the type object store or volume snapshotter, or a plugin that contains both. Exception to this is if you will not be configuring a backup storage location or a snapshot location at install time.
 
-To install plugins to Velero server, you will specify in the fields below.
-There are mainly two categories of Velero plugins that can be specified while Velero:
+There are mainly two categories of Velero plugins that can be specified in the DataProtectionApplication custom resource to be installed to Velero server:
 
-- `defaultVeleroPlugins`:
+- `defaultPlugins`: a plugin that is supported by OADP team to work with Velero.
+- `customPlugins`: a plugin that is not supported by OADP team.
 
 There are five types of default Velero plugins can be installed: 
 `AWS`, `GCP`, `Azure` and `OpenShift`, and `CSI`. For installation, 
@@ -72,17 +72,15 @@ spec:
   configuration:
     velero:
       defaultPlugins:
-      - azure
-      - gcp
       - aws
-      - openshift    
+      - csi
+      - openshift
 ```
-The above specification will install Velero with four of the default plugins.
-   
-- `customVeleroPlugins`:
-For installation of custom Velero plugins, you need to specify the plugin 
-`image` and plugin `name` in the `oadp_v1alpha1_dpa_cr.yaml` file during 
-deployment.
+The above specification will install Velero with three of the default plugins.
+
+For `customPlugins`, you need to specify 
+- `image` is the docker image of the plugin.
+- `name` is the name of the plugin.
 
 For instance, 
 ```
@@ -102,6 +100,13 @@ spec:
 ```
 The above specification will install Velero with three plugins: 
 `azure`, `openshift`, and `custom-plugin-example`.
+
+You can add and remove custom plugins after the installation.
+
+`velero plugin add <registry/image:version>`
+
+`velero plugin remove <registry/image:version>`
+
 
 === Provided APIs
 OADP allows several https://velero.io/docs/v1.7/api-types/[Velero API types] to be configured and defined within a single Custom Resource YAML.
