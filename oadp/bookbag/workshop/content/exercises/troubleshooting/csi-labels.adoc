@@ -1,0 +1,94 @@
+:sectlinks:
+:markup-in-source: verbatim,attributes,quotes
+:OCP4_PASSWORD: %ocp4_password%
+:CLUSTER_ADMIN_USER: %cluster_admin_user%
+:APPS_URL: %apps_url%
+:API_URL: %api_url%
+== CSI Labels
+CAUTION: Once started, you should finish this lab fully before moving on to the next lab.
+
+Earlier in the exercise, we explored the requirements to get CSI snapshots to work with velero.
+
+In order to use CSI with velero, feature flag `EnableCSI` and plugin `csi` is required. It is specified in our DataProtectionApplication Custom Resource.
+
+You can look at the velero configuration by running the following command:
+[source,bash,role=execute]
+----
+oc get dpa example-dpa -n openshift-adp -o=jsonpath="{.spec.configuration.velero}"
+----
+
+Aside from enabling CSI from Velero side, the volume that is going to be backed up must be using a CSI driver with a corresponding VolumeSnapshotClass containing the following label `velero.io/csi-volumesnapshot-class: 'true'`.
+
+In previous exercises, the label `velero.io/csi-volumesnapshot-class: 'true'` was added to the VolumeSnapshotClass for you.
+
+The common mistake is when the user does not specify the `velero.io/csi-volumesnapshot-class: 'true'` label.
+
+If you create a backup without this label when the backup includes a volume that is using a CSI driver, backup will become `PartiallyFailed`.
+
+Check that the label still exists by running the following command:
+[source,bash,role=execute]
+----
+oc get VolumeSnapshotClass ocs-storagecluster-rbdplugin-snapclass -ojsonpath='{.metadata.labels}'
+----
+
+We will now remove the `velero.io/csi-volumesnapshot-class: 'true'` label from the VolumeSnapshotClass and try to create a backup to see what happens.
+[source,bash,role=execute]
+----
+oc label VolumeSnapshotClass ocs-storagecluster-rbdplugin-snapclass velero.io/csi-volumesnapshot-class-
+----
+
+Check that the label no longer exists by running the following command:
+[source,bash,role=execute]
+----
+oc get VolumeSnapshotClass ocs-storagecluster-rbdplugin-snapclass -ojsonpath='{.metadata.labels}'
+----
+
+Now create a backup and see what happens.
+[source,bash,role=execute]
+----
+velero backup create mssql-backup-no-vsc-label --include-namespaces mssql-persistent
+----
+
+Let's check on its status
+[source,bash,role=execute]
+----
+velero backup describe mssql-backup-no-vsc-label
+----
+
+You should eventually see the following:
+```txt
+Phase:  PartiallyFailed (run `velero backup logs mssql-backup-no-vsc-label` for more information)
+```
+
+Let's check logs for errors
+[source,bash,role=execute]
+----
+velero backup logs mssql-backup-no-vsc-label | grep error
+----
+
+You should see the following error:
+```txt
+failed to get volumesnapshotclass for provisioner openshift-storage.rbd.csi.ceph.com, ensure that the desired volumesnapshot class has the velero.io/csi-volumesnapshot-class label
+```
+
+Now let's add the label back and try again.
+[source,bash,role=execute]
+----
+oc label VolumeSnapshotClass ocs-storagecluster-rbdplugin-snapclass velero.io/csi-volumesnapshot-class='true'
+----
+
+Create a backup and see what happens.
+[source,bash,role=execute]
+----
+velero backup create mssql-backup-vsc-label --include-namespaces mssql-persistent
+----
+
+Check on its status
+[source,bash,role=execute]
+----
+velero backup describe mssql-backup-vsc-label
+----
+
+You should eventually see the `Phase: Completed`
+
+Proceed to next section.
