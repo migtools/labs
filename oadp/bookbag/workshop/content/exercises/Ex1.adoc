@@ -75,27 +75,49 @@ awsocs s3 ls migstorage/velero/backups/mssql-backup/
 
 Content on these files are explained in https://velero.io/docs/v1.7/output-file-format/[Velero Docs].
 
-=== About Velero CSI Snapshot with OpenShift Data Foundation
-The backup we did just now used CSI snapshot capability of OpenShift Data Foundation. This is because the Velero server is configured to use CSI snapshot when it finds persistent volumes with storageclass.
+=== Backing up persistent volumes
+Velero have several options to backup persistent volumes. The original capabilities from the start are to use https://github.com/restic/restic[restic] or a cloud provider's native volume snapshot capability. Velero have since added Container Storage Interface (CSI) support to backup persistent volumes.
+CSI is an interface for storage introduced to Kubernetes to support many storage solutions. You can use CSI interface with any cloud provider who has implemented it.
 
-Looking at OADP DataProtectionApplication Custom Resource configuration we have setup for you, you'll see that `defaultVeleroPlugins` contain `csi` and `veleroFeatureFlags` contains `EnableCSI`
+As CSI is the preferred interface in Kubernetes, this lab has been designed to use CSI for storage.
+
+=== About Velero CSI Snapshot with OpenShift Data Foundation
+In order to use CSI with velero, feature flag `EnableCSI` and plugin `csi` is required. It is specified in our DataProtectionApplication Custom Resource.
+
+You can look at the velero configuration by running the following command:
 [source,bash,role=execute]
 ----
 oc get dpa example-dpa -n openshift-adp -o=jsonpath="{.spec.configuration.velero}"
 ----
 
-Velero CSI plugin is configured to take CSI snapshot of persistent volumes when it finds a VolumeSnapshotClass object with label `velero.io/csi-volumesnapshot-class: 'true'` pointing to the persistent volume's storageclass. We have added this label to a VolumeSnapshotClass object for the `openshift-storage.rbd.csi.ceph.com` driver.
+Aside from enabling CSI from Velero side, the volume that is going to be backed up must be using a CSI driver. A VolumeSnapshotClass object is also needed and has to specify the CSI driver along with the following label `velero.io/csi-volumesnapshot-class: 'true'`.
 
+
+See the storage class used by the application in the following command:
+[source,bash,role=execute]
+----
+oc get pvc -n mssql-persistent
+----
+
+This storage class has provisioner `openshift-storage.rbd.csi.ceph.com`
+[source,bash,role=execute]
+----
+oc get storageclass ocs-storagecluster-ceph-rbd
+----
+
+which is one of the CSI driver installed on the system
+[source,bash,role=execute]
+----
+oc get csidrivers
+----
+
+We have added `velero.io/csi-volumesnapshot-class: 'true'` label to a VolumeSnapshotClass object for the `openshift-storage.rbd.csi.ceph.com` driver which were used by the application we had just backed up.
 [source,bash,role=execute]
 ----
 oc get VolumeSnapshotClass ocs-storagecluster-rbdplugin-snapclass -ojsonpath='{.metadata.labels}'
 ----
 
-The namespace mssql-persistent we backup earlier contained a persistent volume claim that has storage class `ocs-storagecluster-ceph-rbd` which triggered VolumeSnapshot to be backedup
-[source,bash,role=execute]
-----
-oc get pvc -n mssql-persistent
-----
+Since the persistent volume specified in backup is using a CSI driver with the label, a volume snapshot was taken.
 
 View VolumeSnapshot taken.
 [source,bash,role=execute]
@@ -109,18 +131,6 @@ View VolumeSnapshotContent created.
 ----
 VOLUME_SNAPSHOT_CONTENT_NAME=$(oc get $NEWEST_VS_MSSQL -n mssql-persistent -o go-template='{{.status.boundVolumeSnapshotContentName}}')
 oc get volumesnapshotcontent $VOLUME_SNAPSHOT_CONTENT_NAME
-----
-
-This storage class has provisioner `openshift-storage.rbd.csi.ceph.com`
-[source,bash,role=execute]
-----
-oc get storageclass ocs-storagecluster-ceph-rbd
-----
-
-which is one of the CSI driver installed on the system
-[source,bash,role=execute]
-----
-oc get csidrivers
 ----
 
 CSI Snapshot is local to the cluster. In the future, a DataMover capability will be added to allow for moving snapshots to an external location.

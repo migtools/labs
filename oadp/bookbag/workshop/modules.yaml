@@ -30,11 +30,14 @@ modules:
   Troubleshooting:
     name: 7.0 Troubleshooting
     exit_sign: 7.1 Break-Fix Exercise I (Optional)
-  exercises/troubleshooting/crashloopbackoff:
+  exercises/troubleshooting/csi-labels:
     name: 7.1 Break-Fix Exercise I (Optional)
     exit_sign: 7.2 Break-Fix Exercise II (Optional)
-  exercises/troubleshooting/velero-pod-errors:
+  exercises/troubleshooting/crashloopbackoff:
     name: 7.2 Break-Fix Exercise II (Optional)
+    exit_sign: 7.3 Break-Fix Exercise III (Optional)
+  exercises/troubleshooting/velero-pod-errors:
+    name: 7.3 Break-Fix Exercise III (Optional)
     exit_sign: 8.0 Conclusion
   Conclusion:
     name: 8.0 Conclusion

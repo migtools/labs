@@ -12,6 +12,7 @@ modules:
     - exercises/Ex4
     # - Hooks
     - Troubleshooting
+    - exercises/troubleshooting/csi-labels
     - exercises/troubleshooting/crashloopbackoff
     - exercises/troubleshooting/velero-pod-errors
     - Conclusion
