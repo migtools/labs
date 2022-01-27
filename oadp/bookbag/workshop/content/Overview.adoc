@@ -254,11 +254,27 @@ OADP is available to be installed via OperatorHub, but we have already set it up
 image:screenshots/OperatorHub-OADP.png[Screenshot of OADP Operator in OperatorHub]
 _Screenshot of OADP Operator in OperatorHub_
 
+DataProtectionApplication is a custom resource that is used to define the desired configuration which OADP Operator uses to deploy Velero, Restic and other components.
+
 Look at OADP DataProtectionApplication Custom Resource Custom Resource configuration we have setup for you
 [source,bash,role=execute]
 ----
 oc get dpa -n openshift-adp -oyaml
 ----
+
+Note that the enabled supported plugins specified under `spec.configuration.velero.defaultPlugins` are
+
+- openshift: Also known as openshift-velero-plugin, this plugin enables backup and restore of OpenShift resources such but not limited to DeploymentConfigs, ImageStreams, and BuildConfigs.
+- aws: Also known as velero-plugin-for-aws, this plugin enables backup and restore using AWS S3 or other compatible providers as object storage and AWS EBS for snapshotting volumes.
+- csi: Also known as velero-plugin-for-csi, this plugin enables backup and restore using CSI drivers for snapshotting volumes.
+
+Also note the feature flags specified under `spec.configuration.velero.featureFlags` are
+
+- EnableCSI: a required flag to enable CSI support
+
+The object storage we are using is an S3 storage provided by OpenShift Storage with local endpoint at `http://s3.openshift-storage.svc/`. We are relying on the aws plugin to access this local endpoint specifying custom s3Url. The bucket name is `migstorage`, the prefix `velero` is the directory used to segregate the velero backup and restore from root of object storage.
+
+The snapshot locations enabled for storing volume snapshots are aws ebs and csi. We will explore more about CSI in the following sections.
 
 Verify OADP resources are ready
 [source,bash,role=execute]
