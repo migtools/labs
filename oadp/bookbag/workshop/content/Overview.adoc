@@ -272,7 +272,7 @@ Also note the feature flags specified under `spec.configuration.velero.featureFl
 
 - EnableCSI: a required flag to enable CSI support
 
-The object storage we are using is an S3 storage provided by OpenShift Storage with local endpoint at `http://s3.openshift-storage.svc/`. We are relying on the aws plugin to access this local endpoint specifying custom s3Url. The bucket name is `migstorage`, the prefix `velero` is the directory used to segregate the velero backup and restore from root of object storage.
+The object storage we are using is an S3 storage provided by OpenShift Storage with local endpoint at `http://s3.openshift-storage.svc/`. We are using custom s3Url capability of the aws velero plugin to access this local endpoint in velero. The bucket name is `migstorage`, the prefix `velero` is the directory used to segregate the velero backup and restore from root of object storage.
 
 The snapshot locations enabled for storing volume snapshots are aws ebs and csi. We will explore more about CSI in the following sections.
 
