@@ -59,7 +59,7 @@ There are mainly two categories of Velero plugins that can be specified while Ve
 - `defaultVeleroPlugins`:
 
 There are five types of default Velero plugins can be installed: 
-`AWS`, `GCP`, `Azure` and `OpenShift`, and `CSI`. For installation, 
+`AWS`, `GCP`, `Azure`,`OpenShift`, `KubeVirt` and `CSI`. For installation, 
 you need to specify them in the `oadp_v1alpha1_dpa_cr.yaml` file 
 during deployment.
 
@@ -141,6 +141,8 @@ to deploy a registry for enabling backup and restore of images
 
 |Configuration |*ApplicationConfig |Configuration is used to configure
 the data protection application’s server config.
+
+|Features |*Features |Features define the configuration for the DPA to enable the Technology Preview features.
 |===
 
 ==== BackupLocation
@@ -152,11 +154,14 @@ the data protection application’s server config.
 
 |velero
 |[*velero.BackupStorageLocationSpec](https://velero.io/docs/v1.6/api-types/backupstoragelocation/)
-|Location to store volume snapshots. For further details, see [here] (
-config/bsl_and_vsl.md).
+|Location to store volume snapshots. For further details, see [here](config/bsl_and_vsl.md).
+
+|bucket
+|[*CloudStorageLocation](https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#CloudStorage)
+|[Technology Preview] Automates creation of a bucket at some cloud storage providers for use as a backup storage location.  For further details, see [here](https://access.redhat.com/support/offerings/techpreview).
 |===
 
-==== VolumeSnapshot
+==== SnapshotLocation
 
 [width="100%",cols="6%,48%,46%",options="header",]
 |===
@@ -174,10 +179,10 @@ config/bsl_and_vsl.md).
 [cols=",,",options="header",]
 |===
 |Property |Type |Description
-|velero |*VeleroConfig |This defines the configuration for the Velero
+|velero |[*VeleroConfig](https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#VeleroConfig) |This defines the configuration for the Velero
 server
 
-|restic |*resticConfig |This defines the configuration for the Restic
+|restic |[*resticConfig](https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#ResticConfig) |This defines the configuration for the Restic
 server
 |===
 
@@ -189,12 +194,12 @@ server
 |featureFlags |[] string |FeatureFlags defines the list of features to
 enable for Velero instance
 
-|defaultPlugins |[] string |Five types of default Velero plugins can be
-installed: `AWS` , `GCP` , `Azure` and `OpenShift` , and `CSI` . See
-[here] ( config/plugins.md) for further information.
+|defaultPlugins |[] string |The following types of default Velero plugins can be
+installed: `AWS` , `GCP` , `Azure`, `OpenShift`, `CSI`, and `KubeVirt` . See
+[here](config/plugins.md) for further information.
 
 |customPlugins |map [string]interface\{} |Used for installation of
-custom Velero plugins. See [here] ( config/plugins.md) for further
+custom Velero plugins. See [here](config/plugins.md) for further
 information.
 
 |restoreResourcesVersionPriority |string |RestoreResourceVersionPriority
@@ -208,6 +213,17 @@ default backup storage location NoDefaultBackupLocation flag is required
 for confirmation
 
 |podConfig |*PodConfig |Velero Pod specific configuration
+
+|logLevel |string | Velero server’s log level (use debug for the most granular logging, leave unset for Velero default). Valid options are `trace`, `debug`, `info`, `warning`, `error`, `fatal`, and `panic`.
+|===
+
+==== CustomPlugin 
+
+[width="100%",cols="19%,11%,70%",options="header",]
+|===
+|Property |Type |Description
+|name |string |Name of custom plugin.
+|image |string |Image of custom plugin.
 |===
 
 ==== ResticConfig
@@ -215,16 +231,16 @@ for confirmation
 [width="100%",cols="19%,11%,70%",options="header",]
 |===
 |Property |Type |Description
-|enable |*bool |Enables backup/restore using Restic. If set to false,
+|enable |*bool |If set to `true`, enables backup/restore using Restic. If set to `false`,
 snapshots are needed.
 
 |supplementalGroups |[]int64 |SupplementalGroups defines the linux
-groups to be applied to the Restic Pod
+groups to be applied to the `Restic` Pod
 
 |timeout |string |Timeout defines the Restic timeout, default value is
 1h
 
-|PodConfig |*PodConfig |Restic Pod specific configuration
+|PodConfig |*PodConfig |`Restic` Pod specific configuration
 |===
 
 ==== PodConfig
@@ -235,14 +251,33 @@ groups to be applied to the Restic Pod
 |nodeSelector |map [ string ] string |NodeSelector defines the
 nodeSelector to be supplied to Velero/Restic podSpec
 
-|tolerations |https://pkg.go.dev/k8s.io/api/core/v1#Toleration[[]corev1.
-Toleration] |Tolerations defines the list of tolerations to be applied
+|tolerations |https://pkg.go.dev/k8s.io/api/core/v1#Toleration[[]Toleration] |Tolerations defines the list of tolerations to be applied
 to Velero Deployment/Restic daemonset
 
 |resourceAllocations
-|https://pkg.go.dev/k8s.io/api/core/v1#ResourceRequirements[corev1.ResourceRequirements]
+|https://pkg.go.dev/k8s.io/api/core/v1#ResourceRequirements[ResourceRequirements]
 |Set specific resource `limits` and `requests` for the Velero/Restic
-pods. For more information, go [here] ( config/resource_req_limits.md).
+pods. For more information, go [here](config/resource_req_limits.md).
+
+|labels |map [ string ] string | Labels to add to pods.
+|===
+
+==== Features
+
+[width="100%",cols="9%,36%,55%",options="header",]
+|===
+|Property |Type |Description
+|dataMover |*DataMover | Defines the configuration of the Data Mover.
+|===
+
+==== DataMover
+
+[width="100%",cols="9%,36%,55%",options="header",]
+|===
+|Property |Type |Description
+|enable |*bool |If set to `true`, deploys the volume snapshot mover controller and a modified CSI Data Mover plugin. If set to `false`, these are not deployed.
+|credentialName |string |User-supplied Restic `Secret` name for Data Mover.
+|timeout |string |A user-supplied duration string for `VolumeSnapshotBackup` and `VolumeSnapshotRestore` to complete. Default is 10m (10 minutes). 
 |===
 
 See also
