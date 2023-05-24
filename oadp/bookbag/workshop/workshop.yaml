@@ -10,6 +10,7 @@ modules:
     - exercises/Ex2
     - exercises/Ex3
     - exercises/Ex4
+    - exercises/Ex5
     # - Hooks
     - Troubleshooting
     - exercises/troubleshooting/csi-labels
