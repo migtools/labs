@@ -2,6 +2,7 @@
 :markup-in-source: verbatim,attributes,quotes
 :OCP4_PASSWORD: %ocp4_password%
 :CLUSTER_ADMIN_USER: %cluster_admin_user%
+:CLUSTER_ADMIN_PASSWORD: %cluster_admin_password%
 :APPS_URL: %apps_url%
 :API_URL: %api_url%
 

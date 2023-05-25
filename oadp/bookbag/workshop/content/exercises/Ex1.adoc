@@ -2,13 +2,13 @@
 :markup-in-source: verbatim,attributes,quotes
 :OCP4_PASSWORD: %ocp4_password%
 :CLUSTER_ADMIN_USER: %cluster_admin_user%
+:CLUSTER_ADMIN_PASSWORD: %cluster_admin_password%
 :APPS_URL: %apps_url%
 :API_URL: %api_url%
 
 == Backing up single namespace
 
-We are going to protecting a simple Product Inventory web-based application front-end, backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 4 cluster in the `mssql-persistent` namespace, using a single PV backed by NFS for persistent storage.
-
+We are going to protecting a simple Product Inventory web-based application front-end, backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 4 cluster in the `mssql-persistent` namespace.
 In our source OCP 4 cluster terminal, we can see the app running:
 
 [source,bash,role=execute]
@@ -62,6 +62,10 @@ You can check on the backup progress by running the following
 velero backup describe mssql-backup
 ----
 When the backup `Phase:` is `Completed`., proceed to next section.
+[source,bash,role=execute]
+----
+velero backup describe mssql-backup | grep Phase:
+----
 
 === Viewing backup content in S3 storage
 Backup content is stored in S3 storage in the specified content in the prefix location under folder backup inside the backup name's folder.
