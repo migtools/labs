@@ -2,6 +2,7 @@
 :markup-in-source: verbatim,attributes,quotes
 :OCP4_PASSWORD: %ocp4_password%
 :CLUSTER_ADMIN_USER: %cluster_admin_user%
+:CLUSTER_ADMIN_PASSWORD: %cluster_admin_password%
 :APPS_URL: %apps_url%
 :API_URL: %api_url%
 == Overview
@@ -18,7 +19,7 @@ The following lab environment has been provisioned for you to use with this Lab.
 |OCP Console |http://console-openshift-console.{APPS_URL}
 |API |{API_URL}
 |OCP admin username| {CLUSTER_ADMIN_USER}
-|OCP admin password| {OCP4_PASSWORD}
+|OCP admin password| {CLUSTER_ADMIN_PASSWORD}
 |===
 
 On the right, you will see two split terminals. We will generally use the lower terminal for most executions while upper terminal will be reserved for reviewing yaml files and watching result of executions.
@@ -45,7 +46,7 @@ echo copy
 You copy `{CLUSTER_ADMIN_USER}` password here if you need it.
 [source,bash,role=copy]
 ----
-%ocp4_password%
+%cluster_admin_password%
 ----
 
 We have also setup credentials for aws cli to be used with openshift storage.
