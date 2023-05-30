@@ -16,6 +16,6 @@
 |===
 |Type |Link
 |Source Code |https://github.com/openshift/oadp-operator
-|Velero Documentation |https://velero.io/docs/v1.7
+|Velero Documentation |https://velero.io/docs/v1.9/
 |YouTube Channel |https://www.youtube.com/channel/UCBDU5UK5Okg3mlIMygpkbNA?view_as=subscriber
 |===

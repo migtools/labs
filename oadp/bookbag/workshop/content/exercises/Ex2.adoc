@@ -2,6 +2,7 @@
 :markup-in-source: verbatim,attributes,quotes
 :OCP4_PASSWORD: %ocp4_password%
 :CLUSTER_ADMIN_USER: %cluster_admin_user%
+:CLUSTER_ADMIN_PASSWORD: %cluster_admin_password%
 :APPS_URL: %apps_url%
 :API_URL: %api_url%
 
@@ -9,8 +10,7 @@
 
 In previous exercise, we backed up a single namespace using `--include-namespaces` flag from Velero CLI. This flag actually accepts a `stringArray`. We can backup multiple namespaces using the flag separating them by `,`.
 
-In addition to the Microsoft SQL Server application, we have pre-deployed for you a second application called `parks-app`. This application has been pre-deployed on your OCP 4 cluster in the `parks-app` namespace, using a single PV backed by NFS for persistent storage.
-
+In addition to the Microsoft SQL Server application, we have pre-deployed for you a second application called `parks-app`. This application has been pre-deployed on your OCP 4 cluster in the `parks-app` namespace.
 In our source OCP 4 cluster terminal, we can see the app running:
 
 [source,bash,role=execute]
