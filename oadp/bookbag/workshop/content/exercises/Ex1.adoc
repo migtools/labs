@@ -8,63 +8,62 @@
 
 == Backing up single namespace
 
-We are going to protecting a simple Product Inventory web-based application front-end, backed by Microsoft SQL Server. This application has been pre-deployed on your OCP 4 cluster in the `mssql-persistent` namespace.
+We are going to protecting a simple nginx-stateless application. This application has been pre-deployed on your OCP 4 cluster in the `nginx-example` namespace.
 In our source OCP 4 cluster terminal, we can see the app running:
 
 [source,bash,role=execute]
 ----
-oc get pods -n mssql-persistent
+oc get pods -n nginx-example
 ----
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-NAME                                    READY   STATUS    RESTARTS   AGE
-mssql-app-deployment-6ffb46c5d6-n5fvv   1/1     Running   0          41m
-mssql-deployment-1-xq4p4                1/1     Running   0          41m
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-56b7785cc7-vd76k   1/1     Running   0          40m
+nginx-deployment-56b7785cc7-z8kg7   1/1     Running   0          40m
 --------------------------------------------------------------------------------
 
 Let’s get the route to the application, and bring up the webUI.
 
 [source,bash,role=execute]
 ----
-oc get route -n mssql-persistent
+oc get route -n nginx-example
 ----
-NOTE: You can also click http://mssql-app-route-mssql-persistent.{APPS_URL}[here] to open the application.
+NOTE: You can also click http://my-nginx-nginx-example.{APPS_URL}[here] to open the application.
 
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-NAME              HOST/PORT                                                       PATH   SERVICES     PORT   TERMINATION   WILDCARD
-mssql-app-route   mssql-app-route-mssql-persistent.{APPS_URL}         mssql-app-service   5000                 None
+NAME       HOST/PORT                           PATH   SERVICES   PORT   TERMINATION   WILDCARD
+my-nginx   my-nginx-nginx-example.{APPS_URL}          my-nginx   8080                 None
 --------------------------------------------------------------------------------
 
-image:../screenshots/lab5/mssql-product-catalog.png[MSSQL Product Catalog]
+image:../screenshots/lab5/nginx-webUI.png[nginx-webUI]
 
-Let’s go ahead and add a new product to the inventory. Click on the +Add button and enter some data.
+Let’s go ahead and save all app resources in `nginx-running-before.txt` before we create backup.
 
-image:../screenshots/lab5/mssql-add-product.png[MSSQL Add Product]
-
-You can see the application is functioning and state is being saved in the DB.
-
-image:../screenshots/lab5/mssql-added-product.png[MSSQL Added Product]
+[source,bash,role=execute]
+----
+oc get all -n nginx-example > nginx-running-before.txt
+----
 
 === Using Velero to backup application namespace
 
-Let’s go ahead and create a backup of `mssql-persistent` namespace.
+Let’s go ahead and create a backup of `nginx-example` namespace.
 [source,bash,role=execute-2]
 ----
-velero backup create mssql-backup --include-namespaces mssql-persistent
+velero backup create nginx-backup --include-namespaces nginx-example
 ----
 
 You can check on the backup progress by running the following
 [source,bash,role=execute]
 ----
-velero backup describe mssql-backup
+velero backup describe nginx-backup
 ----
 When the backup `Phase:` is `Completed`., proceed to next section.
 [source,bash,role=execute]
 ----
-velero backup describe mssql-backup | grep Phase:
+velero backup describe nginx-backup | grep Phase:
 ----
 
 === Viewing backup content in S3 storage
@@ -74,88 +73,21 @@ Backup content is stored in S3 storage in the specified content in the prefix lo
 
 [source,bash,role=execute]
 ----
-awsocs s3 ls migstorage/velero/backups/mssql-backup/
+awsocs s3 ls migstorage/velero/backups/nginx-backup/
 ----
 
 Content on these files are explained in https://velero.io/docs/v1.7/output-file-format/[Velero Docs].
-
-=== Backing up persistent volumes
-Velero have several options to backup persistent volumes. The original capabilities from the start are to use https://github.com/restic/restic[restic] or a cloud provider's native volume snapshot capability. Velero have since added Container Storage Interface (CSI) support to backup persistent volumes.
-CSI is an interface for storage introduced to Kubernetes to support many storage solutions. You can use CSI interface with any cloud provider who has implemented it.
-
-As CSI is the preferred interface in Kubernetes, this lab has been designed to use CSI for storage.
-
-=== About Velero CSI Snapshot with OpenShift Data Foundation
-In order to use CSI with velero, feature flag `EnableCSI` and plugin `csi` is required. It is specified in our DataProtectionApplication Custom Resource.
-
-You can look at the velero configuration by running the following command:
-[source,bash,role=execute]
-----
-oc get dpa example-dpa -n openshift-adp -o=jsonpath="{.spec.configuration.velero}"
-----
-
-Aside from enabling CSI from Velero side, the volume that is going to be backed up must be using a CSI driver. A VolumeSnapshotClass object is also needed and has to specify the CSI driver along with the following label `velero.io/csi-volumesnapshot-class: 'true'`.
-
-
-See the storage class used by the application in the following command:
-[source,bash,role=execute]
-----
-oc get pvc -n mssql-persistent
-----
-
-This storage class has provisioner `openshift-storage.rbd.csi.ceph.com`
-[source,bash,role=execute]
-----
-oc get storageclass ocs-storagecluster-ceph-rbd
-----
-
-which is one of the CSI driver installed on the system
-[source,bash,role=execute]
-----
-oc get csidrivers
-----
-
-We have added `velero.io/csi-volumesnapshot-class: 'true'` label to a VolumeSnapshotClass object for the `openshift-storage.rbd.csi.ceph.com` driver which were used by the application we had just backed up.
-[source,bash,role=execute]
-----
-oc get VolumeSnapshotClass ocs-storagecluster-rbdplugin-snapclass -ojsonpath='{.metadata.labels}'
-----
-
-Since the persistent volume specified in backup is using a CSI driver with the label, a volume snapshot was taken.
-
-View VolumeSnapshot taken.
-[source,bash,role=execute]
-----
-NEWEST_VS_MSSQL=$(oc get volumesnapshot -n mssql-persistent --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
-oc get $NEWEST_VS_MSSQL -n mssql-persistent
-----
-
-View VolumeSnapshotContent created.
-[source,bash,role=execute]
-----
-VOLUME_SNAPSHOT_CONTENT_NAME=$(oc get $NEWEST_VS_MSSQL -n mssql-persistent -o go-template='{{.status.boundVolumeSnapshotContentName}}')
-oc get volumesnapshotcontent $VOLUME_SNAPSHOT_CONTENT_NAME
-----
-
-CSI Snapshot is local to the cluster. In the future, a DataMover capability will be added to allow for moving snapshots to an external location.
-
- Volumesnapshots created by the plugin will be retained only for the lifetime of the backup even if the DeletionPolicy on the volumesnapshotclass is set to Retain. To accomplish this, during deletion of the backup the prior to deleting the volumesnapshot, volumesnapshotcontent object will be patched to set its DeletionPolicy to Delete. Thus deleting volumesnapshot object will result in cascade delete of the volumesnapshotcontent and the snapshot in the storage provider.
-
-For more information about how CSI plugin works, see https://velero.io/docs/v1.7/csi/#how-it-works---overview[Velero Docs].
-
-We have set DeletionPolicy of Retain on the VolumeSnapshotClass to preserve the volume snapshot in the storage system for the lifetime of the Velero backup and prevent the deletion of the volume snapshot, in the storage system, in the event of a disaster where the namespace with the VolumeSnapshot object may be lost. We will attempt to create this disaster scenario in the next section.
-
 
 === Simulate a disaster
 When the backup `Phase:` is `Completed`, we'll proceed to simulate a disaster by deleting the namespace.
 [source,bash,role=execute]
 ----
-oc delete ns mssql-persistent
+oc delete ns nginx-example
 ----
 
 Check that the application is no longer available.
 
-NOTE: Click http://mssql-app-route-mssql-persistent.{APPS_URL}[here] to open the application.
+NOTE: Click http://my-nginx-nginx-example.{APPS_URL}[here] to open the application.
 
 When application is no longer available, proceed to next section.
 
@@ -163,28 +95,36 @@ When application is no longer available, proceed to next section.
 We can restore applications deleted earlier by restoring from the backup we created.
 [source,bash,role=execute]
 ----
-velero restore create mssql-restore --from-backup mssql-backup
+velero restore create nginx-restore --from-backup nginx-backup
 ----
 
 We can check when the restore is completed by running the following. The restore is complete when `Phase:` is `Completed`.
 [source,bash,role=execute]
 ----
-velero restore describe mssql-restore
+velero restore describe nginx-restore
 ----
 
 Wait until pods become available.
 [source,bash,role=execute]
 ----
-oc get pods -n mssql-persistent
+oc get pods -n nginx-example
 ----
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-NAME                                    READY   STATUS    RESTARTS   AGE
-mssql-app-deployment-6ffb46c5d6-n5fvv   1/1     Running   0          41m
-mssql-deployment-1-xq4p4                1/1     Running   0          41m
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-56b7785cc7-g8xfj   1/1     Running   0          47s
+nginx-deployment-56b7785cc7-q824n   1/1     Running   0          47s
 --------------------------------------------------------------------------------
 
-Verify that the data you added earlier persisted in the restored application.
+Verify webUI is available in the restored application.
 
-NOTE: Click http://mssql-app-route-mssql-persistent.{APPS_URL}[here] to open the application.
+NOTE: Click http://my-nginx-nginx-example.{APPS_URL}[here] to open the application.
+
+Let’s go ahead and collect restored nginx application resources in `nginx-running-after.txt` after restore `Phase:` is `Completed`.
+[source,bash,role=execute]
+----
+oc get all -n nginx-example > nginx-running-after.txt
+----
+
+Compare `nginx-running-before.txt` and `nginx-running-after.txt` and verify resources.
