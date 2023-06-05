@@ -6,9 +6,9 @@
 :APPS_URL: %apps_url%
 :API_URL: %api_url%
 
-== Backing up single namespace
+== Backing up nginx Stateless application
 
-We are going to protecting a simple nginx-stateless application. This application has been pre-deployed on your OCP 4 cluster in the `nginx-example` namespace.
+We are going to protect a simple nginx-stateless application. This application has been pre-deployed on your OCP 4 cluster in the `nginx-example` namespace.
 In our source OCP 4 cluster terminal, we can see the app running:
 
 [source,bash,role=execute]
