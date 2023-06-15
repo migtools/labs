@@ -8,55 +8,56 @@
 
 == Backing up multiple namespaces
 
-In previous exercise, we backed up a single namespace using `--include-namespaces` flag from Velero CLI. This flag actually accepts a `stringArray`. We can backup multiple namespaces using the flag separating them by `,`.
+We backed up a single namespace using `--include-namespaces` flag from Velero CLI. This flag actually accepts a `stringArray`. We can backup multiple namespaces using the flag separating them by `,`.
 
-In addition to the Microsoft SQL Server application, we have pre-deployed for you a second application called `parks-app`. This application has been pre-deployed on your OCP 4 cluster in the `parks-app` namespace.
+In previous exercises, we restored two namespaces `nginx-example` and `mysql-persistent`. Let's use those apps to perform backup of multiple namespace.
 In our source OCP 4 cluster terminal, we can see the app running:
 
 [source,bash,role=execute]
 ----
-oc get pods -n parks-app
+oc get pods -n nginx-example
 ----
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-NAME               READY   STATUS      RESTARTS   AGE
-mongodb-1-qb6xw    1/1     Running     0          22h
-restify-1-fc59d    1/1     Running     0          22h
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-56b7785cc7-g8xfj   1/1     Running   0          2h
+nginx-deployment-56b7785cc7-q824n   1/1     Running   0          2h
 --------------------------------------------------------------------------------
 
-Check that Microsoft SQL Server Application is still running.
+Check that todo list Application is still running.
 [source,bash,role=execute]
 ----
-oc get pods -n mssql-persistent
+oc get pods -n mysql-persistent
 ----
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-NAME                                    READY   STATUS    RESTARTS   AGE
-mssql-app-deployment-6ffb46c5d6-n5fvv   1/1     Running   0          41m
-mssql-deployment-1-xq4p4                1/1     Running   0          41m
+NAME                     READY   STATUS      RESTARTS   AGE
+mysql-5f55cd786d-pshzl   1/1     Running     0          1h
+todolist-1-deploy        0/1     Completed   0          1h
+todolist-1-jx9xb         1/1     Running     0          1h
 --------------------------------------------------------------------------------
 
 Let’s checkout the route to the applications user interfaces.
 
 [source,bash,role=execute]
 ----
-oc get route -n parks-app
+oc get route -n nginx-example
 ----
 [source,bash,role=execute]
 ----
-oc get route -n mssql-persistent
+oc get route -n mysql-persistent
 ----
-NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.{APPS_URL}[mssql-app] and http://restify-parks-app.{APPS_URL}[parks-app].
+NOTE: You can also use links here to open application routes http://my-nginx-nginx-example.{APPS_URL}[nginx-app] and http://todolist-route-mysql-persistent.{APPS_URL}[todolist-app].
 
-Check that the routes are working correctly then proceed to the next section.
+ Check that the routes are working correctly. Add a new activity to the todo-list app then proceed to the next section.
 
 === Using Velero to backup application namespaces
 
-Let’s go ahead and create a backup of `mssql-persistent` and `parks-app` namespace.
+Let’s go ahead and create a backup of `nginx-example` and `mysql-persistent` namespace.
 [source,bash,role=execute-2]
 ----
-velero backup create two-ns-backup --include-namespaces mssql-persistent,parks-app
+velero backup create two-ns-backup --include-namespaces nginx-example,mysql-persistent
 ----
 
 You can check on the backup progress by running the following
@@ -75,38 +76,30 @@ Backup content is stored in S3 storage in the specified content in the prefix lo
 ----
 awsocs s3 ls migstorage/velero/backups/two-ns-backup/
 ----
-=== A snapshot was taken
-When a backup includes a persistent volume claim, a snapshot is created provided you have configured Velero to take snapshots.
-
 
 === About Velero CSI Snapshots
-The backup we did just now of the parks-app and mssql namespace used CSI snapshot capability of Velero to create snapshot on AWS EBS and OpenShift Storage Ceph Rados Block Device (RBD) using their respective CSI Drivers
+The backup we did of the two namespaces used CSI snapshot capability of Velero to create snapshot on AWS EBS using its CSI Driver.
 
-The details were explained in the first exercise.
+The details were explained in the previous exercise 6.0.
 
-The namespace parks-app we backup earlier contained a persistent volume claim that has storage class `gp2-csi` so that the snapshot was created using the AWS EBS CSI Driver.
-
-View persistent volume claim in the namespace `mssql-persistent` and `parks-app`.
+The namespace mysql-persistent we backup earlier contained a persistent volume claim that has storage class `gp2-csi` so that the snapshot was created using the AWS EBS CSI Driver. However, nginx is a simple stateless app which does not have pvc. In this case, we will not take any volumesnapShot, and cluster resources from the namespace `nginx-example` will be restored from the S3 bucket.
+View persistent volume claim in the namespace `mysql-persistent`.
 [source,bash,role=execute]
 ----
-oc get pvc -n mssql-persistent
-oc get pvc -n parks-app
+oc get pvc -n mysql-persistent
 ----
 View VolumeSnapshot taken.
 [source,bash,role=execute]
 ----
-NEWEST_VS_MSSQL=$(oc get volumesnapshot -n mssql-persistent --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
-NEWEST_VS_PARKS=$(oc get volumesnapshot -n parks-app --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
-oc get $NEWEST_VS_MSSQL -n mssql-persistent 
-oc get $NEWEST_VS_PARKS -n parks-app
+NEWEST_VS_MYSQL=$(oc get volumesnapshot -n mysql-persistent --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
+oc get $NEWEST_VS_MYSQL -n mysql-persistent 
+
 ----
 View VolumeSnapshotContent created.
 [source,bash,role=execute]
 ----
-MSSQL_VS_CONTENT_NAME=$(oc get $NEWEST_VS_MSSQL -n mssql-persistent -o go-template='{{.status.boundVolumeSnapshotContentName}}')
-PARKS_VS_CONTENT_NAME=$(oc get $NEWEST_VS_PARKS -n parks-app -o go-template='{{.status.boundVolumeSnapshotContentName}}')
-oc get volumesnapshotcontent $MSSQL_VS_CONTENT_NAME
-oc get volumesnapshotcontent $PARKS_VS_CONTENT_NAME
+MYSQL_VS_CONTENT_NAME=$(oc get $NEWEST_VS_MYSQL -n mysql-persistent -o go-template='{{.status.boundVolumeSnapshotContentName}}')
+oc get volumesnapshotcontent $MYSQL_VS_CONTENT_NAME
 ----
 
 This storage class has provisioner `ebs.csi.aws.com`
@@ -127,12 +120,12 @@ CSI Snapshot is local to the cluster. In the future, a DataMover capability will
 When the backup `Phase:` is `Completed`., we'll proceed to simulate a disaster by deleting the two namespaces.
 [source,bash,role=execute]
 ----
-oc delete ns mssql-persistent parks-app
+oc delete ns mysql-persistent nginx-example
 ----
 
 Check that the applications are no longer available.
 
-NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.{APPS_URL}[mssql-app] and http://restify-parks-app.{APPS_URL}[parks-app].
+NOTE: You can also use links here to open application routes http://my-nginx-nginx-example.{APPS_URL}[nginx-app] and http://todolist-route-mysql-persistent.{APPS_URL}[todolist-app].
 
 When application is no longer available, proceed to next section.
 
@@ -152,13 +145,13 @@ velero restore describe two-ns-restore
 Wait until pods become available.
 [source,bash,role=execute]
 ----
-oc get pods -n mssql-persistent
+oc get pods -n mysql-persistent
 ----
 [source,bash,role=execute]
 ----
-oc get pods -n parks-app
+oc get pods -n nginx-example
 ----
 
 Verify that the data you added earlier persisted in the restored application.
 
-NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.{APPS_URL}[mssql-app] and http://restify-parks-app.{APPS_URL}[parks-app].
+NOTE: You can also use links here to open application routes http://my-nginx-nginx-example.{APPS_URL}[nginx-app] and http://todolist-route-mysql-persistent.{APPS_URL}[todolist-app].

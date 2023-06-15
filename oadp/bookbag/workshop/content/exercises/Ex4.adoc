@@ -6,189 +6,153 @@
 :APPS_URL: %apps_url%
 :API_URL: %api_url%
 
-== Backing up multiple namespace and a subset of resources
+== Backing up multiple volumes using VolumeSnapshotMover
 
-In previous exercises, we backed up by selecting namespaces using `--include-namespaces` flag from Velero CLI, separating each namespace by `,`.  In this exercise, we will be backing up by types of resources and not every resource type in the entire namespace.
+In previous exercises, we backed up applications using CSI, or Container Storage Interface.CSI volumes are now the industry standard and are the storage backing for most Cloud Native applications. However, issues concerning CSI volumes still remain. Some volumes have vendor-specific requirements, and can prevent proper portability and durability. VolumeSnapshotMover works to solve this case. 
 
-Using the flag `--include-resources`, we can specify types of resources to include in backup separated by `,`.
+During a backup using Velero with CSI, CSI snapshotting is performed. This snapshot is created on the storage provider where the snapshot was taken. This means that for some providers, such as ODF, the snapshot lives on the cluster. Due to this poor durability, in the case of a disaster scenario, the snapshot is also subjected to disaster.
 
+With volumeSnapshotMover, snapshots are relocated off of the cluster to the targeted backupStorageLocation (generally object storage), providing additional safety.
+
+=== Prerequisites
+Lets check the required components to perform the backup restore using VolumeSnapshotMover
+
+VolSync is a Kubernetes operator that performs asynchronous replication of persistent volumes within, or across, clusters. The replication provided by VolSync is independent of the storage system. This allows replication to and from storage types that don’t normally support remote replication. We will be using Volsync’s restic datamover.
+Volsync pre-deployed on your OCP 4 cluster in the `openshift-operators` namespace. Verify pre-deployed Volsync resources, 
+[source,bash,role=execute]
+----
+oc get deployments -n openshift-operators
+----
+
+VolumeSnapshotMover(VSM) controller is the CSI data mover orchestrator, it is deployed via the OADP Operator once the datamover feature is enabled. 
+
+Let's update DataProtectionApplication to enable datamover feature flag to true.
+[source,bash,role=execute]
+----
+oc -n openshift-adp patch --type='json' dpa example-dpa -p '[{"op": "add", "path": "/spec/features/dataMover/enable", "value": true}]'
+----
+
+Let's add VSM as velero 'defualtPlugin'
+[source,bash,role=execute]
+----
+oc -n openshift-adp patch --type='json' dpa example-dpa -p '[{"op": "add", "path": "/spec/configuration/velero/defaultPlugins/-", "value": 'vsm'}]'
+----
+
+CSI and VSM as velero 'defaultPlugins' is required to perform backup.
+Let's verify our changes
+[source,bash,role=execute]
+----
+oc get dpa example-dpa -n openshift-adp -o=jsonpath="{.spec.configuration.velero}"
+----
+
+In this exercise, we will backup namespace 'minimal-3csivol' using VolumeSnapshotMover. 
 In our source OCP 4 cluster terminal, we can see the app running:
-
 [source,bash,role=execute]
 ----
-oc get pods -n parks-app
-----
-
-[source,subs="{markup-in-source}"]
---------------------------------------------------------------------------------
-NAME               READY   STATUS      RESTARTS   AGE
-mongodb-1-qb6xw    1/1     Running     0          22h
-restify-1-fc59d    1/1     Running     0          22h
---------------------------------------------------------------------------------
-
-Check that Microsoft SQL Server Application is still running.
-[source,bash,role=execute]
-----
-oc get pods -n mssql-persistent
+oc get pods -n minimal-3csivol
 ----
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
-NAME                                    READY   STATUS    RESTARTS   AGE
-mssql-app-deployment-6ffb46c5d6-n5fvv   1/1     Running   0          41m
-mssql-deployment-1-xq4p4                1/1     Running   0          41m
+NAME                               READY   STATUS    RESTARTS   AGE
+minimal-3csivol-59f59dd6fc-xcd9r   1/1     Running   0          18h
 --------------------------------------------------------------------------------
 
-Let’s checkout the route to the applications user interfaces.
+Simialar to the namespace, this application has 3 persistent volume claims (PVC)
+[source,bash,role=execute]
+----
+oc get pvc -n minimal-3csivol
+----
+[source,subs="{markup-in-source}"]
+--------------------------------------------------------------------------------
+NAME      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+volume1   Bound    pvc-ab57fef6-3f31-4e6f-8c90-a0cac80d9950   1Gi        RWO            gp2-csi        18h
+volume2   Bound    pvc-2e845c79-03ac-4765-9bcd-94429c6090ac   1Gi        RWO            gp2-csi        18h
+volume3   Bound    pvc-c6d2a43a-b6f2-4cf0-9cbb-20aee29e19e3   1Gi        RWO            gp2-csi        18h
+--------------------------------------------------------------------------------
+
+=== Backup three volumes using volumesnapShotMover 
+
+The M-CSI plugin is extended to facilitate the data movement of CSI VolumeSnapshots(VS) from cluster to object storage.
 
 [source,bash,role=execute]
 ----
-oc get route -n parks-app
+velero backup create minimal-3csivol-1 --include-namespaces minimal-3csivol
 ----
-[source,bash,role=execute]
-----
-oc get route -n mssql-persistent
-----
-NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.{APPS_URL}[mssql-app] and http://restify-parks-app.{APPS_URL}[parks-app].
-
-Check that the routes are working correctly then proceed to the next section.
-
-=== Using Velero to backup application namespaces
-
-Let’s go ahead and create a backup of `mssql-persistent` and `parks-app` namespace, selecting only deployments and deploymentconfig resources.
-[source,bash,role=execute-2]
-----
-velero backup create two-ns-deployment-n-dconfig-backup --include-namespaces mssql-persistent,parks-app --include-resources deployments,deploymentconfig
-----
-
 You can check on the backup progress by running the following
 [source,bash,role=execute]
 ----
-velero backup describe two-ns-deployment-n-dconfig-backup
+velero backup describe minimal-3csivol-1
 ----
+
+When the Velero Backup is triggered, the M-CSI plugin creates a VS for each PersistentVolumeClaim (PVC) to be backed up.
+Now for the created VS, the M-CSI plugin fetches the associated VolumeSnapshotContent (VSC) and adds it as an additional item to be backed up.
+
+In this case, we have three pvc, therefore; three volumesnapShots(VS) and three associated VolumeSnapshotContents(VSC)
+[source,bash,role=execute]
+----
+oc get vsc --sort-by=.metadata.creationTimestamp | tail -n 3
+----
+
+Subsequently, the M-CSI plugin then checks whether there is a VolumeSnapshotBackup (VSB) instance associated with the VSC that was added as an additional item, if there isn't one then the M-CSI plugin creates a VSB for each VSC.
+[source,bash,role=execute]
+----
+oc get vsb -n minimal-3csivol  --sort-by=.metadata.creationTimestamp  | tail -n 3
+----
+
+The creation of a VSB triggers the data movement process as the VolumeSnapshotMover (VSM) controller begins to reconcile on this VSB instance.
+VSM first validates the VSB, then copies the VSC, followed by VS and finally the PVC into the namespace where OADP Operator resides. Once this is done the VSM controller uses the PVC as a datasource and creates a Volsync ReplicationSource CR.
+Volsync reconciles on ReplicationSource CR and then Volsync’s restic mover begins the transfer of data from cluster to the target object storage.
+
+Since the time when VSB is created and data movement is started, Velero backup waits for Volsync to complete the data movement, once that's done VSB is marked complete.
+Let's check the latest vsb's status phase
+[source,bash,role=execute]
+----
+LATEST_VSB=$(oc get vsb -n minimal-3csivol  --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
+oc get $LATEST_VSB -n minimal-3csivol -ojsonpath="{.status.phase}"
+----
+
+Consequently the backup is marked complete by Velero.
+[source,bash,role=execute]
+----
+velero backup describe minimal-3csivol-1 | grep Phase:
+----
+
 When the backup `Phase:` is `Completed`., proceed to next section.
 
-=== Viewing backup content in S3 storage
-Backup content is stored in S3 storage in the specified content in the prefix location under folder backup inside the backup name's folder.
+One point to note is that, VSM controller deletes all the extraneous resources that were created during the data mover backup process.
 
-`<bucket>/<velero-prefix>/backups/<backup-name>/<backup-content>`
+Visual discription of the steps we performed. For more information please checkout https://cloud.redhat.com/blog/a-technical-overview-of-volumesnapshotmover[A Technical Overview of VolumeSnapshotMover]
 
-[source,bash,role=execute]
-----
-awsocs s3 ls migstorage/velero/backups/two-ns-deployment-n-dconfig-backup/
-----
-=== A snapshot was taken
-When a backup includes a persistent volume claim, a snapshot is created provided you have configured Velero to take snapshots.
-View persistent volume claim in the namespace `mssql-persistent` and `parks-app`.
-[source,bash,role=execute]
-----
-oc get pvc -n mssql-persistent
-oc get pvc -n parks-app
-----
-View VolumeSnapshot taken.
-[source,bash,role=execute]
-----
-NEWEST_VS_MSSQL=$(oc get volumesnapshot -n mssql-persistent --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
-NEWEST_VS_PARKS=$(oc get volumesnapshot -n parks-app --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
-oc get $NEWEST_VS_MSSQL -n mssql-persistent 
-oc get $NEWEST_VS_PARKS -n parks-app
-----
-View VolumeSnapshotContent.
-[source,bash,role=execute]
-----
-MSSQL_VS_CONTENT_NAME=$(oc get $NEWEST_VS_MSSQL -n mssql-persistent -o go-template='{{.status.boundVolumeSnapshotContentName}}')
-PARKS_VS_CONTENT_NAME=$(oc get $NEWEST_VS_PARKS -n parks-app -o go-template='{{.status.boundVolumeSnapshotContentName}}')
-oc get volumesnapshotcontent $MSSQL_VS_CONTENT_NAME
-oc get volumesnapshotcontent $PARKS_VS_CONTENT_NAME
-----
-
-=== About Velero CSI Snapshots
-The backup we did just now of the parks-app and mssql namespace used CSI snapshot capability of Velero to create snapshot on AWS EBS and OpenShift Storage Ceph Rados Block Device (RBD) using their respective CSI Drivers
-
-The details were explained in the first exercise.
-
-The namespace parks-app we backup earlier contained a persistent volume claim that has storage class `gp2-csi` so that the snapshot was created using the AWS EBS CSI Driver.
-
-View persistent volume claim in the namespace `mssql-persistent` and `parks-app`.
-[source,bash,role=execute]
-----
-oc get pvc -n mssql-persistent
-oc get pvc -n parks-app
-----
-View VolumeSnapshot taken.
-[source,bash,role=execute]
-----
-NEWEST_VS_MSSQL=$(oc get volumesnapshot -n mssql-persistent --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
-NEWEST_VS_PARKS=$(oc get volumesnapshot -n parks-app --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
-oc get $NEWEST_VS_MSSQL -n mssql-persistent 
-oc get $NEWEST_VS_PARKS -n parks-app
-----
-View VolumeSnapshotContent created.
-[source,bash,role=execute]
-----
-MSSQL_VS_CONTENT_NAME=$(oc get $NEWEST_VS_MSSQL -n mssql-persistent -o go-template='{{.status.boundVolumeSnapshotContentName}}')
-PARKS_VS_CONTENT_NAME=$(oc get $NEWEST_VS_PARKS -n parks-app -o go-template='{{.status.boundVolumeSnapshotContentName}}')
-oc get volumesnapshotcontent $MSSQL_VS_CONTENT_NAME
-oc get volumesnapshotcontent $PARKS_VS_CONTENT_NAME
-----
-
-This storage class has provisioner `ebs.csi.aws.com`
-[source,bash,role=execute]
-----
-oc get storageclass gp2-csi
-----
-
-which is one of the CSI driver installed on the system
-[source,bash,role=execute]
-----
-oc get csidrivers
-----
-
-CSI Snapshot is local to the cluster. In the future, a DataMover capability will be added to allow for moving snapshots to an external location.
+image:../screenshots/lab5/datamoverBackup.png[Datamover backup]
 
 === Simulate a disaster
-When the backup `Phase:` is `Completed`., we'll proceed to simulate a disaster by deleting the backedup resources.
 [source,bash,role=execute]
 ----
-oc delete deploymentconfig mssql-deployment -n mssql-persistent
+oc delete ns minimal-3csivol
 ----
-[source,bash,role=execute]
-----
-oc delete deploymentconfig mongodb restify -n parks-app
-----
-[source,bash,role=execute]
-----
-oc delete deployment mssql-app-deployment -n mssql-persistent
-----
-
-Check that the applications are no longer available.
-
-NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.{APPS_URL}[mssql-app] and http://restify-parks-app.{APPS_URL}[parks-app].
-
 When application is no longer available, proceed to next section.
 
-=== Restoring deleted application
+=== Backup deleted application
+
 We can restore applications deleted earlier by restoring from the backup we created.
 [source,bash,role=execute]
 ----
-velero restore create two-ns-deployment-n-dconfig-restore --from-backup two-ns-deployment-n-dconfig-backup
+velero restore create minimal-3csivol-restore-1 --from-backup minimal-3csivol-1
 ----
 
-We can check when the restore is completed by running the following. The restore is complete when `Phase:` is `Completed`.
+As mentioned previously, during backup, a VSB custom resource is stored as a backup object. This CR contains details pertinent to performing a volumeSnapshotMover restore.
+
+Once a VSB CR is encountered, a VSR CR is created by the M-CSI plugin. The VSM controller then begins to reconcile on the VSR CR.
 [source,bash,role=execute]
 ----
-velero restore describe two-ns-deployment-n-dconfig-restore
+oc get vsr -n minimal-3csivol  --sort-by=.metadata.creationTimestamp  | tail -n 3
 ----
 
-Wait until pods become available.
-[source,bash,role=execute]
-----
-oc get pods -n mssql-persistent
-----
-[source,bash,role=execute]
-----
-oc get pods -n parks-app
-----
+Here, a VolSync ReplicationDestination is created by the VSM controller in the OADP Operator namespace. This CR will recover the VolumeSnapshot that was stored in the object storage location during backup.
 
-Verify that the data you added earlier persisted in the restored application.
+After the VolSync restore step completes, the Velero restore continues as usual. However, the M-CSI plugin uses the VolSync VolumeSnapshot's snapHandle as the data source for its associated PVC. 
 
-NOTE: You can also use links here to open application routes http://mssql-app-route-mssql-persistent.{APPS_URL}[mssql-app] and http://restify-parks-app.{APPS_URL}[parks-app].
+The stateful application data is then restored, and disaster is averted.
+
+Visual discription of the steps we performed. 
+image:../screenshots/lab5/datamoverRestore.png[Datamover restore]

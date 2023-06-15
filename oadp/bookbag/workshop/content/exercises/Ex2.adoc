@@ -6,7 +6,7 @@
 :APPS_URL: %apps_url%
 :API_URL: %api_url%
 
-== Backing up single namespace
+== Backing up single namespace - CSI Volume Snapshotting with AWS EBS
 
 We are going to protect a Todo List web-based application front-end, backed by MariaDB Server. This application has been pre-deployed on your OCP 4 cluster in the `mysql-persistent` namespace.
 In our source OCP 4 cluster terminal, we can see the app running:
@@ -73,6 +73,7 @@ Backup content is stored in S3 storage in the specified content in the prefix lo
 
 `<bucket>/<velero-prefix>/backups/<backup-name>/<backup-content>`
 
+Note: awsocs is an alias of `awsocs='aws --endpoint-url http://s3.openshift-storage.svc'`
 [source,bash,role=execute]
 ----
 awsocs s3 ls migstorage/velero/backups/mysql-backup/
