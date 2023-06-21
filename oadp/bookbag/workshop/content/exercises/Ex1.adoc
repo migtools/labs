@@ -71,6 +71,7 @@ Backup content is stored in S3 storage in the specified content in the prefix lo
 
 `<bucket>/<velero-prefix>/backups/<backup-name>/<backup-content>`
 
+Note: awsocs is an alias of `awsocs='aws --endpoint-url http://s3.openshift-storage.svc'`
 [source,bash,role=execute]
 ----
 awsocs s3 ls migstorage/velero/backups/nginx-backup/
@@ -101,7 +102,7 @@ velero restore create nginx-restore --from-backup nginx-backup
 We can check when the restore is completed by running the following. The restore is complete when `Phase:` is `Completed`.
 [source,bash,role=execute]
 ----
-velero restore describe nginx-restore
+velero restore describe nginx-restore && velero restore describe nginx-restore | grep Phase:
 ----
 
 Wait until pods become available.

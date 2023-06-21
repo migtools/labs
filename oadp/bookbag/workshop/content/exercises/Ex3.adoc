@@ -63,7 +63,7 @@ velero backup create two-ns-backup --include-namespaces nginx-example,mysql-pers
 You can check on the backup progress by running the following
 [source,bash,role=execute]
 ----
-velero backup describe two-ns-backup
+velero backup describe two-ns-backup && velero backup describe two-ns-backup | grep Phase:
 ----
 When the backup `Phase:` is `Completed`., proceed to next section.
 
@@ -130,7 +130,7 @@ NOTE: You can also use links here to open application routes http://my-nginx-ngi
 When application is no longer available, proceed to next section.
 
 === Restoring deleted application
-We can restore applications deleted earlier by restoring from the backup we created.
+We can restore applications deleted earlier from the backup we created.
 [source,bash,role=execute]
 ----
 velero restore create two-ns-restore --from-backup two-ns-backup
@@ -139,7 +139,7 @@ velero restore create two-ns-restore --from-backup two-ns-backup
 We can check when the restore is completed by running the following. The restore is complete when `Phase:` is `Completed`.
 [source,bash,role=execute]
 ----
-velero restore describe two-ns-restore
+velero restore describe two-ns-restore && velero restore describe two-ns-restore | grep Phase:
 ----
 
 Wait until pods become available.
@@ -155,3 +155,9 @@ oc get pods -n nginx-example
 Verify that the data you added earlier persisted in the restored application.
 
 NOTE: You can also use links here to open application routes http://my-nginx-nginx-example.{APPS_URL}[nginx-app] and http://todolist-route-mysql-persistent.{APPS_URL}[todolist-app].
+
+Before we move to the next exercise, let's clean the cluster by removing the resources created during the backup and restore process.
+[source,bash,role=execute]
+----
+velero delete backup --all && oc delete vsc --all
+----

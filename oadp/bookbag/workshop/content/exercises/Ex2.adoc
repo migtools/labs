@@ -93,11 +93,9 @@ In order to use CSI with velero, feature flag `EnableCSI` and plugin `csi` is re
 You can look at the velero configuration by running the following command:
 [source,bash,role=execute]
 ----
-oc get dpa example-dpa -n openshift-adp -o=jsonpath="{.spec.configuration.velero}"
+oc get dpa example-dpa -n openshift-adp -o=jsonpath="{.spec.configuration.velero}" && echo
 ----
-
 Aside from enabling CSI from Velero side, the volume that is going to be backed up must be using a CSI driver. A VolumeSnapshotClass object is also needed and has to specify the CSI driver along with the following label `velero.io/csi-volumesnapshot-class: 'true'`.
-
 
 See the storage class used by the application in the following command:
 [source,bash,role=execute]
@@ -120,7 +118,7 @@ oc get csidrivers
 We have added `velero.io/csi-volumesnapshot-class: 'true'` label to a VolumeSnapshotClass object for the `ebs.csi.aws.com` driver which were used by the application we had just backed up.
 [source,bash,role=execute]
 ----
-oc get VolumeSnapshotClass oadp-example-snapclass -ojsonpath='{.metadata.labels}'
+oc get VolumeSnapshotClass oadp-example-snapclass -ojsonpath='{.metadata.labels}' && echo
 ----
 
 Since the persistent volume specified in backup is using a CSI driver with the label, a volume snapshot was taken.
@@ -171,7 +169,7 @@ velero restore create mysql-restore --from-backup mysql-backup
 We can check when the restore is completed by running the following. The restore is complete when `Phase:` is `Completed`.
 [source,bash,role=execute]
 ----
-velero restore describe mysql-restore
+velero restore describe mysql-restore && velero restore describe mysql-restore | grep Phase: 
 ----
 
 Wait until pods become available.
