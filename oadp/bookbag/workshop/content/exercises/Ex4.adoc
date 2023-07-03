@@ -8,25 +8,26 @@
 
 == Backing up multiple volumes using VolumeSnapshotMover
 
-In previous exercises, we backed up applications using CSI, or Container Storage Interface.CSI volumes are now the industry standard and are the storage backing for most Cloud Native applications. However, issues concerning CSI volumes still remain. Some volumes have vendor-specific requirements, and can prevent proper portability and durability. VolumeSnapshotMover works to solve this case. 
+In the previous exercises, we backed up applications using CSI (Container Storage Interface). CSI volumes have become the industry standard and serve as the storage backing for most Cloud Native applications. However, certain issues persist with CSI volumes. Some volumes have vendor-specific requirements that can hinder proper portability and durability. To address this, the VolumeSnapshotMover was developed.
 
-During a backup using Velero with CSI, CSI snapshotting is performed. This snapshot is created on the storage provider where the snapshot was taken. This means that for some providers, such as ODF, the snapshot lives on the cluster. Due to this poor durability, in the case of a disaster scenario, the snapshot is also subjected to disaster.
+During a backup process using Velero with CSI, CSI snapshotting takes place. This snapshot is created on the storage provider where it was taken. As a result, in certain cases, such as ODF, the snapshot resides on the cluster itself. Unfortunately, this can lead to poor durability, meaning that in the event of a disaster, the snapshot is also at risk.
 
-With volumeSnapshotMover, snapshots are relocated off of the cluster to the targeted backupStorageLocation (generally object storage), providing additional safety.
+VolumeSnapshotMover solves this problem by relocating the snapshots from the cluster to a targeted backupStorageLocation, typically an object storage. This relocation provides an additional layer of safety.
 
 === Prerequisites
-Lets check the required components to perform the backup-restore using VolumeSnapshotMover
+Let's check the required components to perform the backup and restore using VolumeSnapshotMover.
 
-VolSync is a Kubernetes operator that performs asynchronous replication of persistent volumes within, or across, clusters. The replication provided by VolSync is independent of the storage system. This allows replication to and from storage types that don’t normally support remote replication. We will be using Volsync’s restic datamover.
-Volsync pre-deployed on your OCP 4 cluster in the `openshift-operators` namespace. Verify pre-deployed Volsync resources, 
+VolSync is a Kubernetes operator that facilitates asynchronous replication of persistent volumes within clusters or across multiple clusters. The replication offered by VolSync is storage-system-independent, enabling replication to and from storage types that typically do not support remote replication. In our case, we will be utilizing Volsync's restic datamover.
+
+Volsync is pre-deployed on your OCP 4 cluster within the openshift-operators namespace. Please verify the pre-deployed Volsync resources. 
 [source,bash,role=execute]
 ----
 oc get deployments -n openshift-operators
 ----
 
-VolumeSnapshotMover(VSM) controller is the CSI data mover orchestrator, it is deployed via the OADP Operator once the datamover feature is enabled. 
+VolumeSnapshotMover(VSM) controller is the CSI data mover orchestrator.  It is deployed through the OADP Operator once the datamover feature is enabled.
 
-Let's update DataProtectionApplication to enable datamover feature flag to true.
+Let's update DataProtectionApplication to enable the datamover feature flag to true.
 [source,bash,role=execute]
 ----
 oc -n openshift-adp patch --type='json' dpa example-dpa -p '[{"op": "add", "path": "/spec/features/dataMover/enable", "value": true}]'
@@ -38,21 +39,23 @@ Let's add VSM as velero 'defualtPlugin'
 oc -n openshift-adp patch --type='json' dpa example-dpa -p '[{"op": "add", "path": "/spec/configuration/velero/defaultPlugins/-", "value": 'vsm'}]'
 ----
 
-CSI and VSM as velero 'defaultPlugins' is required to perform backup.
-Verify recent changes 
+To perform the backup, both CSI and VSM need to be set as the 'defaultPlugins' for Velero. 
+Please verify the recent changes.
 [source,bash,role=execute]
 ----
 oc get dpa example-dpa -n openshift-adp -o=jsonpath="{.spec.configuration.velero}" && echo
 ----
 
-To expedite the dataMover process, let's take advantage of the newly developed Asynchronous Actions in Velero.
-Update the DPA by adding the 'maxConcurrentBackupVolumes' parameter, which introduces an upper limit to the number of snapshots that can be queued by OADP's VolumeSnapshotMover. For more information, refer to the documentation. https://github.com/migtools/volume-snapshot-mover/blob/master/docs/design/batching.md[Design: Batching VolumeSnapshotMover Backups and Restores] and https://access.redhat.com/documentation/en-us/openshift_container_platform/4.12/html-single/backup_and_restore/index#oadp-using-data-mover-for-csi-snapshots_backing-up-applications[public documentation link]
+Improve the performance of VolumeSnapshotMover backup and restore by allowing users to configure the `dpa.spec.dataMover.maxConcurrentBackupVolumes` parameter. This parameter introduces an upper limit to the number of `volumeSnapshotBackup` processes that can be simultaneously `inProgress` at once.
+
+By default, the value is set to 10. Let's change the value to 2 so that we can observe two CRs progressing at the same time while the third one waits for them to complete. For more information, refer to the documentation. https://github.com/migtools/volume-snapshot-mover/blob/master/docs/design/batching.md[Design: Batching VolumeSnapshotMover Backups and Restores] and https://access.redhat.com/documentation/en-us/openshift_container_platform/4.12/html-single/backup_and_restore/index#oadp-using-data-mover-for-csi-snapshots_backing-up-applications[public documentation link]
 [source,bash,role=execute]
 ----
-oc -n openshift-adp patch --type='json' dpa example-dpa -p '[{"op": "add", "path": "/spec/features/dataMover/maxConcurrentBackupVolumes", "value": "3"}]'
+oc -n openshift-adp patch --type='json' dpa example-dpa -p '[{"op": "add", "path": "/spec/features/dataMover/maxConcurrentBackupVolumes", "value": "2"}]'
 ----
 
 In this exercise, we will backup namespace 'minimal-3csivol' using VolumeSnapshotMover. 
+
 In our source OCP 4 cluster terminal, we can see the app running:
 [source,bash,role=execute]
 ----
@@ -64,7 +67,7 @@ NAME                               READY   STATUS    RESTARTS   AGE
 minimal-3csivol-59f59dd6fc-xcd9r   1/1     Running   0          18h
 --------------------------------------------------------------------------------
 
-Similar to the namespace, this application has 3 persistent volume claims (PVCs).
+As suggested by the name of the application namespace, this application has three persistent volume claims (PVCs).
 [source,bash,role=execute]
 ----
 oc get pvc -n minimal-3csivol
@@ -79,11 +82,11 @@ volume3   Bound    pvc-c6d2a43a-b6f2-4cf0-9cbb-20aee29e19e3   1Gi        RWO    
 
 === Backup three volumes using VolumeSnapshotMover
 
-For a step by step understanding please reference our https://cloud.redhat.com/blog/a-technical-overview-of-volumesnapshotmover[public blog]. For this demonstration we will summarize the backup workflow.  
+For a step by step understanding please reference our https://github.com/openshift/oadp-operator/blob/master/blogs/data-mover/data-mover-overview.md[public blog]. For this demonstration we will summarize the backup workflow.  
 
 The CSI plugin is extended to facilitate the data movement of CSI VolumeSnapshots(VS) from the cluster to object storage. When Velero backup is triggered, a snapshot of the application volume is created, followed by the associated VolumeSnapshotContent(VSC). This leads to the creation of a VolumeSnapshotBackup(VSB), which triggers the dataMover process as the VolumeSnapshotMover(VSM) controller begins reconciliation on these VSB instances.
 
-During the dataMover process, the VolumeSnapshotMover first validates the VSB and then copies the VSC, VS, and PVC to the protected namespace (default: openshift-adp). The VSM controller uses the cloned PVC as the dataSource and creates a VolSync ReplicationSource CR. VolSync then performs reconciliation on the ReplicationSource CR.
+During the dataMover process, the VolumeSnapshotMover first validates the VSB and then clone the VSC, followed by VS and PVC to the protected namespace (default: openshift-adp). The VSM controller uses the cloned PVC as the dataSource and creates a VolSync ReplicationSource CR. VolSync then performs reconciliation on the ReplicationSource CR.
 
 Subsequently, VolSync initiates the transfer of data from the cluster to the target Remote Storage. In this live demonstration, you will monitor the creation of both VolumeSnapshotBackup and VolumeSnapshotContent. Once the backup is completed, the VSB and VSC are transferred to S3 for the restore process. Finally, the VSM controller deletes all the extraneous resources that were created during the data mover backup process.
 
@@ -92,7 +95,7 @@ Before we trigger the backup process, let's run the script in the lower terminal
 ----
 wget https://raw.githubusercontent.com/openshift/oadp-operator/master/docs/examples/datamover_resources.sh 
 chmod +x datamover_resources.sh 
-./datamover_resources.sh -b
+watch ./datamover_resources.sh -b -d
 ----
 
 Let's create backup for namespace `minimal-3csivol-1`
@@ -114,13 +117,13 @@ Note: As mentioned earlier, the lifespan of some components lasts until the back
 In this case, we have three PVCs bound to different volumes respectively. For each PV, there is a VolumeSnapshot(VS) and associated VolumeSnapshotContents(VSC). 
 [source,bash,role=execute]
 ----
-oc get vsc --sort-by=.metadata.creationTimestamp | tail -n 3
+oc get vsc 
 ----
 
 Afterward, a VSB is created for each VSC.
 [source,bash,role=execute]
 ----
-oc get vsb -n minimal-3csivol  --sort-by=.metadata.creationTimestamp  | tail -n 3
+oc get vsb -n minimal-3csivol
 ----
 
 Let's check the current status phase of the latest VSB.
@@ -130,7 +133,7 @@ LATEST_VSB=$(oc get vsb -n minimal-3csivol  --sort-by=.metadata.creationTimestam
 oc get $LATEST_VSB -n minimal-3csivol -ojsonpath="{.status.phase}"
 ----
 
-As a result, Velero marks the backup as complete when the VSB phase is finished.
+Velero marks the backup as complete when the VSB phase is finished.
 [source,bash,role=execute]
 ----
 velero backup describe minimal-3csivol-1 | grep Phase:
@@ -148,15 +151,14 @@ When application is no longer available, proceed to next section.
 For a step by step understanding please reference our https://cloud.redhat.com/blog/a-technical-overview-of-volumesnapshotmover[public blog]. For this demonstration we will summarize the restore workflow. 
 
 Previously mentioned, during the backup process, a VSB custom resource is stored as a backup object that contains essential details for performing a volumeSnapshotMover restore.
-
-When a VSB CR is encountered, the CSI plugin generates a VSR CR. The VSM controller then begins to reconcile on the VSR CR. Furthermore, the VSM controller creates a VolSync ReplicationDestination CR in the OADP Operator namespace, which facilitates the recovery of the VolumeSnapshot stored in the object storage location during the backup.
+When a VSB CR is encountered, the VSM plugin generates a VSR CR. The VSM controller then begins to reconcile on the VSR CR. Furthermore, the VSM controller creates a VolSync ReplicationDestination CR in the OADP Operator namespace, which facilitates the recovery of the VolumeSnapshot stored in the object storage location during the backup.
 
 After the completion of the VolSync restore step, the Velero restore process continues as usual. However, the CSI plugin utilizes the snapHandle of the VolSync VolumeSnapshot as the data source for its corresponding PVC.
 
 Before we start the restore process, let's run the same script we ran earlier to monitor the restore process.
 [source,bash,role=execute-2]
 ----
-./datamover_resources.sh -r
+watch ./datamover_resources.sh -r -d
 ----
 
 We can restore application deleted earlier from the backup we created.

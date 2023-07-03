@@ -42,11 +42,11 @@ velero help
 
 You can also configure velero via kubernetes object json/yaml files using `oc` or `kubectl`. Click below for Velero API types references.
 
-- https://velero.io/docs/v1.7/api-types/backup/[Backup]
-- https://velero.io/docs/v1.7/api-types/restore/[Restore]
-- https://velero.io/docs/v1.7/api-types/schedule/[Schedule]
-- https://velero.io/docs/v1.7/api-types/backupstoragelocation/[BackupStorageLocation]
-- https://velero.io/docs/v1.7/api-types/volumesnapshotlocation/[VolumeSnapshotLocation]
+- https://velero.io/docs/v1.11/api-types/backup/ [Backup]
+- https://velero.io/docs/v1.11/api-types/restore/ [Restore]
+- https://velero.io/docs/v1.11/api-types/schedule/ [Schedule]
+- https://velero.io/docs/v1.11/api-types/backupstoragelocation/ [BackupStorageLocation]
+- https://velero.io/docs/v1.11/api-types/volumesnapshotlocation/ [VolumeSnapshotLocation]
 
 === Velero Plugins
 Velero supports the use of plugins to integrate with different storage systems, snapshot providers, and supporting backup and restore of additional types of resources.
@@ -58,8 +58,8 @@ There are mainly two categories of Velero plugins that can be specified while Ve
 
 - `defaultVeleroPlugins`:
 
-There are five types of default Velero plugins can be installed: 
-`AWS`, `GCP`, `Azure` and `OpenShift`, and `CSI`. For installation, 
+There are seven types of default Velero plugins can be installed: 
+`AWS`, `GCP`, `Azure`,`OpenShift`, `Kubevirt`,`CSI`, and `VSM`. For installation, 
 you need to specify them in the `oadp_v1alpha1_dpa_cr.yaml` file 
 during deployment.
 
@@ -114,14 +114,12 @@ We are providing a copy below for convenience.
 [width="100%",cols="11%,36%,53%",options="header",]
 |===
 |Property |Type |Description
-|BackupLocations |[] BackupLocation |BackupLocations defines the list of
-desired configuration to use for BackupStorageLocations
+|BackupLocations |https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#BackupLocation [[] BackupLocation] |Defines the list of configurations to use for `BackupStorageLocations`.
 
-|SnapshotLocations |[] SnapshotLocation |SnapshotLocations defines the
-list of desired configuration to use for VolumeSnapshotLocations
+|SnapshotLocations |https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#SnapshotLocation [[] SnapshotLocation] |Defines the list of configurations to use for `VolumeSnapshotLocations`.
 
-|UnsupportedOverrides |map [ UnsupportedImageKey ] string
-|UnsupportedOverrides can be used to override the deployed dependent
+|UnsupportedOverrides |https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#UnsupportedImageKey [map [ UnsupportedImageKey ] string]
+|Can be used to override the deployed dependent
 images for development
 
 |PodAnnotations |map [ string ] string |Used to add annotations to pods
@@ -139,9 +137,12 @@ DNSPolicy.
 |BackupImages |*bool |BackupImages is used to specify whether you want
 to deploy a registry for enabling backup and restore of images
 
-|Configuration |*ApplicationConfig |Configuration is used to configure
+|Configuration |https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#ApplicationConfig [*ApplicationConfig] |Configuration is used to configure
 the data protection application’s server config.
+
+|Features |https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#Features [*Features] |Define the configuration for the DPA to enable the Technology Preview features.
 |===
+https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#DataProtectionApplicationSpec [Complete schema definitions for the OADP API.]
 
 ==== BackupLocation
 
@@ -151,98 +152,130 @@ the data protection application’s server config.
 |name |metav1. ObjectMeta |
 
 |velero
-|[*velero.BackupStorageLocationSpec](https://velero.io/docs/v1.6/api-types/backupstoragelocation/)
-|Location to store volume snapshots. For further details, see [here] (
+|[*velero.BackupStorageLocationSpec](https://pkg.go.dev/github.com/vmware-tanzu/velero/pkg/apis/velero/v1#BackupStorageLocationSpec)
+|Location to store volume snapshots, as described in Backup Storage Location. For further details, see [here] (
 config/bsl_and_vsl.md).
+
+|bucket
+|[*CloudStorageLocation](https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#CloudStorage)
+|[Technology Preview] Automates creation of a bucket at some cloud storage providers for use as a backup storage location.  For further details, see [here](https://access.redhat.com/support/offerings/techpreview).
 |===
+https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#BackupLocation[Complete schema definitions for the type `BackupLocation`.]
 
-==== VolumeSnapshot
-
+====  SnapshotLocation
 [width="100%",cols="6%,48%,46%",options="header",]
 |===
 |Property |Type |Description
 |name |metav1. ObjectMeta |
 
 |velero
-|[*velero.VolumeSnapshotLocationSpec](https://velero.io/docs/v1.6/api-types/volumesnapshotlocation/)
-|Location to store volume snapshots. For further details, see [here] (
+|[*VolumeSnapshotLocationSpec](https://velero.io/docs/v1.6/api-types/volumesnapshotlocation/)
+|Location to store volume snapshots, as described in Volume Snapshot Location. For further details, see [here] (
 config/bsl_and_vsl.md).
 |===
+https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#SnapshotLocation [Complete schema definitions for the type `SnapshotLocation`.]
 
 ==== ApplicationConfig (DataProtectionApplicationSpec.Configuration)
 
 [cols=",,",options="header",]
 |===
 |Property |Type |Description
-|velero |*VeleroConfig |This defines the configuration for the Velero
-server
+|velero |*VeleroConfig |Defines the configuration for the Velero server.
 
-|restic |*resticConfig |This defines the configuration for the Restic
-server
+|restic |*resticConfig |Defines the configuration for the Restic server.
 |===
+https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#ApplicationConfig[Complete schema definitions for the type `ApplicationConfig`.]
 
 ==== VeleroConfig
 
 [width="100%",cols="11%,8%,81%",options="header",]
 |===
 |Property |Type |Description
-|featureFlags |[] string |FeatureFlags defines the list of features to
-enable for Velero instance
+|featureFlags |[] string |Defines the list of features to enable for the Velero instance.
 
-|defaultPlugins |[] string |Five types of default Velero plugins can be
-installed: `AWS` , `GCP` , `Azure` and `OpenShift` , and `CSI` . See
-[here] ( config/plugins.md) for further information.
+|defaultPlugins |[] string |The following types of default Velero plugins can be installed: `aws`,`azure`, `csi`, `gcp`, `kubevirt`, `openshift`, and `vsm`.
 
 |customPlugins |map [string]interface\{} |Used for installation of
 custom Velero plugins. See [here] ( config/plugins.md) for further
 information.
 
-|restoreResourcesVersionPriority |string |RestoreResourceVersionPriority
-represents a configmap that will be created if defined for use in
+|restoreResourcesVersionPriority |string |Represents a configmap that will be created if defined for use in
 conjunction with `EnableAPIGroupVersions` feature flag. Defining this
-field automatically add EnableAPIGroupVersions to the velero server
+field automatically addS `EnableAPIGroupVersions` to the velero server
 feature flag
 
-|noDefaultBackupLocation |bool |If you need to install Velero without a
-default backup storage location NoDefaultBackupLocation flag is required
-for confirmation
+|noDefaultBackupLocation |bool |To install Velero without a default backup storage location, you must set the noDefaultBackupLocation flag in order to confirm installation.
 
-|podConfig |*PodConfig |Velero Pod specific configuration
+|podConfig |*PodConfig |Defines the configuration of the Velero pod.
+
+|logLevel |string |Velero server’s log level (use debug for the most granular logging, leave unset for Velero default). Valid options are `trace`, `debug`, `info`, `warning`, `error`, `fatal`, and `panic`.
 |===
+https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#VeleroConfig [Complete schema definitions for the type `VeleroConfig`.]
+
+==== CustomPlugin 
+
+[width="100%",cols="19%,11%,70%",options="header",]
+|===
+|Property |Type |Description
+|name |string |Name of custom plugin.
+|image |string |Image of custom plugin.
+|===
+https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#CustomPlugin [Complete schema definitions for the type `CustomPlugin`.]
 
 ==== ResticConfig
 
 [width="100%",cols="19%,11%,70%",options="header",]
 |===
 |Property |Type |Description
-|enable |*bool |Enables backup/restore using Restic. If set to false,
-snapshots are needed.
+|enable |*bool |If set to `true`, enables backup and restore using Restic. If set to `false`, snapshots are needed.
 
-|supplementalGroups |[]int64 |SupplementalGroups defines the linux
-groups to be applied to the Restic Pod
+|supplementalGroups |[]int64 |Defines the linux
+groups to be applied to the Restic Pod.
 
 |timeout |string |Timeout defines the Restic timeout, default value is
 1h
 
-|PodConfig |*PodConfig |Restic Pod specific configuration
+|PodConfig |*PodConfig |Defines the configuration of the Restic pod.
 |===
+https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#ResticConfig [Complete schema definitions for the type `ResticConfig`.]
 
 ==== PodConfig
 
 [width="100%",cols="9%,36%,55%",options="header",]
 |===
 |Property |Type |Description
-|nodeSelector |map [ string ] string |NodeSelector defines the
-nodeSelector to be supplied to Velero/Restic podSpec
+|nodeSelector |map [ string ] string |Defines the nodeSelector to be supplied to a `Velero podSpec` or a `Restic podSpec`.
 
 |tolerations |https://pkg.go.dev/k8s.io/api/core/v1#Toleration[[]corev1.
-Toleration] |Tolerations defines the list of tolerations to be applied
-to Velero Deployment/Restic daemonset
+Toleration] |Defines the list of tolerations to be applied
+to a Velero Deployment/Restic daemonset.
 
 |resourceAllocations
 |https://pkg.go.dev/k8s.io/api/core/v1#ResourceRequirements[corev1.ResourceRequirements]
 |Set specific resource `limits` and `requests` for the Velero/Restic
-pods. For more information, go [here] ( config/resource_req_limits.md).
+pods as described in Setting Velero CPU and memory resource allocations. For more information, go [here] (config/resource_req_limits.md).
+
+|labels |map [ string ] string | Labels to add to pods.
+|===
+https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#PodConfig [Complete schema definitions for the type `PodConfig`.]
+
+==== Features
+
+[width="100%",cols="9%,36%,55%",options="header",]
+|===
+|Property |Type |Description
+|dataMover |*DataMover | Defines the configuration of the Data Mover.
+|===
+https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#Features [Complete schema definitions for the type `Features`.]
+
+==== DataMover
+
+[width="100%",cols="9%,36%,55%",options="header",]
+|===
+|Property |Type |Description
+|enable |*bool |If set to `true`, deploys the volume snapshot mover controller and a modified CSI Data Mover plugin. If set to `false`, these are not deployed.
+|credentialName |string |User-supplied Restic `Secret` name for Data Mover.
+|timeout |string |A user-supplied duration string for `VolumeSnapshotBackup` and `VolumeSnapshotRestore` to complete. Default is 10m (10 minutes). 
 |===
 
 See also

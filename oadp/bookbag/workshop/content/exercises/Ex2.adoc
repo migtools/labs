@@ -8,9 +8,7 @@
 
 == Backing up single namespace - CSI Volume Snapshotting with AWS EBS
 
-We are going to protect a Todo List web-based application front-end, backed by MariaDB Server. This application has been pre-deployed on your OCP 4 cluster in the `mysql-persistent` namespace.
-In our source OCP 4 cluster terminal, we can see the app running:
-
+We will be protecting a Todo List web-based application front-end that is backed by MariaDB Server. This application has already been deployed on your OCP 4 cluster in the `mysql-persistent` namespace. In the terminal of our source OCP 4 cluster, we can observe the application running.
 [source,bash,role=execute]
 ----
 oc get pods -n mysql-persistent
@@ -24,14 +22,12 @@ todolist-1-6f7sl         1/1     Running     0          71s
 todolist-1-deploy        0/1     Completed   0          75s
 --------------------------------------------------------------------------------
 
-Let’s get the route to the application, and bring up the webUI.
-
+Let's obtain the route to the application and access the web UI.
 [source,bash,role=execute]
 ----
 oc get route -n mysql-persistent
 ----
 NOTE: You can also click http://todolist-route-mysql-persistent.{APPS_URL}[here] to open the application.
-
 
 [source,subs="{markup-in-source}"]
 --------------------------------------------------------------------------------
@@ -41,7 +37,7 @@ todolist-route   todolist-route-mysql-persistent.{APPS_URL}        /      todoli
 
 image:../screenshots/lab5/mysql-todolist-webUI.png[Mysql todolist webUi]
 
-Let’s go ahead and add a new activity to the todo-list. Click on the (+) Add button on the upper right corner to enter some data.
+Let’s add a new activity to the todo-list. Click on the (+) `Add button` on the upper right corner to enter some data.
 
 image:../screenshots/lab5/mysql-todolist-add.png[Mysql todolist Add]
 
@@ -51,18 +47,19 @@ image:../screenshots/lab5/mysql-todolist-added.png[Mysql todolist Added]
 
 === Using Velero to backup application namespace
 
-Let’s go ahead and create a backup of `mysql-persistent` namespace.
+Let's proceed with creating a backup of the `mysql-persistent` namespace.
 [source,bash,role=execute-2]
 ----
 velero backup create mysql-backup --include-namespaces mysql-persistent
 ----
 
-You can check on the backup progress by running the following
+You can monitor the progress of the backup by executing the following command.
 [source,bash,role=execute]
 ----
 velero backup describe mysql-backup
 ----
-When the backup `Phase:` is `Completed`., proceed to next section.
+
+When the backup `Phase:` is `Completed`, proceed to the next section.
 [source,bash,role=execute]
 ----
 velero backup describe mysql-backup | grep Phase:
@@ -123,18 +120,18 @@ oc get VolumeSnapshotClass oadp-example-snapclass -ojsonpath='{.metadata.labels}
 
 Since the persistent volume specified in backup is using a CSI driver with the label, a volume snapshot was taken.
 
-View VolumeSnapshot taken.
+NOTE: volumeSnapshot is immidiatly deleted after backup marks complete. 
+
+View VolumeSnapshot taken till the backup is `InProgress` stage
 [source,bash,role=execute]
 ----
-NEWEST_VS_MYSQL=$(oc get volumesnapshot -n mysql-persistent --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
-oc get $NEWEST_VS_MYSQL -n mysql-persistent
+ oc get volumesnapshot -n mysql-persistent 
 ----
 
 View VolumeSnapshotContent created.
 [source,bash,role=execute]
 ----
-VOLUME_SNAPSHOT_CONTENT_NAME=$(oc get $NEWEST_VS_MYSQL -n mysql-persistent -o go-template='{{.status.boundVolumeSnapshotContentName}}')
-oc get volumesnapshotcontent $VOLUME_SNAPSHOT_CONTENT_NAME
+oc get volumesnapshotcontent
 ----
 
 CSI Snapshot is local to the cluster. However, a DataMover capability in exercise III will allow snapshot moving to an external location.

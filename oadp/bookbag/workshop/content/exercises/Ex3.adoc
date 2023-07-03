@@ -8,10 +8,10 @@
 
 == Backing up multiple namespaces
 
-We backed up a single namespace using `--include-namespaces` flag from Velero CLI. This flag actually accepts a `stringArray`. We can backup multiple namespaces using the flag separating them by `,`.
+We backed up a single namespace using the --include-namespaces flag from the Velero CLI. This flag actually accepts a stringArray, allowing us to backup multiple namespaces by separating them with a comma.
 
-In previous exercises, we restored two namespaces `nginx-example` and `mysql-persistent`. Let's use those apps to perform backup of multiple namespace.
-In our source OCP 4 cluster terminal, we can see the app running:
+In the previous exercises, we restored two namespaces: nginx-example and mysql-persistent. Now, let's use those apps to perform a backup of multiple namespaces. 
+In our source OCP 4 cluster terminal, we can see the apps running.
 
 [source,bash,role=execute]
 ----
@@ -25,7 +25,7 @@ nginx-deployment-56b7785cc7-g8xfj   1/1     Running   0          2h
 nginx-deployment-56b7785cc7-q824n   1/1     Running   0          2h
 --------------------------------------------------------------------------------
 
-Check that todo list Application is still running.
+Check that the todo list Application is still running.
 [source,bash,role=execute]
 ----
 oc get pods -n mysql-persistent
@@ -50,28 +50,28 @@ oc get route -n mysql-persistent
 ----
 NOTE: You can also use links here to open application routes http://my-nginx-nginx-example.{APPS_URL}[nginx-app] and http://todolist-route-mysql-persistent.{APPS_URL}[todolist-app].
 
- Check that the routes are working correctly. Add a new activity to the todo-list app then proceed to the next section.
+Check that the routes are working correctly. Add a new activity to the todo-list app then proceed to the next section.
 
 === Using Velero to backup application namespaces
 
-Let’s go ahead and create a backup of `nginx-example` and `mysql-persistent` namespace.
+Let’s go ahead and create a backup of `nginx-example` and `mysql-persistent` namespaces.
 [source,bash,role=execute-2]
 ----
 velero backup create two-ns-backup --include-namespaces nginx-example,mysql-persistent
 ----
 
-You can check on the backup progress by running the following
+You can check on the backup progress by running the following.
 [source,bash,role=execute]
 ----
 velero backup describe two-ns-backup && velero backup describe two-ns-backup | grep Phase:
 ----
-When the backup `Phase:` is `Completed`., proceed to next section.
+When the backup `Phase:` is `Completed`, proceed to next section.
 
 === Viewing backup content in S3 storage
-Backup content is stored in S3 storage in the specified content in the prefix location under folder backup inside the backup name's folder.
+The backup content is stored in an S3 storage location specified by the content prefix. It is saved inside the 'backup' folder within the folder corresponding to the backup name.
 
 `<bucket>/<velero-prefix>/backups/<backup-name>/<backup-content>`
-
+Note: awsocs is an alias of `awsocs='aws --endpoint-url http://s3.openshift-storage.svc'`
 [source,bash,role=execute]
 ----
 awsocs s3 ls migstorage/velero/backups/two-ns-backup/
@@ -82,24 +82,27 @@ The backup we did of the two namespaces used CSI snapshot capability of Velero t
 
 The details were explained in the previous exercise 6.0.
 
-The namespace mysql-persistent we backup earlier contained a persistent volume claim that has storage class `gp2-csi` so that the snapshot was created using the AWS EBS CSI Driver. However, nginx is a simple stateless app which does not have pvc. In this case, we will not take any volumesnapShot, and cluster resources from the namespace `nginx-example` will be restored from the S3 bucket.
+The namespace mysql-persistent that we backed up earlier contained a persistent volume claim with the storage class gp2-csi. As a result, the snapshot was created using the AWS EBS CSI Driver. However, nginx is a simple stateless app that does not have a PVC. In this case, we will not take any volume snapshots, and the cluster resources from the namespace nginx-example will be restored directly from the S3 bucket.
+
 View persistent volume claim in the namespace `mysql-persistent`.
 [source,bash,role=execute]
 ----
 oc get pvc -n mysql-persistent
 ----
-View VolumeSnapshot taken.
+
+NOTE: volumeSnapshot is immidiatly deleted after backup marks complete. 
+
+View VolumeSnapshot taken till the backup is `InProgress` stage.
 [source,bash,role=execute]
 ----
-NEWEST_VS_MYSQL=$(oc get volumesnapshot -n mysql-persistent --sort-by=.metadata.creationTimestamp -o name | tail -n 1)
-oc get $NEWEST_VS_MYSQL -n mysql-persistent 
-
+oc get volumesnapshot -n mysql-persistent --sort-by=.metadata.creationTimestamp -o name | tail -n 1
 ----
+
 View VolumeSnapshotContent created.
 [source,bash,role=execute]
 ----
 MYSQL_VS_CONTENT_NAME=$(oc get $NEWEST_VS_MYSQL -n mysql-persistent -o go-template='{{.status.boundVolumeSnapshotContentName}}')
-oc get volumesnapshotcontent $MYSQL_VS_CONTENT_NAME
+oc get volumesnapshotcontent --sort-by=.metadata.creationTimestamp -o name | tail -n 1
 ----
 
 This storage class has provisioner `ebs.csi.aws.com`
@@ -114,10 +117,11 @@ which is one of the CSI driver installed on the system
 oc get csidrivers
 ----
 
-CSI Snapshot is local to the cluster. In the future, a DataMover capability will be added to allow for moving snapshots to an external location.
+A CSI Snapshot is local to the cluster. In the future, a DataMover capability will be added to allow for the movement of snapshots to an external location.
 
 === Simulate a disaster
 When the backup `Phase:` is `Completed`., we'll proceed to simulate a disaster by deleting the two namespaces.
+
 [source,bash,role=execute]
 ----
 oc delete ns mysql-persistent nginx-example
@@ -130,7 +134,7 @@ NOTE: You can also use links here to open application routes http://my-nginx-ngi
 When application is no longer available, proceed to next section.
 
 === Restoring deleted application
-We can restore applications deleted earlier from the backup we created.
+We can restore the applications that were previously deleted using the backup we created.
 [source,bash,role=execute]
 ----
 velero restore create two-ns-restore --from-backup two-ns-backup
@@ -159,5 +163,5 @@ NOTE: You can also use links here to open application routes http://my-nginx-ngi
 Before we move to the next exercise, let's clean the cluster by removing the resources created during the backup and restore process.
 [source,bash,role=execute]
 ----
-velero delete backup --all && oc delete vsc --all
+velero delete backup --all && oc delete vsc --all 
 ----

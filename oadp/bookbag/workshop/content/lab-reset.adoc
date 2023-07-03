@@ -2,7 +2,8 @@
 [source,bash,role=execute]
 ----
 velero delete backup --all --confirm
-oc delete ns mssql-persistent parks-app
-oc apply -f apps/mssql-persistent/mssql-persistent-template.yaml
-oc apply -f apps/parks-app/manifest.yaml
+oc delete ns mysql-persistent nginx-example minimal-3csivol
+oc apply -f apps/mysql-persistent/mysql-persistent-csi.yaml
+oc apply -f apps/nginx-stateless/nginx-stateless-template.yaml
+oc apply -f apps/data-mover-example/minimal-3csivol.yaml
 ----

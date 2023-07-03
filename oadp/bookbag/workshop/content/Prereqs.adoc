@@ -36,11 +36,11 @@ Required versions of products used:
 [cols=",",options="header",]
 |===
 |Product |Versions
-|OpenShift Server 4.x |v4.7+
-|OpenShift Client 4.x |v4.7+
-|OADP |v0.5.1+
-|velero server |v1.7.0+
-|velero client |v1.7.0+
+|OpenShift Server 4.x |v4.11+
+|OpenShift Client 4.x |v4.11+
+|OADP |v1.2.0+
+|velero server |v1.9.0+
+|velero client |v1.9.0+
 |===
 
 We are now ready to learn how to create backup and restores using Velero
