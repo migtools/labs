@@ -120,12 +120,12 @@ oc get VolumeSnapshotClass oadp-example-snapclass -ojsonpath='{.metadata.labels}
 
 Since the persistent volume specified in backup is using a CSI driver with the label, a volume snapshot was taken.
 
-NOTE: volumeSnapshot is immidiatly deleted after backup marks complete. 
+NOTE: volumeSnapshot is immediately deleted after backup marks complete.
 
 View VolumeSnapshot taken till the backup is `InProgress` stage
 [source,bash,role=execute]
 ----
- oc get volumesnapshot -n mysql-persistent 
+ oc get volumesnapshot -n mysql-persistent
 ----
 
 View VolumeSnapshotContent created.
@@ -166,7 +166,7 @@ velero restore create mysql-restore --from-backup mysql-backup
 We can check when the restore is completed by running the following. The restore is complete when `Phase:` is `Completed`.
 [source,bash,role=execute]
 ----
-velero restore describe mysql-restore && velero restore describe mysql-restore | grep Phase: 
+velero restore describe mysql-restore && velero restore describe mysql-restore | grep Phase:
 ----
 
 Wait until pods become available.

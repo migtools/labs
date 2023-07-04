@@ -1,0 +1,17 @@
+FROM python:3.11.4-slim-bullseye
+
+WORKDIR /oadp/
+
+RUN pip install codespell[toml]>=2.2.5
+
+CMD codespell \
+    --check-filenames \
+    --check-hidden \
+    --skip .git,*.png,*.jpg \
+    --ignore-words-list master \
+    --count \
+    --summary \
+    --builtin "clear,rare,informal,usage,code,names"
+
+# docker image build --tag codespell - < Dockerfile.codespell
+# docker container run --rm -it -v "./oadp/:/oadp" codespell
