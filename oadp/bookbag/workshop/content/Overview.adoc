@@ -9,7 +9,6 @@ The OpenShift API for Data Protection (OADP) is an Operator that helps you defin
 
 === What problem is OADP attempting to solve?
 OADP enables backup, restore, and disaster recovery of applications on an OpenShift cluster. Data that can be protected with OADP include k8s resource objects, persistent volumes, and internal images.
-The OpenShift API for Data Protection (OADP) is designed to protect Application Workloads on a single OpenShift cluster.
 image:slides/OADP Solution Overview/9.jpg[problem overview]
 
 If you want to migrate data between clusters, please look into the https://access.redhat.com/documentation/en-us/openshift_container_platform/4.8/html/migration_toolkit_for_containers[Migration Toolkit for Containers project (MTC)].
@@ -18,7 +17,7 @@ If you want to migrate data between clusters, please look into the https://acces
 image:slides/OADP Architecture/4.jpg[]
 
 === Requirements
-* ObjectStorage - AWS, GCP, and Azure. Other S3 compatible providers are available as an option with OpenShift Data Foundation which includes multicloud gateway for multicloud portability.
+* ObjectStorage - AWS or any S3 compatible object storage eg minio, GCP, and Azure. Other S3 compatible providers are available as an option with OpenShift Data Foundation which includes multicloud gateway for multicloud portability.
 ** Needed for backup and restore of kubernetes resources and internal images.
 
 * `cluster-admin` role is required to use OADP. Non-admin usage is on the roadmap for future iterations.

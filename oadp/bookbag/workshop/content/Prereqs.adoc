@@ -43,4 +43,4 @@ Required versions of products used:
 |velero client |v1.11.0+
 |===
 
-We are now ready to learn how to create backup and restores using Velero
+We are now ready to learn how to create backups and restores using OADP
