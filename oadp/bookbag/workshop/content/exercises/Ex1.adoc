@@ -127,3 +127,7 @@ oc get all -n nginx-example > nginx-running-after.txt
 ----
 
 Compare `nginx-running-before.txt` and `nginx-running-after.txt` and verify resources.
+[source,bash,role=execute]
+----
+diff -uNr nginx-running-before.txt nginx-running-after.txt
+----
