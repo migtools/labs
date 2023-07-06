@@ -58,7 +58,7 @@ There are mainly two categories of Velero plugins that can be specified while Ve
 - `defaultVeleroPlugins`
 - `customVeleroPlugins`
 
-There are several default Velero plugins can be installed: 
+There are several default OADP validated/provided Velero plugins that can be installed: 
 `AWS`, `GCP`, `Azure`,`OpenShift`, `Kubevirt`,`CSI`, and `VSM`. For installation, 
 you need to specify them in the `oadp_v1alpha1_dpa_cr.yaml` file 
 during deployment.
