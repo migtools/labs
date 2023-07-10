@@ -6,7 +6,7 @@
 :APPS_URL: %apps_url%
 :API_URL: %api_url%
 
-== Backing up single namespace - CSI Volume Snapshotting with AWS EBS
+== Backing up single namespace - CSI Volume Snapshotting
 
 We will be protecting a Todo List web-based application front-end that is backed by MariaDB Server. This application has already been deployed on your OCP 4 cluster in the `mysql-persistent` namespace. In the terminal of our source OCP 4 cluster, we can observe the application running.
 [source,bash,role=execute]
