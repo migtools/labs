@@ -53,12 +53,12 @@ Velero supports the use of plugins to integrate with different storage systems, 
 
 For server installation, velero will require at least one plugin is either of the type object store or volume snapshotter, or a plugin that contains both. Exception to this is if you will not be configuring a backup storage location or a snapshot location at install time.
 
-To install plugins to Velero server, you will specify in the fields below.
 There are mainly two categories of Velero plugins that can be specified while Velero:
 
-- `defaultVeleroPlugins`:
+- `defaultVeleroPlugins`
+- `customVeleroPlugins`
 
-There are seven types of default Velero plugins can be installed: 
+There are several default OADP validated/provided Velero plugins that can be installed: 
 `AWS`, `GCP`, `Azure`,`OpenShift`, `Kubevirt`,`CSI`, and `VSM`. For installation, 
 you need to specify them in the `oadp_v1alpha1_dpa_cr.yaml` file 
 during deployment.
