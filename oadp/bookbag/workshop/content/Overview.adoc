@@ -51,7 +51,7 @@ You can also configure velero via kubernetes object json/yaml files using `oc` o
 === Velero Plugins
 Velero supports the use of plugins to integrate with different storage systems, snapshot providers, and supporting backup and restore of additional types of resources.
 
-For server installation, velero will require at least one plugin is either of the type object store or volume snapshotter, or a plugin that contains both. Exception to this is if you will not be configuring a backup storage location or a snapshot location at install time.
+For server installation, velero will require at least one object store plugin. Exception to this is if you will not be configuring a backup storage location.
 
 There are mainly two categories of Velero plugins that can be specified while Velero:
 
