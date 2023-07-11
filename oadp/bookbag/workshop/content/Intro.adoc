@@ -8,9 +8,7 @@ We will guide you through a series of exercises running backups of application w
 
 In this instructor-led, hands-on lab, you’ll experience:
 
-
 * Backing up and restoring applications running on https://www.redhat.com/en/openshift-4[OpenShift Container Platform 4] using various selectors to protect specific workloads.
-
 
 * Tips, techniques, and best-practices for debugging failed backup and restore operations.
 
