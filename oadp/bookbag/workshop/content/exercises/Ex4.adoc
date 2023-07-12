@@ -17,9 +17,9 @@ OADP CSI Datamover solves this problem by relocating the snapshots from the clus
 === Prerequisites
 Let's check the required components to perform the backup and restore using OADP CSI Datamover
 
-VolSync is a Kubernetes operator that facilitates asynchronous replication of persistent volumes within clusters or across multiple clusters. The replication offered by VolSync is storage-system-independent, enabling replication to and from storage types that typically do not support remote replication. In our case, we will be utilizing Volsync's restic datamover.
+VolSync is a Kubernetes operator that facilitates asynchronous replication of persistent volumes within clusters or across multiple clusters. The replication offered by VolSync is storage-system-independent, enabling replication to and from storage types that typically do not support remote replication. In our case, we will be utilizing VolSync's restic datamover.
 
-Volsync is pre-deployed on your OCP 4 cluster within the openshift-operators namespace. Please verify the pre-deployed Volsync resources.
+VolSync is pre-deployed on your OCP 4 cluster within the openshift-operators namespace. Please verify the pre-deployed VolSync resources.
 [source,bash,role=execute]
 ----
 oc get deployments -n openshift-operators

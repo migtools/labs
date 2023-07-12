@@ -39,7 +39,7 @@ See available commands:
 velero help
 ----
 
-You can also configure velero via kubernetes object json/yaml files using `oc` or `kubectl`. Click below for Velero API types references.
+You can also configure velero via Kubernetes object json/yaml files using `oc` or `kubectl`. Click below for Velero API types references.
 
 - https://velero.io/docs/v1.11/api-types/backup/[Backup]
 - https://velero.io/docs/v1.11/api-types/restore/[Restore]

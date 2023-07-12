@@ -7,7 +7,7 @@
     * learned how to use various velero selectors (namespace, kinds, labels, etc.)
 * Backed up and restore applications (stateless and stateful) on OpenShift 4 on AWS
 * Learned about enabling backup of Persistent Volumes using CSI plugin
-  * Snapshotting Openshift Ceph RBD volumes
+  * Snapshotting OpenShift Ceph RBD volumes
   * Snapshotting AWS EBS volumes
 
 === More Information
