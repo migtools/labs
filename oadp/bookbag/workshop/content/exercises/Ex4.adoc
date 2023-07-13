@@ -25,7 +25,7 @@ Volsync is pre-deployed on your OCP 4 cluster within the openshift-operators nam
 oc get deployments -n openshift-operators
 ----
 
-VolumeSnapshotMover(VSM) controller is the CSI Data Mover orchestrator.  It is deployed through the OADP Operator once the datamover feature is enabled.
+VolumeSnapshotMover(VSM) controller is a CSI Data Mover orchestrator.  It is deployed through the OADP Operator once the datamover feature is enabled.
 
 Let's update DataProtectionApplication to enable the datamover feature flag to true.
 [source,bash,role=execute]
