@@ -6,16 +6,16 @@
 :APPS_URL: %apps_url%
 :API_URL: %api_url%
 
-== Backing up multiple volumes using OADP CSI Datamover
+== Backing up multiple volumes using Data Mover
 
 In the previous exercises, we backed up applications using CSI (Container Storage Interface). CSI volumes have become the industry standard and serve as the storage backing for most Cloud Native applications. However, certain issues persist with CSI volumes. Some volumes have vendor-specific requirements that can hinder proper portability and durability. To address this, the VolumeSnapshotMover was developed.
 
 During a backup process using Velero with CSI, CSI snapshotting takes place. This snapshot is created on the storage provider where it was taken. As a result, in certain cases, such as ODF, the snapshot resides on the cluster itself. Unfortunately, this can lead to poor durability, meaning that in the event of a disaster, the snapshot is also at risk.
 
-OADP CSI Datamover solves this problem by relocating the snapshots from the cluster to a targeted backupStorageLocation, typically an object storage. This relocation provides an additional layer of safety.
+OADP CSI Data Mover solves this problem by relocating the snapshots from the cluster to a targeted backupStorageLocation, typically an object storage. This relocation provides an additional layer of safety.
 
 === Prerequisites
-Let's check the required components to perform the backup and restore using OADP CSI Datamover
+Let's check the required components to perform the backup and restore using OADP CSI Data Mover
 
 VolSync is a Kubernetes operator that facilitates asynchronous replication of persistent volumes within clusters or across multiple clusters. The replication offered by VolSync is storage-system-independent, enabling replication to and from storage types that typically do not support remote replication. In our case, we will be utilizing Volsync's restic datamover.
 
@@ -25,7 +25,7 @@ Volsync is pre-deployed on your OCP 4 cluster within the openshift-operators nam
 oc get deployments -n openshift-operators
 ----
 
-VolumeSnapshotMover(VSM) controller is the CSI data mover orchestrator.  It is deployed through the OADP Operator once the datamover feature is enabled.
+VolumeSnapshotMover(VSM) controller is the CSI Data Mover orchestrator.  It is deployed through the OADP Operator once the datamover feature is enabled.
 
 Let's update DataProtectionApplication to enable the datamover feature flag to true.
 [source,bash,role=execute]
@@ -86,9 +86,9 @@ For a step by step understanding please reference our https://github.com/openshi
 
 The CSI plugin is extended to facilitate the data movement of CSI VolumeSnapshots(VS) from the cluster to object storage. When Velero backup is triggered, a snapshot of the application volume is created, followed by the associated VolumeSnapshotContent(VSC). This leads to the creation of a VolumeSnapshotBackup(VSB), which triggers the dataMover process as the VolumeSnapshotMover(VSM) controller begins reconciliation on these VSB instances.
 
-During the dataMover process, the VolumeSnapshotMover first validates the VSB and then clone the VSC, followed by VS and PVC to the protected namespace (default: openshift-adp). The VSM controller uses the cloned PVC as the dataSource and creates a VolSync ReplicationSource CR. VolSync then performs reconciliation on the ReplicationSource CR.
+During the Data Mover process, the VolumeSnapshotMover first validates the VSB and then clone the VSC, followed by VS and PVC to the protected namespace (default: openshift-adp). The VSM controller uses the cloned PVC as the dataSource and creates a VolSync ReplicationSource CR. VolSync then performs reconciliation on the ReplicationSource CR.
 
-Subsequently, VolSync initiates the transfer of data from the cluster to the target Remote Storage. In this live demonstration, you will monitor the creation of both VolumeSnapshotBackup and VolumeSnapshotContent. Once the backup is completed, the VSB and VSC are transferred to S3 for the restore process. Finally, the VSM controller deletes all the extraneous resources that were created during the data mover backup process.
+Subsequently, VolSync initiates the transfer of data from the cluster to the target Remote Storage. In this live demonstration, you will monitor the creation of both VolumeSnapshotBackup and VolumeSnapshotContent. Once the backup is completed, the VSB and VSC are transferred to S3 for the restore process. Finally, the VSM controller deletes all the extraneous resources that were created during the Data Mover backup process.
 
 Before we trigger the backup process, let's run the script in the lower terminal to monitor fast-moving components. 
 [source,bash,role=execute-2]
