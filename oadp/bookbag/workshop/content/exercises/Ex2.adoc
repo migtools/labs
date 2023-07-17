@@ -8,6 +8,11 @@
 
 == Backing up single namespace - CSI Volume Snapshotting
 
+Velero offers several options for backing up persistent volumes. Initially, the available capabilities were to use https://github.com/restic/restic[restic] or utilize the native volume snapshot feature provided by cloud providers. However, Velero has expanded its capabilities and now supports the Container Storage Interface (CSI) for backing up persistent volumes.
+CSI is an interface introduced to Kubernetes to facilitate compatibility with various storage solutions. You can leverage the CSI interface with any cloud provider that has implemented it.
+
+As CSI is the preferred interface in Kubernetes, this lab has been designed to use CSI for storage.
+
 We will be protecting a Todo List web-based application front-end that is backed by MariaDB Server. This application has already been deployed on your OCP 4 cluster in the `mysql-persistent` namespace. In the terminal of our source OCP 4 cluster, we can observe the application running.
 [source,bash,role=execute]
 ----
@@ -45,46 +50,7 @@ You can see the application is functioning and activity is being saved in the DB
 
 image:../screenshots/lab5/mysql-todolist-added.png[Mysql todolist Added]
 
-=== Using Velero to backup application namespace
-
-Let's proceed with creating a backup of the `mysql-persistent` namespace.
-[source,bash,role=execute-2]
-----
-velero backup create mysql-backup --include-namespaces mysql-persistent
-----
-
-You can monitor the progress of the backup by executing the following command.
-[source,bash,role=execute]
-----
-velero backup describe mysql-backup
-----
-
-When the backup `Phase:` is `Completed`, proceed to the next section.
-[source,bash,role=execute]
-----
-velero backup describe mysql-backup | grep Phase:
-----
-
-=== Viewing backup content in S3 storage
-Backup content is stored in S3 storage in the specified content in the prefix location under folder backup inside the backup name's folder.
-
-`<bucket>/<velero-prefix>/backups/<backup-name>/<backup-content>`
-
-Note: awsocs is an alias of `awsocs='aws --endpoint-url http://s3.openshift-storage.svc'`
-[source,bash,role=execute]
-----
-awsocs s3 ls migstorage/velero/backups/mysql-backup/
-----
-
-Content on these files are explained in https://velero.io/docs/v1.7/output-file-format/[Velero Docs].
-
-=== Backing up persistent volumes
-Velero have several options to backup persistent volumes. The original capabilities from the start are to use https://github.com/restic/restic[restic] or a cloud provider's native volume snapshot capability. Velero have since added Container Storage Interface (CSI) support to backup persistent volumes.
-CSI is an interface for storage introduced to Kubernetes to support many storage solutions. You can use CSI interface with any cloud provider who has implemented it.
-
-As CSI is the preferred interface in Kubernetes, this lab has been designed to use CSI for storage.
-
-=== About Velero CSI Snapshot with OpenShift Data Foundation
+=== About Velero CSI Snapshot and Prerequisites
 In order to use CSI with velero, feature flag `EnableCSI` and plugin `csi` is required. It is specified in our DataProtectionApplication Custom Resource.
 
 You can look at the velero configuration by running the following command:
@@ -118,30 +84,62 @@ We have added `velero.io/csi-volumesnapshot-class: 'true'` label to a VolumeSnap
 oc get VolumeSnapshotClass oadp-example-snapclass -ojsonpath='{.metadata.labels}' && echo
 ----
 
-Since the persistent volume specified in backup is using a CSI driver with the label, a volume snapshot was taken.
+Since the persistent volume specified in the backup is using a CSI driver with the given label, a VolumeSnapshot will be taken.
 
-NOTE: volumeSnapshot is immidiatly deleted after backup marks complete. 
+NOTE: The CSI snapshot is ephemeral, so VolumeSnapshot is immidiatly deleted after backup marks complete. 
 
-View VolumeSnapshot taken till the backup is `InProgress` stage
+You can view VolumeSnapshot till the backup is `InProgress` stage. So, let's monitor the VolumeSnapshot in the application namespace before starting the backup. 
+[source,bash,role=execute-2]
+----
+ watch oc get volumesnapshot -n mysql-persistent 
+----
+
+=== Backup application namespace using Velero CLI
+
+Let's proceed with creating a backup of the `mysql-persistent` namespace.
 [source,bash,role=execute]
 ----
- oc get volumesnapshot -n mysql-persistent 
+velero backup create mysql-backup --include-namespaces mysql-persistent
 ----
 
-View VolumeSnapshotContent created.
+You can monitor the progress of the backup by executing the following command.
+[source,bash,role=execute]
+----
+velero backup describe mysql-backup
+----
+
+When the backup `Phase:` is `Completed`, proceed to the next section.
+[source,bash,role=execute]
+----
+velero backup describe mysql-backup | grep Phase:
+----
+
+=== Viewing backup content in S3 storage
+Backup content is stored in S3 storage in the specified content in the prefix location under folder backup inside the backup name's folder.
+
+`<bucket>/<velero-prefix>/backups/<backup-name>/<backup-content>`
+
+Note: awsocs is an alias of `awsocs='aws --endpoint-url http://s3.openshift-storage.svc'`
+[source,bash,role=execute]
+----
+awsocs s3 ls migstorage/velero/backups/mysql-backup/
+----
+
+Content on these files are explained in https://velero.io/docs/v1.7/output-file-format/[Velero Docs].
+
+View VolumeSnapshotContent created that represents the VolumeSnapshot.
 [source,bash,role=execute]
 ----
 oc get volumesnapshotcontent
 ----
 
-CSI Snapshot is local to the cluster. However, a DataMover capability in exercise III will allow snapshot moving to an external location.
+CSI Snapshot is local to the cluster. However, a DataMover capability in exercise 7.0 will allow snapshot moving to an external location.
 
- Volumesnapshots created by the plugin will be retained only for the lifetime of the backup even if the DeletionPolicy on the volumesnapshotclass is set to Retain. To accomplish this, during deletion of the backup the prior to deleting the volumesnapshot, volumesnapshotcontent object will be patched to set its DeletionPolicy to Delete. Thus deleting volumesnapshot object will result in cascade delete of the volumesnapshotcontent and the snapshot in the storage provider.
+ The Volumesnapshots created by the plugin will be retained only for the duration of the backup's lifetime, regardless of whether the DeletionPolicy on the volumeSnapshotclass is set to Retain. To achieve this, prior to deleting the VolumeSnapshot during the backup deletion process, the volumeSnapshotcontent object will be patched to set its DeletionPolicy to Delete. As a result, deleting the volumeSnapshot object will trigger a cascade delete of the volumeSnapshotcontent and the corresponding snapshot in the storage provider.
 
 For more information about how CSI plugin works, see https://velero.io/docs/v1.7/csi/#how-it-works---overview[Velero Docs].
 
-We have set DeletionPolicy of Retain on the VolumeSnapshotClass to preserve the volume snapshot in the storage system for the lifetime of the Velero backup and prevent the deletion of the volume snapshot, in the storage system, in the event of a disaster where the namespace with the VolumeSnapshot object may be lost. We will attempt to create this disaster scenario in the next section.
-
+We have set the DeletionPolicy to Retain on the VolumeSnapshotClass to preserve the VolumeSnapshot in the storage system throughout the lifetime of the Velero backup. This setting prevents the deletion of the VolumeSnapshot from the storage system, even in the event of a disaster where the namespace with the VolumeSnapshot object may be lost. In the next section, we will attempt to create this disaster scenario.
 
 === Simulate a disaster
 When the backup `Phase:` is `Completed`, we'll proceed to simulate a disaster by deleting the namespace.
