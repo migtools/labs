@@ -143,7 +143,7 @@ When the backup `Phase:` is `Completed`, proceed to next section.
 === Simulate a disaster
 [source,bash,role=execute]
 ----
-oc delete ns minimal-3csivol
+oc delete ns minimal-3csivol && oc delete vsc --all
 ----
 When application is no longer available, proceed to next section.
 
