@@ -1,15 +1,15 @@
 pushd .
 
 if oc whoami > /dev/null 2>&1; then
-  echo "You are logged in to the OpenShift cluster."
+    echo "You are logged in to the OpenShift cluster."
 else
-  echo "You are not logged in to the OpenShift cluster."
-  echo "Please log in to the OpenShift cluster and re-run this script."
-  exit 1
+    echo "You are not logged in to the OpenShift cluster."
+    echo "Please log in to the OpenShift cluster and re-run this script."
+    exit 1
 fi
 ANSIBLE_USER=$(whoami)
 
-# if theses are not set, you won't be prompted again
+# if these are not set, you won't be prompted again
 if [[ -n $CLUSTER_ADMIN_USER ]]; then
     echo ""
 else
@@ -36,7 +36,7 @@ else
 fi
 echo "CLUSTER_ADMIN_USER is set to $CLUSTER_ADMIN_USER"
 
-if [[ -n $STUDENT_PASSWORD ]]; then 
+if [[ -n $STUDENT_PASSWORD ]]; then
     echo "STUDENT_PASSWORD is set to $STUDENT_PASSWORD"
 else
     echo "What is cluster admin password? example: XXXXX-XXXXX-XXXXX-XXXXX"

@@ -10,7 +10,7 @@
 
 We backed up a single namespace using the --include-namespaces flag from the Velero CLI. This flag actually accepts a stringArray, allowing us to backup multiple namespaces by separating them with a comma.
 
-In the previous exercises, we restored two namespaces: nginx-example and mysql-persistent. Now, let's use those apps to perform a backup of multiple namespaces. 
+In the previous exercises, we restored two namespaces: nginx-example and mysql-persistent. Now, let's use those apps to perform a backup of multiple namespaces.
 In our source OCP 4 cluster terminal, we can see the apps running.
 
 [source,bash,role=execute]
@@ -90,7 +90,7 @@ View persistent volume claim in the namespace `mysql-persistent`.
 oc get pvc -n mysql-persistent
 ----
 
-NOTE: volumeSnapshot is immidiatly deleted after backup marks complete. 
+NOTE: volumeSnapshot is immediately deleted after backup marks complete.
 
 View VolumeSnapshot taken till the backup is `InProgress` stage.
 [source,bash,role=execute]
@@ -163,5 +163,5 @@ NOTE: You can also use links here to open application routes http://my-nginx-ngi
 Before we move to the next exercise, let's clean the cluster by removing the resources created during the backup and restore process.
 [source,bash,role=execute]
 ----
-velero delete backup --all && oc delete vsc --all 
+velero delete backup --all && oc delete vsc --all
 ----

@@ -39,7 +39,7 @@ See available commands:
 velero help
 ----
 
-You can also configure velero via kubernetes object json/yaml files using `oc` or `kubectl`. Click below for Velero API types references.
+You can also configure velero via Kubernetes object json/yaml files using `oc` or `kubectl`. Click below for Velero API types references.
 
 - https://velero.io/docs/v1.11/api-types/backup/[Backup]
 - https://velero.io/docs/v1.11/api-types/restore/[Restore]
@@ -74,16 +74,16 @@ spec:
       - azure
       - gcp
       - aws
-      - openshift    
+      - openshift
 ```
 The above specification will install Velero with four of the default plugins.
-   
+
 - `customVeleroPlugins`:
-For installation of custom Velero plugins, you need to specify the plugin 
-`image` and plugin `name` in the `oadp_v1alpha1_dpa_cr.yaml` file during 
+For installation of custom Velero plugins, you need to specify the plugin
+`image` and plugin `name` in the `oadp_v1alpha1_dpa_cr.yaml` file during
 deployment.
 
-For instance, 
+For instance,
 ```
 apiVersion: oadp.openshift.io/v1alpha1
 kind: DataProtectionApplication
@@ -94,12 +94,12 @@ spec:
     velero:
       defaultPlugins:
       - azure
-      - openshift    
+      - openshift
       customPlugins:
       - name: custom-plugin-example
-        image: quay.io/example-repo/custom-velero-plugin   
+        image: quay.io/example-repo/custom-velero-plugin
 ```
-The above specification will install Velero with three plugins: 
+The above specification will install Velero with three plugins:
 `azure`, `openshift`, and `custom-plugin-example`.
 
 === Provided APIs
@@ -205,7 +205,7 @@ feature flag
 |===
 https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#VeleroConfig[Complete schema definitions for the type `VeleroConfig`.]
 
-==== CustomPlugin 
+==== CustomPlugin
 
 [width="100%",cols="19%,11%,70%",options="header",]
 |===
@@ -267,7 +267,7 @@ https://pkg.go.dev/github.com/openshift/oadp-operator/api/v1alpha1#Features[Comp
 |Property |Type |Description
 |enable |*bool |If set to `true`, deploys the volume snapshot mover controller and a modified CSI Data Mover plugin. If set to `false`, these are not deployed.
 |credentialName |string |User-supplied Restic `Secret` name for Data Mover.
-|timeout |string |A user-supplied duration string for `VolumeSnapshotBackup` and `VolumeSnapshotRestore` to complete. Default is 10m (10 minutes). 
+|timeout |string |A user-supplied duration string for `VolumeSnapshotBackup` and `VolumeSnapshotRestore` to complete. Default is 10m (10 minutes).
 |===
 
 See also
@@ -284,7 +284,7 @@ DataProtectionApplication is a custom resource that is used to define the desire
 Look at OADP DataProtectionApplication Custom Resource Custom Resource configuration we have setup for you
 [source,bash,role=execute]
 ----
-oc get dpa -n openshift-adp -oyaml
+oc get dpa -n openshift-adp -o yaml
 ----
 
 Note that the enabled supported plugins specified under `spec.configuration.velero.defaultPlugins` are

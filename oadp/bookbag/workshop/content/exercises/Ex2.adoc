@@ -164,7 +164,7 @@ velero restore create mysql-restore --from-backup mysql-backup
 We can check when the restore is completed by running the following. The restore is complete when `Phase:` is `Completed`.
 [source,bash,role=execute]
 ----
-velero restore describe mysql-restore && velero restore describe mysql-restore | grep Phase: 
+velero restore describe mysql-restore && velero restore describe mysql-restore | grep Phase:
 ----
 
 Wait until pods become available.
