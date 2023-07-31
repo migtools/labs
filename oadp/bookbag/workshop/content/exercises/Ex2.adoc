@@ -96,10 +96,35 @@ You can view VolumeSnapshot till the backup is `InProgress` stage. So, let's mon
 
 === Backup application namespace using Velero CLI
 
-Let's proceed with creating a backup of the `mysql-persistent` namespace.
+In the previous example, we used the Velero CLI, which does not support advanced settings. Therefore, let's create a backup of the `mysql-persistent` namespace via an instance of the backup CRD.
+[source,yaml]
+----
+apiVersion: velero.io/v1
+kind: Backup
+metadata:
+  name: mysql-backup
+  namespace: openshift-adp
+spec:
+  includedNamespaces:
+  - mysql-persistent
+  ttl: 720h0m0s
+----
+
+Let's copy the above code block to mysql-backup.yaml and create a backup.
 [source,bash,role=execute]
 ----
-velero backup create mysql-backup --include-namespaces mysql-persistent
+cat << EOF > mysql-backup.yaml
+apiVersion: velero.io/v1
+kind: Backup
+metadata:
+  name: mysql-backup
+  namespace: openshift-adp
+spec:
+  includedNamespaces:
+  - mysql-persistent
+  ttl: 720h0m0s
+EOF
+oc apply -f mysql-backup.yaml
 ----
 
 You can monitor the progress of the backup by executing the following command.
@@ -158,7 +183,17 @@ When application is no longer available, proceed to next section.
 We can restore applications deleted earlier by restoring from the backup we created.
 [source,bash,role=execute]
 ----
-velero restore create mysql-restore --from-backup mysql-backup
+cat << EOF > mysql-restore.yaml
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: mysql-restore
+  namespace: openshift-adp
+spec:
+  backupName: mysql-backup
+  restorePVs: true
+EOF
+oc apply -f mysql-restore.yaml
 ----
 
 We can check when the restore is completed by running the following. The restore is complete when `Phase:` is `Completed`.
