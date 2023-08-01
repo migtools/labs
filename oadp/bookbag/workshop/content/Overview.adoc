@@ -24,8 +24,8 @@ image:slides/OADP Architecture/4.jpg[]
 ** Cluster admin is used to add custom resource definitions for OADP and Velero resources.
 
 === Working with Velero
-You can use velero CLI to perform most of the operations. They can be downloaded from https://github.com/vmware-tanzu/velero/releases/[Velero github page].
-The velero CLI we have setup for you is an alias to a binary within the velero deployment on the cluster.
+You can use Velero CLI to perform most of the operations. They can be downloaded from https://github.com/vmware-tanzu/velero/releases/[Velero github page].
+The Velero CLI we have setup for you is an alias to a binary within the Velero deployment on the cluster.
 
 Inspect the alias:
 [source,bash,role=execute]
@@ -39,7 +39,7 @@ See available commands:
 velero help
 ----
 
-You can also configure velero via Kubernetes object json/yaml files using `oc` or `kubectl`. Click below for Velero API types references.
+You can also configure Velero via Kubernetes object json/yaml files using `oc` or `kubectl`. Click below for Velero API types references.
 
 - https://velero.io/docs/v1.11/api-types/backup/[Backup]
 - https://velero.io/docs/v1.11/api-types/restore/[Restore]
@@ -50,7 +50,7 @@ You can also configure velero via Kubernetes object json/yaml files using `oc` o
 === Velero Plugins
 Velero supports the use of plugins to integrate with different storage systems, snapshot providers, and supporting backup and restore of additional types of resources.
 
-For server installation, velero will require at least one object store plugin. Exception to this is if you will not be configuring a backup storage location.
+For server installation, Velero will require at least one object store plugin. Exception to this is if you will not be configuring a backup storage location.
 
 There are mainly two categories of Velero plugins that can be specified while Velero:
 
@@ -281,7 +281,7 @@ _Screenshot of OADP Operator in OperatorHub_
 
 DataProtectionApplication is a custom resource that is used to define the desired configuration which OADP Operator uses to deploy Velero, Restic and other components.
 
-Look at OADP DataProtectionApplication Custom Resource Custom Resource configuration we have setup for you
+Look at OADP DataProtectionApplication Custom Resource configuration we have setup for you
 [source,bash,role=execute]
 ----
 oc get dpa -n openshift-adp -o yaml
