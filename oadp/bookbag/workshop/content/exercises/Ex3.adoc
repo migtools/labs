@@ -101,7 +101,6 @@ oc get volumesnapshot -n mysql-persistent --sort-by=.metadata.creationTimestamp 
 View VolumeSnapshotContent created.
 [source,bash,role=execute]
 ----
-MYSQL_VS_CONTENT_NAME=$(oc get $NEWEST_VS_MYSQL -n mysql-persistent -o go-template='{{.status.boundVolumeSnapshotContentName}}')
 oc get volumesnapshotcontent --sort-by=.metadata.creationTimestamp -o name | tail -n 1
 ----
 
