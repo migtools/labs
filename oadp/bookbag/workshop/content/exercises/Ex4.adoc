@@ -82,7 +82,7 @@ volume3   Bound    pvc-c6d2a43a-b6f2-4cf0-9cbb-20aee29e19e3   1Gi        RWO    
 
 === Backup three volumes using VolumeSnapshotMover
 
-For a step by step understanding please reference our https://cloud.redhat.com/blog/an-overview-of-data-mover[public blog]. For this demonstration we will summarize the backup workflow.
+For a step by step understanding please reference our https://cloud.redhat.com/blog/an-overview-of-data-mover[blog]. For this demonstration we will summarize the backup workflow.
 
 The CSI plugin is extended to facilitate the data movement of CSI VolumeSnapshots(VS) from the cluster to object storage. When Velero backup is triggered, a snapshot of the application volume is created, followed by the associated VolumeSnapshotContent(VSC). This leads to the creation of a VolumeSnapshotBackup(VSB), which triggers the dataMover process as the VolumeSnapshotMover(VSM) controller begins reconciliation on these VSB instances.
 
