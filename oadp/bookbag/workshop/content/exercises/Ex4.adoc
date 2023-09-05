@@ -148,7 +148,7 @@ oc delete ns minimal-3csivol && oc delete vsc --all
 When application is no longer available, proceed to next section.
 
 === Restore deleted application
-For a step by step understanding please reference our https://cloud.redhat.com/blog/an-overview-of-data-mover[public blog]. For this demonstration we will summarize the restore workflow.
+For a step by step understanding please reference our https://cloud.redhat.com/blog/an-overview-of-data-mover[blog]. For this demonstration we will summarize the restore workflow.
 
 Previously mentioned, during the backup process, a VSB custom resource is stored as a backup object that contains essential details for performing a volumeSnapshotMover restore.
 When a VSB CR is encountered, the VSM plugin generates a VSR CR. The VSM controller then begins to reconcile on the VSR CR. Furthermore, the VSM controller creates a VolSync ReplicationDestination CR in the OADP Operator namespace, which facilitates the recovery of the VolumeSnapshot stored in the object storage location during the backup.
