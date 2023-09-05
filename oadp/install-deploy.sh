@@ -1,15 +1,15 @@
 pushd .
 
 if oc whoami > /dev/null 2>&1; then
-  echo "You are logged in to the OpenShift cluster."
+    echo "You are logged in to the OpenShift cluster."
 else
-  echo "You are not logged in to the OpenShift cluster."
-  echo "Please log in to the OpenShift cluster and re-run this script."
-  exit 1
+    echo "You are not logged in to the OpenShift cluster."
+    echo "Please log in to the OpenShift cluster and re-run this script."
+    exit 1
 fi
 ANSIBLE_USER=$(whoami)
 
-# if theses are not set, you won't be prompted again
+# if these are not set, you won't be prompted again
 if [[ -n $CLUSTER_ADMIN_USER ]]; then
     echo ""
 else
@@ -36,7 +36,7 @@ else
 fi
 echo "CLUSTER_ADMIN_USER is set to $CLUSTER_ADMIN_USER"
 
-if [[ -n $STUDENT_PASSWORD ]]; then 
+if [[ -n $STUDENT_PASSWORD ]]; then
     echo "STUDENT_PASSWORD is set to $STUDENT_PASSWORD"
 else
     echo "What is cluster admin password? example: XXXXX-XXXXX-XXXXX-XXXXX"
@@ -52,7 +52,7 @@ cd $RAND_TMP_DIR
 python3 -m pip install pipenv
 python3 -m pipenv --three
 python3 -m pipenv install pip openshift ansible jmespath
-git clone https://github.com/konveyor/agnosticd --single-branch --branch konveyor-dev
+git clone https://github.com/redhat-cop/agnosticd.git --single-branch --branch development
 cd $RAND_TMP_DIR/agnosticd
 
 
@@ -90,6 +90,8 @@ python3 -m pipenv run ansible-playbook ./ansible/configs/ocp-workloads/ocp-workl
 -e"student_password=${STUDENT_PASSWORD}" \
 -e"ocs_migstorage=true" \
 -e"ocs_mcg_pv_pool_bucket_name=${ocs_mcg_pv_pool_bucket_name}" \
+-e"bookbag_repo=https://github.com/hhpatel/labs.git" \
+-e"oadp_operator_subscription_release=v1.1.3" \
 -e"ACTION=create"
 python3 -m pipenv --rm
 rm -rf $RAND_TMP_DIR

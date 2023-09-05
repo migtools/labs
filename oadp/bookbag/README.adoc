@@ -127,8 +127,8 @@ bookbag  bookbag-user-_username_-redhat-com.apps.cluster-rhsummit-dev.rhsummit-d
 If you want to change the number of terminal windows, change the `TERMINAL_TAB` environment variable in the
 `envvars/gateway.sh` container to the following:
 +
-* `split` split for two vertitically stacked terminals
-* `split/2` split twice for three vertitically stacked terminals
+* `split` split for two vertically stacked terminals
+* `split/2` split twice for three vertically stacked terminals
 
 . If your lab content includes slides then simply add your slides HTML into the directory `workshop/slides/`.
 
@@ -143,7 +143,7 @@ When editing your instructions for Bookbag some Asciidoc elements might be helpf
 * You can use environment variables throughout the text to provide users with lab-specific information such as
 GUID, user credentials, URLs, etc.
 * You can use font formatting such as *bold*, _italic_, etc. in command line and code examples.
-For example you can use bold font for commands that the user should input on the keyboard, 
+For example you can use bold font for commands that the user should input on the keyboard,
 italic for parameters that should be replaced, etc.
 You can make certain parts of the output bold to attract attention to the changes.
 
@@ -151,7 +151,7 @@ You can make certain parts of the output bold to attract attention to the change
 
 Bookbag pods will be deployed and configured so that information set by `agnosticd_user_info` when provisioning the lab is accessible within the content as macros.
 In production your bookbag pods will be deployed for you with these settings.
-During content development you will likely want to pass thes yourself.
+During content development you will likely want to pass these yourself.
 
 All lab environments have a variable, `guid` set.
 Single-user lab environments also have `user_info_messages` set, containing any messages passed with `agnosticd_user_info`, concatenated into a string with line breaks.
@@ -163,6 +163,7 @@ you can pass the actual GUID to the Bookbag container and create a URL that can 
 
 . Create a file called `workshop-vars.js` and define your variables like this for a single-user lab environment:
 +
+[source,json]
 ----
 {
     "guid": "acdc",
@@ -173,6 +174,7 @@ you can pass the actual GUID to the Bookbag container and create a URL that can 
 +
 Or if developing for a multi-user lab environment:
 +
+[source,json]
 ----
 {
     "guid": "acdc",
@@ -181,7 +183,7 @@ Or if developing for a multi-user lab environment:
 }
 ----
 
-. In the beginning of each of your Asciidoc files include these variables and define Asciidoc's attributes 
+. In the beginning of each of your Asciidoc files include these variables and define Asciidoc's attributes
 ("attributes" is the Asciidoc's word for variables). Here is the example:
 ----
 :USER_GUID: %guid%
@@ -255,6 +257,7 @@ We will use this variable to direct students to your openshift-homeroom workshop
 
 For example, if your AgnosticD configuration provisions a single lab environment to be used for a single student then you can set `openshift_homeroom_url` with:
 
+[source,yaml]
 ----
   - name: Print User Information for each User
     agnosticd_user_info:
@@ -262,8 +265,9 @@ For example, if your AgnosticD configuration provisions a single lab environment
         openshift_homeroom_url: https://{{ openshift_homeroom_route_hostname }}/
 ----
 
-If your AgnosticD configration deploys infrastructure for several students then set `openshift_homeroom_url` for each user:
+If your AgnosticD configuration deploys infrastructure for several students then set `openshift_homeroom_url` for each user:
 
+[source,yaml]
 ----
   - name: Print User Information for each User
     agnosticd_user_info:

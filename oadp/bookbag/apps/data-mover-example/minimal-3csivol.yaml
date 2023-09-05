@@ -114,7 +114,6 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: gp2-csi
   resources:
     requests:
       storage: 1Gi
@@ -127,7 +126,6 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: gp2-csi
   resources:
     requests:
       storage: 1Gi
@@ -140,7 +138,6 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  storageClassName: gp2-csi
   resources:
     requests:
       storage: 1Gi
